@@ -1,7 +1,9 @@
 import { Router } from 'express';
-import { getApplicationStatus } from '../controllers/UserController';
-import jwtValidation from '../middlewares/AuthMiddleware';
+import { getApplicationStatus, postOnboarding } from '../controllers/ApplicationController.js';
+import jwtValidation from '../middlewares/AuthMiddleware.js';
 
 const onboardingRouter = Router();
-onboardingRouter.get('/status', jwtValidation, getApplicationStatus);
+onboardingRouter.get('/status', getApplicationStatus);
 onboardingRouter.post('/', postOnboarding);
+
+export { onboardingRouter };
