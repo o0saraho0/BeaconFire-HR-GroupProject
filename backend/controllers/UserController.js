@@ -69,7 +69,7 @@ export const createUser = async (req, res) => {
 export const logoutUser = async (req, res) => {
     try {
 
-        const user_id = req.user_id; // TODO: we should also blacklist/invalidate the JWT from this userId in the memory layer database(redis)
+        const user_id = req.body.user_id; // TODO: we should also blacklist/invalidate the JWT from this userId in the memory layer database(redis)
         return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
         console.error(error);
@@ -79,7 +79,7 @@ export const logoutUser = async (req, res) => {
 
 export const getUserDetail = async (req, res) => {
     try {
-        const user_id = req.user_id
+        const user_id = req.body.user_id
         // 1. query to see if there exist a document in HRProfile Collection
 
         const hr = await HRProfile.findOne({ user_id })
