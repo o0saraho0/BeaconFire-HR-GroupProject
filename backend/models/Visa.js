@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const visa_schema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "user",
     required: true,
   },
   is_opt: { type: Boolean, required: true },
