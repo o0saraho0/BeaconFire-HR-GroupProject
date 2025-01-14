@@ -8,6 +8,7 @@ import HRProfile from "./models/HRProfile.js";
 import Registration from "./models/Registration.js";
 import User from "./models/User.js";
 import Visa from "./models/Visa.js";
+import * as argon2 from "argon2";
 
 dotenv.config();
 
@@ -37,36 +38,36 @@ const seed_database = async () => {
     await Application.deleteMany({});
     await Visa.deleteMany({});
     await User.deleteMany({});
-
+    const hashedPassword = await argon2.hash("password1");
     // Create Users
     const users = await User.insertMany([
       {
         username: "employee1",
         email: "employee1@example.com",
-        password: "password1",
+        password: hashedPassword,
       },
       {
         username: "employee2",
         email: "employee2@example.com",
-        password: "password2",
+        password: hashedPassword,
       },
       {
         username: "employee3",
         email: "employee3@example.com",
-        password: "password3",
+        password: hashedPassword,
       },
       {
         username: "employee4",
         email: "employee4@example.com",
-        password: "password4",
+        password: hashedPassword,
       },
       {
         username: "employee5",
         email: "employee5@example.com",
-        password: "password5",
+        password: hashedPassword,
       },
-      { username: "hr1", email: "hr1@example.com", password: "password6" },
-      { username: "hr2", email: "hr2@example.com", password: "password7" },
+      { username: "hr1", email: "hr1@example.com", password: hashedPassword },
+      { username: "hr2", email: "hr2@example.com", password: hashedPassword },
     ]);
     console.log("Users created:", users);
 

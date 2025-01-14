@@ -1,0 +1,38 @@
+<div class="employee-profiles-container">
+  <mat-form-field appearance="fill" floatLabel="always" class="search-bar">
+    <mat-label>Search employees</mat-label>
+    <input matInput type="text" placeholder="Search employees" />
+  </mat-form-field>
+
+  <table mat-table [dataSource]="employees" class="mat-elevation-z8">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let employee">
+        {{ employee.first_name }} {{ employee.last_name }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="ssn">
+      <th mat-header-cell *matHeaderCellDef>SSN</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.ssn }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="visa_type">
+      <th mat-header-cell *matHeaderCellDef>Work Authorization</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.visa_type }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cell_phone">
+      <th mat-header-cell *matHeaderCellDef>Phone</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.cell_phone }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.email }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
