@@ -53,7 +53,11 @@ export const jwtValidation = async (req, res, next) => {
         return next();
     }
     catch (err) {
-        console.error(err);
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({
+                message: 'Your session has expired. Please logout and login again.'
+            });
+        }
         return res.status(500).json({ message: err.message });
     }
 };

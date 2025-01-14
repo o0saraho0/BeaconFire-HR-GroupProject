@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const visa_schema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "User",
     required: true,
   },
   is_opt: { type: Boolean, required: true },
@@ -24,4 +24,5 @@ const visa_schema = new mongoose.Schema({
   message: { type: String },
 });
 
-export default mongoose.model("Visa", visa_schema);
+export default mongoose.model("Visa", visa_schema, "visas"); // Explicitly set collection name
+

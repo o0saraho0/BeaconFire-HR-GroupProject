@@ -5,11 +5,13 @@ import { jwtValidation } from '../middlewares/AuthMiddleware.js';
 
 import { loginUsingUsername, createUser, logoutUser, getUserDetail } from '../controllers/UserController.js';
 
-
 const UserRouter = express.Router();
 
 // full path: /api/user/...
-UserRouter.post('/login', loginUsernameValidation, loginUsingUsername) // call this endpoint to login using username
+UserRouter.post('/login', loginUsernameValidation, (req, res, next) => {
+  console.log('Login request received');
+  next();
+}, loginUsingUsername);
 UserRouter.post('/register', createUserValidation, createUser) // create user using username, email, password
 UserRouter.post('/logout', jwtValidation, logoutUser) // auth protected, call this endpoint to logout
 

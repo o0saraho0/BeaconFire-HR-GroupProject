@@ -19,7 +19,6 @@ export const loginUsingUsername = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials, Username Not found" });
         }
 
-
         //                                          db(hashed), raw input(password)
         const isPasswordCorrect = await argon2.verify(user.password, password);
         if (!isPasswordCorrect) return res.status(401).json({ message: "Invalid credentials, Password incorrect" });
@@ -33,7 +32,6 @@ export const loginUsingUsername = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
-
 
 export const createUser = async (req, res) => {
     const { username, email, password } = req.body;
