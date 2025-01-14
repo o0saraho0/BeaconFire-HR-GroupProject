@@ -13,9 +13,6 @@ const router = express.Router();
 // Route to upload a document
 router.post("/upload", singleUpload, uploadVisaDocument);
 
-// Route to get visa details for a user
-router.get("/:user_id", getVisaDetails);
-
 // Route to approve or reject a document (HR action)
 router.post("/review", reviewDocument);
 
@@ -24,5 +21,8 @@ router.get("/in-progress", getInProgressVisas);
 
 // Route to get all visa-status employees (with search functionality)
 router.get("/all", getAllVisaStatusEmployees);
+
+// Route to get visa details for a user
+router.get("/:user_id", getVisaDetails);
 
 export default router;

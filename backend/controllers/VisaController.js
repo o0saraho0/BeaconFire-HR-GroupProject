@@ -1,7 +1,10 @@
 import Visa from "../models/Visa.js";
+import User from "../models/User.js";
 import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js"; // Import the file upload function
 import mongoose from "mongoose";
 
+
+//Document Uploading API
 export const uploadVisaDocument = async (req, res) => {
     const { user_id, documentType } = req.body;
 
