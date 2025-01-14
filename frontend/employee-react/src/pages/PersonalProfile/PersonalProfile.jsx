@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const PersonalProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    middleName: '',
-    preferredName: '',
+    firstName: "John",
+    lastName: "Doe",
+    middleName: "",
+    preferredName: "",
     // Add other fields as needed
   });
 
@@ -24,7 +24,7 @@ const PersonalProfile = () => {
     setIsEditing(false);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
