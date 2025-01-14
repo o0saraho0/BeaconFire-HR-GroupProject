@@ -15,7 +15,7 @@ export const loginUsernameValidation = (req, res, next) => {
         return res.status(400).json({ message: 'Username must be alphanumeric!' });
     }
 
-    next();
+    return next();
 };
 
 export const createUserValidation = (req, res, next) => {
@@ -55,5 +55,5 @@ export const createUserValidation = (req, res, next) => {
         return res.status(400).json({ message: 'Password is too weak!' });
     }
 
-    next();
+    return next();
 };
