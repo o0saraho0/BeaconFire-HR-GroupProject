@@ -5,10 +5,10 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 import HRProfile from "../models/HRProfile.js"
 import EmployeeProfile from "../models/EmployeeProfile.js"
-
+import JWTRevocationList from '../models/JWTRevocationList.js';
 
 // check if it's logged in, for protecting endpoints that requires JWT.
-export const jwtValidation = (req, res, next) => {
+export const jwtValidation = async (req, res, next) => {
 
 
     // get token from header
@@ -21,6 +21,13 @@ export const jwtValidation = (req, res, next) => {
     if (token === 'null' || !token || !token.trim()) {
         return res.status(401).json({
             message: 'No token provided',
+        });
+    }
+
+    const isRevoked = await JWTRevocationList.findOne({ token });
+    if (isRevoked) {
+        return res.status(401).json({
+            message: 'Token has been revoked',
         });
     }
 

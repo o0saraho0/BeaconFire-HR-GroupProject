@@ -1,7 +1,7 @@
 import UserModel from "../models/User.js";
 import HRProfile from "../models/HRProfile.js"
 import EmployeeProfile from "../models/EmployeeProfile.js"
-
+import JWTRevocationList from "../models/JWTRevocationList.js"
 import * as argon2 from "argon2";
 
 import { generateJWTToken } from "../utils/jwt.js";
@@ -69,7 +69,10 @@ export const createUser = async (req, res) => {
 export const logoutUser = async (req, res) => {
     try {
 
-        const user_id = req.body.user_id; // TODO: we should also blacklist/invalidate the JWT from this userId in the memory layer database(redis)
+        const token = req.headers.authorization.split(' ')[1];
+
+        await JWTRevocationList.create({ token }) // remoke/blacklist/invalidate the JWT in our db
+
         return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
         console.error(error);
