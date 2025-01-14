@@ -74,6 +74,37 @@ const Application = () => {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleFileUpload = async (e) => {
+    const formData = new FormData();
+    formData.append('file', e.target.files[0]);
+
+    let endpoint = '';
+    switch (e.target.name) {
+      case 'profilePicture':
+        endpoint = '/api/upload/profile-picture';
+        break;
+      case 'uploadedFiles.driverLicense':
+        endpoint = '/api/upload/driver-license';
+        break;
+      case 'uploadedFiles.workAuthorization':
+        endpoint = '/api/upload/opt-receipt';
+        break;
+      default:
+        return;
+    }
+
+    try {
+      const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('File uploaded successfully:', response.data);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -104,7 +135,7 @@ const Application = () => {
       </div>
       <div>
         <label>Profile Picture:</label>
-        <input type="file" name="profilePicture" onChange={handleInputChange} />
+        <input type="file" name="profilePicture" onChange={handleFileUpload} />
       </div>
       <div>
         <label>Current Address:</label>
@@ -161,7 +192,7 @@ const Application = () => {
       {formData.visaType === 'F1 Category' && (
         <div>
           <label>Upload OPT Receipt:</label>
-          <input type="file" name="uploadedFiles.workAuthorization" onChange={handleInputChange} />
+          <input type="file" name="uploadedFiles.workAuthorization" onChange={handleFileUpload} />
         </div>
       )}
       {formData.visaType === 'Other' && (
@@ -186,7 +217,7 @@ const Application = () => {
           </div>
           <div>
             <label>Upload Driver's License:</label>
-            <input type="file" name="uploadedFiles.driverLicense" onChange={handleInputChange} />
+            <input type="file" name="uploadedFiles.driverLicense" onChange={handleFileUpload} />
           </div>
         </>
       )}
