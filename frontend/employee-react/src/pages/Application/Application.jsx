@@ -260,9 +260,58 @@ const Application = () => {
 
   const renderPendingMessage = () => (
     <div>
-      <p>Please wait for HR to review your application.</p>
+      <p>Please wait for HR to review your application. Below is your submitted application and uploaded documents:</p>
+      <div>
+        <h3>Submitted Application</h3>
+        <div>
+          <p><strong>First Name:</strong> {formData.firstName}</p>
+          <p><strong>Last Name:</strong> {formData.lastName}</p>
+          <p><strong>Middle Name:</strong> {formData.middleName}</p>
+          <p><strong>Preferred Name:</strong> {formData.preferredName}</p>
+          <p><strong>Email:</strong> {formData.email}</p>
+          <p><strong>Cell Phone:</strong> {formData.cellPhone}</p>
+          <p><strong>Work Phone:</strong> {formData.workPhone}</p>
+          <p><strong>Current Address:</strong> {`${formData.currentAddress.building}, ${formData.currentAddress.street}, ${formData.currentAddress.city}, ${formData.currentAddress.state}, ${formData.currentAddress.zip}`}</p>
+          <p><strong>Car Information:</strong> {`${formData.carInfo.make}, ${formData.carInfo.model}, ${formData.carInfo.color}`}</p>
+          <p><strong>SSN:</strong> {formData.ssn}</p>
+          <p><strong>Date of Birth:</strong> {formData.dob}</p>
+          <p><strong>Gender:</strong> {formData.gender}</p>
+          <p><strong>Visa Type:</strong> {formData.visaType}</p>
+          {formData.visaType === 'Other' && <p><strong>Visa Title:</strong> {formData.visaTitle}</p>}
+          {formData.hasDriverLicense && (
+            <>
+              <p><strong>Driver's License Number:</strong> {formData.driverLicense.number}</p>
+              <p><strong>Expiration Date:</strong> {formData.driverLicense.expireDate}</p>
+            </>
+          )}
+        </div>
+      </div>
+      {/* <div>
+        <h3>Uploaded Documents</h3>
+        <ul>
+          {formData.profilePicture && (
+            <li>
+              <a href={`http://localhost:3000/uploads/${formData.profilePicture}`} target="_blank" rel="noopener noreferrer">Profile Picture</a>
+              <a href={`http://localhost:3000/uploads/${formData.profilePicture}`} download>Download</a>
+            </li>
+          )}
+          {formData.uploadedFiles.driverLicense && (
+            <li>
+              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.driverLicense}`} target="_blank" rel="noopener noreferrer">Driver's License</a>
+              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.driverLicense}`} download>Download</a>
+            </li>
+          )}
+          {formData.uploadedFiles.workAuthorization && (
+            <li>
+              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.workAuthorization}`} target="_blank" rel="noopener noreferrer">Work Authorization</a>
+              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.workAuthorization}`} download>Download</a>
+            </li>
+          )}
+        </ul>
+      </div> */}
     </div>
   );
+
 
   const renderRejectedMessage = () => (
     <div>
