@@ -17,7 +17,7 @@ router.post("/upload", singleUpload, uploadVisaDocument);
 router.post("/review", reviewDocument);
 
 // Route to get in-progress visas
-router.get("/in-progress", getInProgressVisas);
+router.get("/in_progress", getInProgressVisas);
 
 // Route to get all visa-status employees (with search functionality)
 router.get("/all", getAllVisaStatusEmployees);

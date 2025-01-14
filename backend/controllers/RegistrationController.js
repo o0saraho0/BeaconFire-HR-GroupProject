@@ -5,14 +5,14 @@ import Registration from "../models/Registration.js";
 /**
  * Generate a registration token and send it to the user's email
  */
-export const generateToken = async (req, res) => {
+export const generateAndSendRegisterToken = async (req, res) => {
     try {
         const { email } = req.body;
 
         // Check if the email already exists
         const existingRecord = await Registration.findOne({ email, status: "Unused" });
         if (existingRecord) {
-        return res.status(400).json({ error: "A valid token already exists for this email." });
+            return res.status(400).json({ error: "A valid token already exists for this email." });
         }
 
         // Generate a unique token
@@ -24,18 +24,18 @@ export const generateToken = async (req, res) => {
 
         // Send token to the user's email
         const transporter = nodemailer.createTransport({
-        service: "Gmail",
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
+            service: "Gmail",
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
         });
 
         const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: "Registration Token",
-        text: `Your registration token is: ${token}. It will expire in 3 hours.`,
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Registration Token",
+            text: `Your registration token is: ${token}. It will expire in 3 hours.`,
         };
 
         await transporter.sendMail(mailOptions);
@@ -44,26 +44,26 @@ export const generateToken = async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-    };
+};
 
-    /**
-     * Validate a registration token
-     */
-export const validateToken = async (req, res) => {
+/**
+ * Validate a registration token
+ */
+export const validateRegisterToken = async (req, res) => {
     try {
         const { token } = req.body;
 
         // Check if the token exists and is unused
         const record = await Registration.findOne({ token, status: "Unused" });
         if (!record) {
-        return res.status(400).json({ error: "Invalid or expired token." });
+            return res.status(400).json({ error: "Invalid or expired token." });
         }
 
         // Check if the token has expired
         if (new Date() > record.expires_at) {
-        record.status = "Expired";
-        await record.save();
-        return res.status(400).json({ error: "Token has expired." });
+            record.status = "Expired";
+            await record.save();
+            return res.status(400).json({ error: "Token has expired." });
         }
 
         // Mark token as used
