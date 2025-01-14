@@ -24,4 +24,5 @@ const visa_schema = new mongoose.Schema({
   message: { type: String },
 });
 
-export default mongoose.model("Visa", visa_schema);
+export default mongoose.model("Visa", visa_schema, "visas"); // Explicitly set collection name
+
