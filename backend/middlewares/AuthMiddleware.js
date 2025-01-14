@@ -5,8 +5,6 @@ import validator from 'validator';
 import jwt from 'jsonwebtoken';
 
 export const jwtValidation = (req, res, next) => {
-
-
   // get token from header
   if (!req.headers.authorization)
     return res.status(401).json({
@@ -19,7 +17,6 @@ export const jwtValidation = (req, res, next) => {
       message: 'No token provided',
     });
   }
-
 
   // decode token
   try {

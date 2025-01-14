@@ -2,7 +2,7 @@ import Application from "../models/Application.js";
 
 const getApplicationStatus = async (req, res) => {
   try {
-    const userId = req.user_id;
+    const userId = req.body.user_id;
     let application = await Application.findOne({ user_id: userId });
 
     if (!application) {
@@ -16,7 +16,7 @@ const getApplicationStatus = async (req, res) => {
 
 const postOnboarding = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.body.user_id;
 
     let application = await Application.findOne({ user_id: userId });
 
