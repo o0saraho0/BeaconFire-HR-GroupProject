@@ -43,7 +43,7 @@ export const jwtValidation = (req, res, next) => {
         req.body.email = decoded.email
 
         // later handelers would have access to JWT content...
-        next();
+        return next();
     }
     catch (err) {
         console.error(err);
@@ -58,7 +58,8 @@ export const authenticatedHR = async (req, res, next) => {
     const hr = await HRProfile.findOne({ user_id })
 
     if (hr) {
-        next()
+        req.body.hr_id = hr._id
+        return next()
 
     }
     return res.status(403).json({ message: "You are not a HR" })
@@ -74,7 +75,8 @@ export const authenticatedEmployee = async (req, res, next) => {
     const employee = await EmployeeProfile.findOne({ user_id })
 
     if (employee) {
-        next()
+        req.body.employee_id = employee._id
+        return next()
     }
     return res.status(403).json({ message: "You are not a Employee" })
 
