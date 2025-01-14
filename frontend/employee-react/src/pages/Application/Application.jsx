@@ -55,7 +55,7 @@ const Application = () => {
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const response = await axios.get(`http://${localHost}/onboarding/status`);
+        const response = await axios.get(`http://${localHost}/api/onboarding/status`);
         console.log('response of status', response)
         // setApplication(response.data);
         setStatus(response.data.status);
