@@ -1,5 +1,5 @@
 <div class="employee-profiles-container">
-  <mat-form-field appearance="fill" class="search-bar">
+  <mat-form-field appearance="fill" floatLabel="always" class="search-bar">
     <mat-label>Search employees</mat-label>
     <input matInput type="text" placeholder="Search employees" />
   </mat-form-field>
@@ -8,9 +8,7 @@
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Name</th>
       <td mat-cell *matCellDef="let employee">
-        <a [routerLink]="['/employee-profiles', employee.id]">
-          {{ employee.first_name }} {{ employee.last_name }}
-        </a>
+        {{ employee.first_name }} {{ employee.last_name }}
       </td>
     </ng-container>
 

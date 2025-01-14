@@ -26,6 +26,7 @@ export class EmployeeProfilesComponent implements OnInit {
       email: 'jane.smith@example.com',
     },
   ];
+  // NEED TO GET EMPLOYEES FROM THE BACKEND, RIGHT NOW IT'S FOR MATERIAL UI DISPLAY PURPOSE FAKE DATA
 
   displayedColumns: string[] = ['name', 'ssn', 'visa_type', 'cell_phone', 'email'];
 
