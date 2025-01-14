@@ -1,6 +1,7 @@
 import UserModel from "../models/User.js";
 import HRProfile from "../models/HRProfile.js"
 import EmployeeProfile from "../models/EmployeeProfile.js"
+import HouseModel from "../models/House.js";
 
 import * as argon2 from "argon2";
 
@@ -53,10 +54,18 @@ export const createUser = async (req, res) => {
         const newUser = await UserModel.create({ username, email, password: hashedPassword });
         const token = generateJWTToken(newUser._id, username, email);
 
+        // `house` would be an array containing the randomly selected house document.
+        const house = await HouseModel.aggregate([{ $sample: { size: 1 } }]);
+        if (!house || house.length === 0) {
+            throw new Error("No houses available for assignment");
+        }
+
+        await HouseModel.findByIdAndUpdate(
+            house[0]._id,
+            { $push: { tenants: newUser._id } }
+        );
+
         await newUser.save();
-
-        // TODO: randomly assign to a house.
-
 
         res.status(201).json({ message: "User created successfully", token, "user_id": newUser._id });
     }
