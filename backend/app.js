@@ -28,4 +28,3 @@ app.all("*", (_req, res) => {
 });
 
 
-export default app;

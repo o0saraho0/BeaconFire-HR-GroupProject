@@ -1,32 +1,56 @@
 import Visa from "../models/Visa.js";
-import { deleteFile } from "../middlewares/AwsS3Middleware.js";
+import User from "../models/User.js";
+import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js"; // Import the file upload function
+import mongoose from "mongoose";
 
-// Upload document
+
+//Document Uploading API
 export const uploadVisaDocument = async (req, res) => {
   const { user_id, documentType } = req.body;
 
+  // Check if file is uploaded
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });
   }
 
   try {
-    const visa = await Visa.findOne({ user_id });
-    if (!visa) return res.status(404).json({ message: "Visa record not found" });
+    // Convert user_id to ObjectId using `new`
+    const objectId = new mongoose.Types.ObjectId(user_id);
 
-    const documentUrl = req.file.location;
+    // Find the visa record by user_id
+    const visa = await Visa.findOne({ user_id: objectId });
 
-    // Update the specific document field dynamically
+    // Fetch and log all visa records for debugging purposes
+    const allVisas = await Visa.find(); // Fetch all records
+    console.log("All Visa Records:", allVisas);
+
+    if (!visa) {
+      return res.status(404).json({ message: "Visa record not found" });
+    }
+
+    // Generate a unique file name
+    const fileName = `${documentType}_${Date.now()}_${req.file.originalname}`;
+
+    // Upload file to S3 and get the file URL
+    const documentUrl = await uploadFileToS3(req.file, fileName);
+
+    // Dynamically update the document field in the visa record
     visa[`${documentType}_url`] = documentUrl;
 
-    // Set the status to "Pending" indicating the document is waiting for HR review
+    // Update visa status to "Pending"
     visa.status = "Pending";
 
     // Save the updated visa record
     await visa.save();
 
-    res.status(200).json({ message: "File uploaded successfully and is now pending HR review", visa });
+    // Respond with success message and updated visa record
+    res.status(200).json({
+      message: "File uploaded successfully and is now pending HR review",
+      visa,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    // Handle errors and send appropriate response
+    res.status(500).json({ message: `Error uploading file: ${error.message}` });
   }
 };
 
