@@ -19,7 +19,7 @@ const routes: Routes = [
     }
   ]},
   { path: 'visa-status', component: VisaStatusManagementComponent },
-  {path: 'hiring', component: HiringManagementComponent},
+  { path: 'hiring', component: HiringManagementComponent },
   { path: 'housing', component: HousingManagementComponent },
 
 ];
