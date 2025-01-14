@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 const registration_schema = new mongoose.Schema({
   email: { type: String, required: true },
   token: { type: String, required: true },
+  registration_link: { type: String, required: true },
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
   status: {
     type: String,
     enum: ["Not Started", "Pending", "Rejected", "Approved"],
