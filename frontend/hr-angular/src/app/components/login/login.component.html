@@ -1,12 +1,53 @@
-<div>
-  <h2>Login</h2>
-  <form>
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" />
+<div class="login-container">
+  <mat-card class="login-card">
+    <h2>Login</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Username</mat-label>
+        <input
+          matInput
+          type="text"
+          id="username"
+          formControlName="username"
+          placeholder="Enter your username"
+        />
+        <mat-error
+          *ngIf="
+            loginForm.get('username')?.invalid &&
+            loginForm.get('username')?.touched
+          "
+        >
+          Username is required
+        </mat-error>
+      </mat-form-field>
 
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" />
+      <mat-form-field appearance="fill" class="full-width">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          type="password"
+          id="password"
+          formControlName="password"
+          placeholder="Enter your password"
+        />
+        <mat-error
+          *ngIf="
+            loginForm.get('password')?.invalid &&
+            loginForm.get('password')?.touched
+          "
+        >
+          Password is required
+        </mat-error>
+      </mat-form-field>
 
-    <button type="submit">Login</button>
-  </form>
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        [disabled]="loginForm.invalid"
+      >
+        Login
+      </button>
+    </form>
+  </mat-card>
 </div>

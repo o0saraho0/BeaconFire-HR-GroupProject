@@ -1,30 +1,40 @@
-<input
-  type="text"
-  placeholder="Search employees"
-/>
+<div class="employee-profiles-container">
+  <mat-form-field appearance="fill" class="search-bar">
+    <mat-label>Search employees</mat-label>
+    <input matInput type="text" placeholder="Search employees" />
+  </mat-form-field>
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>SSN</th>
-      <th>Work Authorization</th>
-      <th>Phone</th>
-      <th>Email</th>
-    </tr>
-  </thead>
-
-  <!-- <tbody>
-    <tr *ngFor="let employee of employees">
-      <td>
-        <a [routerLink]="['/employee-profiles', employee.id]"
-          >{{ employee.first_name }} {{ employee.last_name }}</a
-        >
+  <table mat-table [dataSource]="employees" class="mat-elevation-z8">
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let employee">
+        <a [routerLink]="['/employee-profiles', employee.id]">
+          {{ employee.first_name }} {{ employee.last_name }}
+        </a>
       </td>
-      <td>{{ employee.ssn }}</td>
-      <td>{{ employee.visa_type }}</td>
-      <td>{{ employee.cell_phone }}</td>
-      <td>{{ employee.email }}</td>
-    </tr>
-  </tbody> -->
-</table>
+    </ng-container>
+
+    <ng-container matColumnDef="ssn">
+      <th mat-header-cell *matHeaderCellDef>SSN</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.ssn }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="visa_type">
+      <th mat-header-cell *matHeaderCellDef>Work Authorization</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.visa_type }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cell_phone">
+      <th mat-header-cell *matHeaderCellDef>Phone</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.cell_phone }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let employee">{{ employee.email }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+</div>
