@@ -1,9 +1,10 @@
 import { Router } from 'express';
-import { jwtValidation } from '../middlewares/AuthMiddleware.js';
 import { getEmployeeProfile, updateProfile } from '../controllers/EmployeeProfileController.js';
+import { jwtValidation, authenticatedEmployee } from '../middlewares/AuthMiddleware.js';
 
-const personalInfoRouter = Router();
-personalInfoRouter.get('/', jwtValidation, getEmployeeProfile);
-personalInfoRouter.post('/', jwtValidation, updateProfile);
 
-export { personalInfoRouter };
+const PersonalInfoRouter = Router();
+PersonalInfoRouter.get('/', jwtValidation, authenticatedEmployee, getEmployeeProfile);
+PersonalInfoRouter.post('/', jwtValidation, authenticatedEmployee, updateProfile);
+
+export default PersonalInfoRouter;
