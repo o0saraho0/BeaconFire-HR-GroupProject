@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
+import {
+  fetchEmployeeProfile,
+  updateEmployeeProfile,
+} from "../../store/employeeSlice/employee.slice";
 
 import { Button, TextField, Box, Typography, Paper } from "@mui/material";
 import "./PersonalProfile.css";
@@ -68,7 +71,6 @@ const PersonalProfile = () => {
   }, [userId, dispatch]);
 
   useEffect(() => {
-    console.log("Profile fetched from Redux store:", profile);
     if (profile) {
       setFormData(profile);
     }
@@ -79,22 +81,29 @@ const PersonalProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name.includes(".")) {
       const keys = name.split(".");
       setFormData((prevState) => {
-        const newFormData = { ...prevState };
+        // Create a deep copy of the previous state
+        const newFormData = JSON.parse(JSON.stringify(prevState));
+
+        // Traverse to the nested field
         let nestedField = newFormData;
         for (let i = 0; i < keys.length - 1; i++) {
           nestedField = nestedField[keys[i]];
         }
+
+        // Update the value
         nestedField[keys[keys.length - 1]] = value;
+
         return newFormData;
       });
     } else {
-      setFormData({
-        ...formData,
+      setFormData((prevState) => ({
+        ...prevState,
         [name]: value,
-      });
+      }));
     }
   };
 
@@ -103,7 +112,16 @@ const PersonalProfile = () => {
   };
 
   const handleSaveClick = () => {
-    // logic here to fetchupdate
+    try {
+      dispatch(updateEmployeeProfile(formData));
+      setEditingSection(null);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
+  const handleCancelClick = () => {
+    setFormData(profile);
     setEditingSection(null);
   };
 
@@ -140,19 +158,19 @@ const PersonalProfile = () => {
                   ) : (
                     <Box>
                       <Typography>
-                        <strong>First Name:</strong> {contact.first_name || ""}
+                        <strong>First Name*:</strong> {contact.first_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Last Name:</strong> {contact.last_name || ""}
+                        <strong>Last Name*:</strong> {contact.last_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Phone:</strong> {contact.phone || ""}
+                        <strong>Phone*:</strong> {contact.phone || ""}
                       </Typography>
                       <Typography>
-                        <strong>Email:</strong> {contact.email || ""}
+                        <strong>Email*:</strong> {contact.email || ""}
                       </Typography>
                       <Typography>
-                        <strong>Relationship:</strong>{" "}
+                        <strong>Relationship*:</strong>{" "}
                         {contact.relationship || ""}
                       </Typography>
                     </Box>
@@ -192,13 +210,18 @@ const PersonalProfile = () => {
               ))}
           <Box className="button-box">
             {isEditing ? (
-              <Button
-                variant="contained"
-                onClick={handleSaveClick}
-                sx={{ marginRight: 1 }}
-              >
-                Save
-              </Button>
+              <div>
+                <Button
+                  variant="contained"
+                  onClick={handleSaveClick}
+                  sx={{ marginRight: 1 }}
+                >
+                  Save
+                </Button>
+                <Button variant="contained" onClick={handleCancelClick}>
+                  Cancel
+                </Button>
+              </div>
             ) : (
               <Button
                 variant="outlined"
@@ -246,7 +269,7 @@ const PersonalProfile = () => {
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
       {renderSection("Documents", [
-        { label: "Driver License", name: "driver_licence_url" },
+        { label: "Driver License*", name: "driver_licence_url" },
         { label: "Work Authorization", name: "work_auth_url" },
         { label: "Additional Documents", name: "additional_url" },
       ])}

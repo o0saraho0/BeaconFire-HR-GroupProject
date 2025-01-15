@@ -17,7 +17,6 @@ export const fetchEmployeeProfile = createAsyncThunk(
           },
         }
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -29,8 +28,19 @@ export const fetchEmployeeProfile = createAsyncThunk(
 export const updateEmployeeProfile = createAsyncThunk(
   "employee/updateProfile",
   async (profileData, { rejectWithValue }) => {
+    // const token = localStorage.getItem("token");
+    const token =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTY0NjM0LCJleHAiOjE3MzY5NzkwMzR9.5s_kpNbUgULyziVyA6yyDw6Cmc5ijImZWISSnBJnRcQ";
     try {
-      const response = await axios.post("/api/personalinfo", profileData);
+      const response = await axios.post(
+        "http://localhost:3000/api/personalinfo",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          profileData,
+        }
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
