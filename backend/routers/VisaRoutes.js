@@ -1,10 +1,10 @@
 import express from "express";
 import {
-  uploadVisaDocument,
-  getVisaDetails,
-  reviewDocument,
-  getInProgressVisas,
-  getAllVisaStatusEmployees,
+    uploadVisaDocument,
+    getVisaDetails,
+    reviewDocument,
+    getInProgressVisas,
+    getAllVisaStatusEmployees,
 } from "../controllers/VisaController.js";
 import { singleUpload } from "../middlewares/AwsS3Middleware.js";
 
