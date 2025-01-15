@@ -22,7 +22,7 @@ export const getReportsByHouse = async (req, res) => {
 export const updateReportStatus = async (req, res) => {
     try {
         const report = await FacilityReport.findByIdAndUpdate(
-            req.params.id,
+            req.params.reportId,
             { status: req.body.status },
 
         );
