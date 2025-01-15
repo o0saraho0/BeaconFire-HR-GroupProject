@@ -1,5 +1,5 @@
 import express from "express";
-import { validateToken, registerAndSendEmail } from "../controllers/registrationController.js";
+import { validateToken, registerAndSendEmail } from "../controllers/RegistrationController.js";
 
 const router = express.Router();
 

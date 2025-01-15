@@ -4,7 +4,7 @@ import {
     getVisaDetails,
     reviewDocument,
     getInProgressVisas,
-    getAllVisaStatusEmployees,
+    searchEmployees,
 } from "../controllers/VisaController.js";
 import { singleUpload } from "../middlewares/AwsS3Middleware.js";
 
@@ -20,7 +20,7 @@ router.post("/review", reviewDocument);
 router.get("/in-progress", getInProgressVisas);
 
 // Route to get all visa-status employees (with search functionality)
-router.get("/all", getAllVisaStatusEmployees);
+router.get("/search", searchEmployees);
 
 // Route to get visa details for a user
 router.get("/:user_id", getVisaDetails);

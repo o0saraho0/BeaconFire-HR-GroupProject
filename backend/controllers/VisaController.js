@@ -1,5 +1,6 @@
 import Visa from "../models/Visa.js";
 import User from "../models/User.js";
+import EmployeeProfile from "../models/EmployeeProfile.js";
 import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js"; // Import the file upload function
 import mongoose from "mongoose";
 
@@ -55,8 +56,8 @@ export const uploadVisaDocument = async (req, res) => {
     };
 
 
-    // Get visa details for a user
-    export const getVisaDetails = async (req, res) => {
+// Get visa details for a user
+export const getVisaDetails = async (req, res) => {
     const { user_id } = req.params;
 
     try {
@@ -67,10 +68,10 @@ export const uploadVisaDocument = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-    };
+};
 
-    //Reject or approve from HR
-    export const reviewDocument = async (req, res) => {
+//Reject or approve from HR
+export const reviewDocument = async (req, res) => {
     const { user_id, documentType, action, feedback } = req.body;
 
     try {
@@ -99,51 +100,129 @@ export const uploadVisaDocument = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-    };
+};
 
-    // Function to get in-progress visa applications
-    export const getInProgressVisas = async (req, res) => {
+// Function to get in-progress visa applications
+export const getInProgressVisas = async (req, res) => {
     try {
-        // Find all visa applications where the stage is not "Complete"
-        const visas = await Visa.find({ stage: { $ne: "Complete" } })
-        .populate("user_id", "username email") // Populate user details
-        .exec();
-
-        // Send the raw data directly to the frontend
-        res.status(200).json(visas);
+        // Fetch all visas not marked as "Complete"
+        const incompleteVisas = await Visa.find({ stage: { $ne: "Complete" } });
+        // Process each visa and fetch the corresponding EmployeeProfile
+        const results = await Promise.all(
+            incompleteVisas.map(async (visa) => {
+                // Find the employee profile by user_id
+                const profile = await EmployeeProfile.findOne({ user_id: visa.user_id });
+                if (!profile) {
+                    return null; // Skip if no profile is found
+                }
+                // Calculate remaining visa days
+                const today = new Date();
+                const visaRemainingDays = profile.visa_end_date
+                    ? Math.max(
+                        Math.ceil((new Date(profile.visa_end_date) - today) / (1000 * 60 * 60 * 24)),
+                        0
+                    )
+                    : null;
+                // Combine visa and employee profile data
+                return {
+                    // Visa fields
+                    user_id: visa.user_id,
+                    is_opt: visa.is_opt,
+                    stage: visa.stage,
+                    status: visa.status,
+                    opt_receipt_url: visa.opt_receipt_url,
+                    opt_ead_url: visa.opt_ead_url,
+                    i983_url: visa.i983_url,
+                    i20_url: visa.i20_url,
+                    message: visa.message,
+                    // EmployeeProfile fields
+                    visa_type: profile.visa_type,
+                    visa_start_date: profile.visa_start_date,
+                    visa_end_date: profile.visa_end_date,
+                    visa_remaining_days: visaRemainingDays,
+                    employee_name: `${profile.first_name} ${profile.last_name}`,
+                };
+            })
+        );
+        // Filter out null results
+        const Results = results.filter((result) => result !== null);
+        // Return the results
+        res.status(200).json({ Results });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(500).json({ message: "Server error", error });
     }
 };
 
-
-// Get all visa-status employees
-export const getAllVisaStatusEmployees = async (req, res) => {
-  const { search } = req.query; // Extract search query from request
-
+// Get all visa-status employees based on name serach
+export const searchEmployees = async (req, res) => {
     try {
-        // Build search condition based on firstName, lastName, or preferredName
-        const searchCondition = search
-        ? {
-            $or: [
-            { firstName: { $regex: search, $options: "i" } }, // Case-insensitive search for firstName
-            { lastName: { $regex: search, $options: "i" } },  // Case-insensitive search for lastName
-            { preferredName: { $regex: search, $options: "i" } }, // Case-insensitive search for preferredName
-            ],
+        const { first_name, last_name, preferred_name } = req.query;
+
+        // Build a dynamic search query
+        const searchQuery = {};
+        if (first_name) {
+            searchQuery.first_name = { $regex: first_name, $options: "i" }; // Case-insensitive match
         }
-        : {};
-
-        // Find all visa records matching the search condition
-        const visas = await Visa.find(searchCondition);
-
-        // If no records are found, return a 404
-        if (visas.length === 0) {
-        return res.status(404).json({ message: "No records found" });
+        if (last_name) {
+            searchQuery.last_name = { $regex: last_name, $options: "i" };
+        }
+        if (preferred_name) {
+            searchQuery.preferred_name = { $regex: preferred_name, $options: "i" };
         }
 
-        // Return the raw JSON data
-        res.status(200).json(visas);
+        // Find matching EmployeeProfiles
+        const profiles = await EmployeeProfile.find(searchQuery).lean();
+
+        // Fetch Visa details for each matching employee
+        const results = await Promise.all(
+            profiles.map(async (profile) => {
+                const visa = await Visa.findOne({ user_id: profile.user_id }).lean();
+
+                // If no visa is found, skip this employee
+                if (!visa) return null;
+
+                // Calculate remaining visa days
+                const today = new Date();
+                const visaRemainingDays = profile.visa_end_date
+                        ? Math.max(
+                            Math.ceil((new Date(profile.visa_end_date) - today) / (1000 * 60 * 60 * 24)),
+                            0
+                        )
+                        : null;
+
+                // Combine profile and visa data
+                return {
+                    // Visa fields
+                    user_id: visa.user_id,
+                    is_opt: visa.is_opt,
+                    stage: visa.stage,
+                    status: visa.status,
+                    opt_receipt_url: visa.opt_receipt_url,
+                    opt_ead_url: visa.opt_ead_url,
+                    i983_url: visa.i983_url,
+                    i20_url: visa.i20_url,
+                    message: visa.message,
+
+                    // EmployeeProfile fields
+                    first_name: profile.first_name,
+                    last_name: profile.last_name,
+                    preferred_name: profile.preferred_name,
+                    visa_type: profile.visa_type,
+                    visa_start_date: profile.visa_start_date,
+                    visa_end_date: profile.visa_end_date,
+                    visa_remaining_days: visaRemainingDays,
+                };
+            })
+        );
+
+        // Filter out null results
+        const filteredResults = results.filter((result) => result !== null);
+
+        // Return the list of matching employees
+        res.status(200).json(filteredResults);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error(error);
+        res.status(500).json({ message: "Server error", error });
     }
-};  
+};
