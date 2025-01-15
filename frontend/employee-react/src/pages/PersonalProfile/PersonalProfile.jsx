@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
+import { useState } from "react";
+// import { useSelector, useDispatch } from "react-redux";
+// import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
 
 import { Button, TextField, Box, Typography, Paper } from "@mui/material";
 import "./PersonalProfile.css";
@@ -8,45 +8,68 @@ import "./PersonalProfile.css";
 const PersonalProfile = () => {
   const [editingSection, setEditingSection] = useState(null);
   const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
+    first_name: "John",
+    last_name: "Doe",
     address: {
-      building: "",
-      street: "",
-      city: "",
-      state: "",
-      zip: "",
+      building: "101",
+      street: "Main St",
+      city: "San Francisco",
+      state: "CA",
+      zip: "94105",
     },
+    cell_phone: "123-456-7890",
+    dob: new Date("1990-01-01"),
+    gender: "Male",
+    car_make: "Toyota",
+    car_model: "Corolla",
+    car_color: "Blue",
+    ssn: "123456789",
+    visa_type: "H1B Category",
     reference: {
-      first_name: "",
-      last_name: "",
-      phone: "",
-      email: "",
-      relationship: "",
+      first_name: "Alice",
+      last_name: "Smith",
+      phone: "9876543210",
+      email: "alice.smith@example.com",
+      relationship: "Manager",
     },
-    emergency_contacts: [],
+    emergency_contacts: [
+      {
+        first_name: "Alice",
+        last_name: "Smith",
+        phone: "9876543210",
+        email: "alice.smith@example.com",
+        relationship: "Manager",
+      },
+      {
+        first_name: "Alice",
+        last_name: "Smith",
+        phone: "9876543210",
+        email: "alice.smith@example.com",
+        relationship: "Manager",
+      },
+    ],
   });
 
-  const dispatch = useDispatch();
-  const { profile, status, error } = useSelector((state) => state.employee);
-  // const userId = useSelector((state) => state.user.id);
-  const userId = "6785ad9b7f4c40a6ad6bb571";
+  // const dispatch = useDispatch();
+  // const { profile, status, error } = useSelector((state) => state.employee);
+  // // const userId = useSelector((state) => state.user.id);
+  // const userId = "6785ad9b7f4c40a6ad6bb571";
 
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchEmployeeProfile(userId));
-    }
-  }, [userId, dispatch]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     dispatch(fetchEmployeeProfile(userId));
+  //   }
+  // }, [userId, dispatch]);
 
-  useEffect(() => {
-    console.log("Profile fetched from Redux store:", profile);
-    if (profile) {
-      setFormData(profile);
-    }
-  }, [profile]);
+  // useEffect(() => {
+  //   console.log("Profile fetched from Redux store:", profile);
+  //   if (profile) {
+  //     setFormData(profile);
+  //   }
+  // }, [profile]);
 
-  if (status === "loading") return <p>Loading...</p>;
-  if (status === "failed") return <p>Error: {error}</p>;
+  // if (status === "loading") return <p>Loading...</p>;
+  // if (status === "failed") return <p>Error: {error}</p>;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
