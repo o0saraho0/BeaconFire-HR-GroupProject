@@ -1,6 +1,6 @@
-import { useState } from "react";
-// import { useSelector, useDispatch } from "react-redux";
-// import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
 
 import { Button, TextField, Box, Typography, Paper } from "@mui/material";
 import "./PersonalProfile.css";
@@ -8,68 +8,74 @@ import "./PersonalProfile.css";
 const PersonalProfile = () => {
   const [editingSection, setEditingSection] = useState(null);
   const [formData, setFormData] = useState({
-    first_name: "John",
-    last_name: "Doe",
-    address: {
-      building: "101",
-      street: "Main St",
-      city: "San Francisco",
-      state: "CA",
-      zip: "94105",
+    first_name: "",
+    last_name: "",
+    middle_name: "",
+    preferred_name: "",
+    current_address: {
+      building: "",
+      street: "",
+      city: "",
+      state: "",
+      zip: "",
     },
-    cell_phone: "123-456-7890",
-    dob: new Date("1990-01-01"),
-    gender: "Male",
-    car_make: "Toyota",
-    car_model: "Corolla",
-    car_color: "Blue",
-    ssn: "123456789",
-    visa_type: "H1B Category",
+    cell_phone: "",
+    work_phone: "",
+    car_make: "",
+    car_model: "",
+    car_color: "",
+    ssn: "",
+    dob: "",
+    gender: "",
+    visa_type: "",
+    visa_start_date: "",
+    visa_end_date: "",
+    driver_licence_number: "",
+    driver_license_expire_date: "",
     reference: {
-      first_name: "Alice",
-      last_name: "Smith",
-      phone: "9876543210",
-      email: "alice.smith@example.com",
-      relationship: "Manager",
+      first_name: "",
+      last_name: "",
+      middle_name: "",
+      phone: "",
+      email: "",
+      relationship: "",
     },
     emergency_contacts: [
       {
-        first_name: "Alice",
-        last_name: "Smith",
-        phone: "9876543210",
-        email: "alice.smith@example.com",
-        relationship: "Manager",
-      },
-      {
-        first_name: "Alice",
-        last_name: "Smith",
-        phone: "9876543210",
-        email: "alice.smith@example.com",
-        relationship: "Manager",
+        first_name: "",
+        last_name: "",
+        middle_name: "",
+        phone: "",
+        email: "",
+        relationship: "",
       },
     ],
+    profile_picture_url: "",
+    driver_licence_url: "",
+    work_auth_url: "",
+    additional_url: "",
   });
 
-  // const dispatch = useDispatch();
-  // const { profile, status, error } = useSelector((state) => state.employee);
-  // // const userId = useSelector((state) => state.user.id);
-  // const userId = "6785ad9b7f4c40a6ad6bb571";
+  const dispatch = useDispatch();
+  const { profile, status, error } = useSelector((state) => state.employee);
+  // const userId = useSelector((state) => state.user.id);
+  const userId = "6787f9cc12031eef1f9f684a";
 
-  // useEffect(() => {
-  //   if (userId) {
-  //     dispatch(fetchEmployeeProfile(userId));
-  //   }
-  // }, [userId, dispatch]);
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchEmployeeProfile(userId));
+    }
+  }, [userId, dispatch]);
 
-  // useEffect(() => {
-  //   console.log("Profile fetched from Redux store:", profile);
-  //   if (profile) {
-  //     setFormData(profile);
-  //   }
-  // }, [profile]);
+  useEffect(() => {
+    console.log("Profile fetched from Redux store:", profile);
+    if (profile) {
+      setFormData(profile);
+    }
+  }, [profile]);
 
-  // if (status === "loading") return <p>Loading...</p>;
-  // if (status === "failed") return <p>Error: {error}</p>;
+  if (status === "loading") return <p>Loading...</p>;
+  if (status === "failed") return <p>Error: {error}</p>;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -111,7 +117,7 @@ const PersonalProfile = () => {
             {sectionName}
           </Typography>
           {isArray
-            ? formData[fields].map((contact, index) => (
+            ? formData[fields]?.map((contact, index) => (
                 <Box key={index} sx={{ marginBottom: 2 }}>
                   {isEditing ? (
                     [
@@ -126,7 +132,7 @@ const PersonalProfile = () => {
                         fullWidth
                         label={label}
                         name={`${fields}.${index}.${key}`}
-                        value={contact[key]}
+                        value={contact[key] || ""}
                         onChange={handleChange}
                         sx={{ marginBottom: 1 }}
                       />
@@ -134,19 +140,20 @@ const PersonalProfile = () => {
                   ) : (
                     <Box>
                       <Typography>
-                        <strong>First Name:</strong> {contact.first_name}
+                        <strong>First Name:</strong> {contact.first_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Last Name:</strong> {contact.last_name}
+                        <strong>Last Name:</strong> {contact.last_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Phone:</strong> {contact.phone}
+                        <strong>Phone:</strong> {contact.phone || ""}
                       </Typography>
                       <Typography>
-                        <strong>Email:</strong> {contact.email}
+                        <strong>Email:</strong> {contact.email || ""}
                       </Typography>
                       <Typography>
-                        <strong>Relationship:</strong> {contact.relationship}
+                        <strong>Relationship:</strong>{" "}
+                        {contact.relationship || ""}
                       </Typography>
                     </Box>
                   )}
@@ -166,8 +173,8 @@ const PersonalProfile = () => {
                         name.includes(".")
                           ? name
                               .split(".")
-                              .reduce((acc, key) => acc[key], formData)
-                          : formData[name]
+                              .reduce((acc, key) => acc?.[key] || "", formData)
+                          : formData[name] || ""
                       }
                       onChange={handleChange}
                     />
@@ -177,8 +184,8 @@ const PersonalProfile = () => {
                       {name.includes(".")
                         ? name
                             .split(".")
-                            .reduce((acc, key) => acc[key], formData)
-                        : formData[name]}
+                            .reduce((acc, key) => acc?.[key] || "", formData)
+                        : formData[name] || ""}
                     </Typography>
                   )}
                 </Box>
@@ -212,24 +219,37 @@ const PersonalProfile = () => {
         Personal Profile
       </Typography>
       {renderSection("Name", [
-        { label: "First Name", name: "first_name" },
-        { label: "Last Name", name: "last_name" },
+        { label: "First Name*", name: "first_name" },
+        { label: "Last Name*", name: "last_name" },
+        { label: "Middle Name", name: "middle_name" },
+        { label: "Preferred Name", name: "preferred_name" },
+        { label: "Profile Pic", name: "profile_picture_url" },
+        { label: "SSN*", name: "ssn" },
+        { label: "Date of Birth*", name: "dob" },
+        { label: "Gender", name: "gender" },
       ])}
-      {renderSection("Address", [
-        { label: "Building", name: "address.building" },
-        { label: "Street", name: "address.street" },
-        { label: "City", name: "address.city" },
-        { label: "State", name: "address.state" },
-        { label: "ZIP", name: "address.zip" },
+      {renderSection("Address*", [
+        { label: "Building", name: "current_address.building" },
+        { label: "Street", name: "current_address.street" },
+        { label: "City", name: "current_address.city" },
+        { label: "State", name: "current_address.state" },
+        { label: "ZIP", name: "current_address.zip" },
       ])}
-      {renderSection("Reference", [
-        { label: "First Name", name: "reference.first_name" },
-        { label: "Last Name", name: "reference.last_name" },
-        { label: "Phone", name: "reference.phone" },
-        { label: "Email", name: "reference.email" },
-        { label: "Relationship", name: "reference.relationship" },
+      {renderSection("Contact Information", [
+        { label: "Cell Phone*", name: "cell_phone" },
+        { label: "Work Phone", name: "work_phone" },
+      ])}
+      {renderSection("Employment", [
+        { label: "Visa Title", name: "visa_type" },
+        { label: "Start Date", name: "visa_start_date" },
+        { label: "End Date", name: "visa_end_date" },
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
+      {renderSection("Documents", [
+        { label: "Driver License", name: "driver_licence_url" },
+        { label: "Work Authorization", name: "work_auth_url" },
+        { label: "Additional Documents", name: "additional_url" },
+      ])}
     </Box>
   );
 };

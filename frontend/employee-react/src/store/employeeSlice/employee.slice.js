@@ -6,7 +6,9 @@ export const fetchEmployeeProfile = createAsyncThunk(
   "employee/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem("accessToken");
+      // const token = localStorage.getItem("token");
+      const token =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTY0NjM0LCJleHAiOjE3MzY5NzkwMzR9.5s_kpNbUgULyziVyA6yyDw6Cmc5ijImZWISSnBJnRcQ";
       const response = await axios.get(
         "http://localhost:3000/api/personalinfo",
         {
@@ -15,6 +17,7 @@ export const fetchEmployeeProfile = createAsyncThunk(
           },
         }
       );
+      console.log(response);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
