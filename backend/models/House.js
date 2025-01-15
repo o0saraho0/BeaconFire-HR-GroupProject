@@ -17,12 +17,10 @@ const house_schema = new mongoose.Schema({
     phone_number: { type: String, required: true },
     email: { type: String, required: true },
   },
-  facilities: {
-    beds: { type: Number, required: true },
-    mattresses: { type: Number, required: true },
-    tables: { type: Number, required: true },
-    chairs: { type: Number, required: true },
-  }
+  beds: { type: Number, required: true },
+  mattresses: { type: Number, required: true },
+  tables: { type: Number, required: true },
+  chairs: { type: Number, required: true },
 });
 
 export default mongoose.model("House", house_schema);
