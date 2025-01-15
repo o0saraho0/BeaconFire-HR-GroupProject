@@ -24,7 +24,7 @@ export const updateReportStatus = async (req, res) => {
         const report = await FacilityReport.findByIdAndUpdate(
             req.params.id,
             { status: req.body.status },
-            { new: true }
+
         );
         if (!report) return res.status(404).json({ error: 'Report not found' });
         res.status(200).json(report);
