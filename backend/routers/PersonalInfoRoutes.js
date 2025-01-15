@@ -7,6 +7,6 @@ import {
 
 const PersonalInfoRouter = Router();
 PersonalInfoRouter.get("/", jwtValidation, getEmployeeProfile);
-PersonalInfoRouter.post("/", jwtValidation, updateProfile);
+PersonalInfoRouter.post("/", updateProfile);
 
 export default PersonalInfoRouter;

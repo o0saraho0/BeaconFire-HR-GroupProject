@@ -61,14 +61,11 @@ const PersonalProfile = () => {
 
   const dispatch = useDispatch();
   const { profile, status, error } = useSelector((state) => state.employee);
-  // const userId = useSelector((state) => state.user.id);
-  const userId = "6787f9cc12031eef1f9f684a";
+  const userId = useSelector((state) => state.employee.profile.user_id);
 
   useEffect(() => {
-    if (userId) {
-      dispatch(fetchEmployeeProfile(userId));
-    }
-  }, [userId, dispatch]);
+    dispatch(fetchEmployeeProfile(userId));
+  }, [dispatch]);
 
   useEffect(() => {
     if (profile) {
