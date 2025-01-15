@@ -7,6 +7,6 @@ const router = express.Router();
 router.post('/profile-picture', singleUpload, uploadProfilePicture);
 router.post('/driver-license', singleUpload, uploadDriverLicense);
 router.post('/opt-receipt', singleUpload, uploadOptReceipt);
-router.get('/presignedUrl', generatePresignedUrl,)
+router.get('/presigned-url', generatePresignedUrl,)
 
 export default router;

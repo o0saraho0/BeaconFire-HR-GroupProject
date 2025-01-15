@@ -1,11 +1,14 @@
 import express from "express";
 import morgan from "morgan";
-import { onboardingRouter } from "./routers/OnboardingRoutes.js";
 import cors from 'cors';
+
+import RegistrationRouter from "./routers/RegistrationRoutes.js"
 import UserRouter from './routers/UserRoutes.js'
-import { personalInfoRouter } from "./routers/PersonalInfoRoutes.js";
+import OnboardingRouter from "./routers/OnboardingRoutes.js";
+import PersonalInfoRouter from "./routers/PersonalInfoRoutes.js";
 import VisaRouter from "./routers/VisaRoutes.js";
 import UploadRouter from "./routers/UploadRoutes.js";
+
 
 const app = express();
 app.use(morgan(":method :url :status :response-time ms")); // enable morgan for logging
@@ -19,9 +22,11 @@ app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api/registration", RegistrationRouter)
 app.use("/api/user", UserRouter);
-app.use("/api/onboarding", onboardingRouter);
-app.use("/api/personalinfo", personalInfoRouter);
+app.use("/api/onboarding", OnboardingRouter);
+app.use("/api/personalinfo", PersonalInfoRouter);
 app.use("/api/visa", VisaRouter);
 app.use("/api/upload", UploadRouter)
 
