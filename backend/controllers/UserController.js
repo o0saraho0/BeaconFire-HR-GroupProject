@@ -2,6 +2,7 @@ import UserModel from "../models/User.js";
 import HRProfile from "../models/HRProfile.js"
 import EmployeeProfile from "../models/EmployeeProfile.js"
 import JWTRevocationList from "../models/JWTRevocationList.js"
+
 import HouseModel from "../models/House.js";
 
 import * as argon2 from "argon2";
@@ -17,10 +18,10 @@ export const loginUsingUsername = async (req, res) => {
         const user = await UserModel.findOne({ username })
             .select("password")
             .lean().exec();
+
         if (!user) {
             return res.status(401).json({ message: "Invalid credentials, Username Not found" });
         }
-
         //                                          db(hashed), raw input(password)
         const isPasswordCorrect = await argon2.verify(user.password, password);
         if (!isPasswordCorrect) return res.status(401).json({ message: "Invalid credentials, Password incorrect" });
@@ -52,6 +53,7 @@ export const createUser = async (req, res) => {
         const hashedPassword = await argon2.hash(password);
         const newUser = await UserModel.create({ username, email, password: hashedPassword });
         const token = generateJWTToken(newUser._id, username, email);
+
 
         // `house` would be an array containing the randomly selected house document.
         const house = await HouseModel.aggregate([{ $sample: { size: 1 } }]);
