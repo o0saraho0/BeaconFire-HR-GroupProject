@@ -9,7 +9,7 @@ import JWTRevocationList from '../models/JWTRevocationList.js';
 
 // check if it's logged in, for protecting endpoints that requires JWT.
 export const jwtValidation = async (req, res, next) => {
-
+    console.log("Verifying with secret:", process.env.ACCESS_TOKEN_SECRET);
 
     // get token from header
     if (!req.headers.authorization)
@@ -88,5 +88,3 @@ export const authenticatedEmployee = async (req, res, next) => {
     return res.status(403).json({ message: "You are not a Employee" })
 
 }
-
-export default authenticateUser;
