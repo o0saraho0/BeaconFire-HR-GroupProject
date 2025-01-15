@@ -10,7 +10,10 @@ import { useEffect } from "react";
 
 import Application from "./pages/Application/application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
-
+// import the axios object that we have defined with interceptors
+import axios from "./interceptors/auth.interceptor";
+// // if you don't use interceptors:
+//import axios from 'axios';
 const router = createBrowserRouter([
   {
     path: "/",
