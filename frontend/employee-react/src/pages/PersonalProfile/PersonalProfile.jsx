@@ -1,43 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
+
 import { Button, TextField, Box, Typography, Paper } from "@mui/material";
 import "./PersonalProfile.css";
 
 const PersonalProfile = () => {
   const [editingSection, setEditingSection] = useState(null);
   const [formData, setFormData] = useState({
-    first_name: "John",
-    last_name: "Doe",
+    first_name: "",
+    last_name: "",
     address: {
-      building: "101",
-      street: "Main St",
-      city: "San Francisco",
-      state: "CA",
-      zip: "94105",
+      building: "",
+      street: "",
+      city: "",
+      state: "",
+      zip: "",
     },
     reference: {
-      first_name: "Alice",
-      last_name: "Smith",
-      phone: "9876543210",
-      email: "alice.smith@example.com",
-      relationship: "Manager",
+      first_name: "",
+      last_name: "",
+      phone: "",
+      email: "",
+      relationship: "",
     },
-    emergency_contacts: [
-      {
-        first_name: "Alice",
-        last_name: "Smith",
-        phone: "9876543210",
-        email: "alice.smith@example.com",
-        relationship: "Manager",
-      },
-      {
-        first_name: "Bob",
-        last_name: "Johnson",
-        phone: "1234567890",
-        email: "bob.johnson@example.com",
-        relationship: "Friend",
-      },
-    ],
+    emergency_contacts: [],
   });
+
+  const dispatch = useDispatch();
+  const { profile, status, error } = useSelector((state) => state.employee);
+  // const userId = useSelector((state) => state.user.id);
+  const userId = "6785ad9b7f4c40a6ad6bb571";
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchEmployeeProfile(userId));
+    }
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    console.log("Profile fetched from Redux store:", profile);
+    if (profile) {
+      setFormData(profile);
+    }
+  }, [profile]);
+
+  if (status === "loading") return <p>Loading...</p>;
+  if (status === "failed") return <p>Error: {error}</p>;
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -1,22 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-// Async thunk for fetching personal information
-export const fetchPersonalInfo = createAsyncThunk(
-  "user/fetchPersonalInfo",
-  async (userId, thunkAPI) => {
-    try {
-      const response = await axios.get("/api/personalinfo", {
-        params: { user_id: userId },
-      });
-      return response.data;
-    } catch (error) {
-      return thunkAPI.rejectWithValue(
-        error.response?.data || "Fetching personal info failed"
-      );
-    }
-  }
-);
+import { createSlice } from "@reduxjs/toolkit";
 
 // // instead of directly writing the reducer function by yourself, utilize the createSlice method
 const userSlice = createSlice({
