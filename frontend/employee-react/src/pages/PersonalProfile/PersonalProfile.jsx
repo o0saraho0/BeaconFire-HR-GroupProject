@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { Button, TextField, Box, Typography, Paper } from "@mui/material";
+import "./PersonalProfile.css";
 
 const PersonalProfile = () => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingSection, setEditingSection] = useState(null);
   const [formData, setFormData] = useState({
     first_name: "John",
     last_name: "Doe",
@@ -12,14 +14,6 @@ const PersonalProfile = () => {
       state: "CA",
       zip: "94105",
     },
-    cell_phone: "123-456-7890",
-    dob: new Date("1990-01-01"),
-    gender: "Male",
-    car_make: "Toyota",
-    car_model: "Corolla",
-    car_color: "Blue",
-    ssn: "123456789",
-    visa_type: "H1B Category",
     reference: {
       first_name: "Alice",
       last_name: "Smith",
@@ -35,21 +29,15 @@ const PersonalProfile = () => {
         email: "alice.smith@example.com",
         relationship: "Manager",
       },
+      {
+        first_name: "Bob",
+        last_name: "Johnson",
+        phone: "1234567890",
+        email: "bob.johnson@example.com",
+        relationship: "Friend",
+      },
     ],
   });
-
-  const handleEditClick = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancelClick = () => {
-    setIsEditing(false);
-  };
-
-  const handleSaveClick = () => {
-    // Save form data logic
-    setIsEditing(false);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,241 +60,145 @@ const PersonalProfile = () => {
     }
   };
 
-  return (
-    <div>
-      <h2>Personal Information</h2>
-      {/* Name Section */}
-      <div>
-        <h3>Name</h3>
-        {isEditing ? (
-          <div>
-            <label>
-              First Name:
-              <input
-                type="text"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Last Name:
-              <input
-                type="text"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-              />
-            </label>
-          </div>
-        ) : (
-          <div>
-            <p>First Name: {formData.first_name}</p>
-            <p>Last Name: {formData.last_name}</p>
-          </div>
-        )}
-      </div>
+  const handleEditClick = (section) => {
+    setEditingSection(section);
+  };
 
-      {/* Address Section */}
-      <div>
-        <h3>Address</h3>
-        {isEditing ? (
-          <div>
-            <label>
-              Building:
-              <input
-                type="text"
-                name="address.building"
-                value={formData.address.building}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Street:
-              <input
-                type="text"
-                name="address.street"
-                value={formData.address.street}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              City:
-              <input
-                type="text"
-                name="address.city"
-                value={formData.address.city}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              State:
-              <input
-                type="text"
-                name="address.state"
-                value={formData.address.state}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              ZIP:
-              <input
-                type="text"
-                name="address.zip"
-                value={formData.address.zip}
-                onChange={handleChange}
-              />
-            </label>
-          </div>
-        ) : (
-          <div>
-            <p>Building: {formData.address.building}</p>
-            <p>Street: {formData.address.street}</p>
-            <p>City: {formData.address.city}</p>
-            <p>State: {formData.address.state}</p>
-            <p>ZIP: {formData.address.zip}</p>
-          </div>
-        )}
-      </div>
+  const handleSaveClick = () => {
+    // logic here to fetchupdate
+    setEditingSection(null);
+  };
 
-      {/* Reference Section */}
-      <div>
-        <h3>Reference</h3>
-        {isEditing ? (
-          <div>
-            <label>
-              First Name:
-              <input
-                type="text"
-                name="reference.first_name"
-                value={formData.reference.first_name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Last Name:
-              <input
-                type="text"
-                name="reference.last_name"
-                value={formData.reference.last_name}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Phone:
-              <input
-                type="text"
-                name="reference.phone"
-                value={formData.reference.phone}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Email:
-              <input
-                type="email"
-                name="reference.email"
-                value={formData.reference.email}
-                onChange={handleChange}
-              />
-            </label>
-            <label>
-              Relationship:
-              <input
-                type="text"
-                name="reference.relationship"
-                value={formData.reference.relationship}
-                onChange={handleChange}
-              />
-            </label>
-          </div>
-        ) : (
-          <div>
-            <p>First Name: {formData.reference.first_name}</p>
-            <p>Last Name: {formData.reference.last_name}</p>
-            <p>Phone: {formData.reference.phone}</p>
-            <p>Email: {formData.reference.email}</p>
-            <p>Relationship: {formData.reference.relationship}</p>
-          </div>
-        )}
-      </div>
+  const renderSection = (sectionName, fields, isArray = false) => {
+    const isEditing = editingSection === sectionName;
 
-      {/* Emergency Contacts */}
-      <div>
-        <h3>Emergency Contacts</h3>
-        {formData.emergency_contacts.map((contact, index) => (
-          <div key={index}>
+    return (
+      <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
+        <Box>
+          <Typography variant="h6" className="section-header">
+            {sectionName}
+          </Typography>
+          {isArray
+            ? formData[fields].map((contact, index) => (
+                <Box key={index} sx={{ marginBottom: 2 }}>
+                  {isEditing ? (
+                    [
+                      { label: "First Name", key: "first_name" },
+                      { label: "Last Name", key: "last_name" },
+                      { label: "Phone", key: "phone" },
+                      { label: "Email", key: "email" },
+                      { label: "Relationship", key: "relationship" },
+                    ].map(({ label, key }) => (
+                      <TextField
+                        key={key}
+                        fullWidth
+                        label={label}
+                        name={`${fields}.${index}.${key}`}
+                        value={contact[key]}
+                        onChange={handleChange}
+                        sx={{ marginBottom: 1 }}
+                      />
+                    ))
+                  ) : (
+                    <Box>
+                      <Typography>
+                        <strong>First Name:</strong> {contact.first_name}
+                      </Typography>
+                      <Typography>
+                        <strong>Last Name:</strong> {contact.last_name}
+                      </Typography>
+                      <Typography>
+                        <strong>Phone:</strong> {contact.phone}
+                      </Typography>
+                      <Typography>
+                        <strong>Email:</strong> {contact.email}
+                      </Typography>
+                      <Typography>
+                        <strong>Relationship:</strong> {contact.relationship}
+                      </Typography>
+                    </Box>
+                  )}
+                  {index < formData[fields].length - 1 && (
+                    <hr style={{ margin: "16px 0" }} />
+                  )}
+                </Box>
+              ))
+            : fields.map(({ label, name }) => (
+                <Box key={name} sx={{ marginBottom: 2 }}>
+                  {isEditing ? (
+                    <TextField
+                      fullWidth
+                      label={label}
+                      name={name}
+                      value={
+                        name.includes(".")
+                          ? name
+                              .split(".")
+                              .reduce((acc, key) => acc[key], formData)
+                          : formData[name]
+                      }
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    <Typography>
+                      <strong>{label}:</strong>{" "}
+                      {name.includes(".")
+                        ? name
+                            .split(".")
+                            .reduce((acc, key) => acc[key], formData)
+                        : formData[name]}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+          <Box className="button-box">
             {isEditing ? (
-              <div>
-                <label>
-                  First Name:
-                  <input
-                    type="text"
-                    name={`emergency_contacts.${index}.first_name`}
-                    value={contact.first_name}
-                    onChange={handleChange}
-                  />
-                </label>
-                <label>
-                  Last Name:
-                  <input
-                    type="text"
-                    name={`emergency_contacts.${index}.last_name`}
-                    value={contact.last_name}
-                    onChange={handleChange}
-                  />
-                </label>
-                <label>
-                  Phone:
-                  <input
-                    type="text"
-                    name={`emergency_contacts.${index}.phone`}
-                    value={contact.phone}
-                    onChange={handleChange}
-                  />
-                </label>
-                <label>
-                  Email:
-                  <input
-                    type="email"
-                    name={`emergency_contacts.${index}.email`}
-                    value={contact.email}
-                    onChange={handleChange}
-                  />
-                </label>
-                <label>
-                  Relationship:
-                  <input
-                    type="text"
-                    name={`emergency_contacts.${index}.relationship`}
-                    value={contact.relationship}
-                    onChange={handleChange}
-                  />
-                </label>
-              </div>
+              <Button
+                variant="contained"
+                onClick={handleSaveClick}
+                sx={{ marginRight: 1 }}
+              >
+                Save
+              </Button>
             ) : (
-              <div>
-                <p>First Name: {contact.first_name}</p>
-                <p>Last Name: {contact.last_name}</p>
-                <p>Phone: {contact.phone}</p>
-                <p>Email: {contact.email}</p>
-                <p>Relationship: {contact.relationship}</p>
-              </div>
+              <Button
+                variant="outlined"
+                onClick={() => handleEditClick(sectionName)}
+              >
+                Edit
+              </Button>
             )}
-          </div>
-        ))}
-      </div>
+          </Box>
+        </Box>
+      </Paper>
+    );
+  };
 
-      {/* Action Buttons */}
-      {isEditing ? (
-        <div>
-          <button onClick={handleSaveClick}>Save</button>
-          <button onClick={handleCancelClick}>Cancel</button>
-        </div>
-      ) : (
-        <button onClick={handleEditClick}>Edit</button>
-      )}
-    </div>
+  return (
+    <Box sx={{ maxWidth: 500, margin: "0 auto" }}>
+      <Typography variant="h4" className="section-header">
+        Personal Profile
+      </Typography>
+      {renderSection("Name", [
+        { label: "First Name", name: "first_name" },
+        { label: "Last Name", name: "last_name" },
+      ])}
+      {renderSection("Address", [
+        { label: "Building", name: "address.building" },
+        { label: "Street", name: "address.street" },
+        { label: "City", name: "address.city" },
+        { label: "State", name: "address.state" },
+        { label: "ZIP", name: "address.zip" },
+      ])}
+      {renderSection("Reference", [
+        { label: "First Name", name: "reference.first_name" },
+        { label: "Last Name", name: "reference.last_name" },
+        { label: "Phone", name: "reference.phone" },
+        { label: "Email", name: "reference.email" },
+        { label: "Relationship", name: "reference.relationship" },
+      ])}
+      {renderSection("Emergency Contacts", "emergency_contacts", true)}
+    </Box>
   );
 };
 
