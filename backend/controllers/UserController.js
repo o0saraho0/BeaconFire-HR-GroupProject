@@ -15,7 +15,7 @@ export const loginUsingUsername = async (req, res) => {
         const user = await UserModel.findOne({ username })
             .select("password")
             .lean().exec();
-        if (!user) {
+        if (!user) {    
             return res.status(401).json({ message: "Invalid credentials, Username Not found" });
         }
 

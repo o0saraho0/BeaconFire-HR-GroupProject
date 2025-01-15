@@ -9,7 +9,7 @@ import JWTRevocationList from '../models/JWTRevocationList.js';
 
 // check if it's logged in, for protecting endpoints that requires JWT.
 export const jwtValidation = async (req, res, next) => {
-    console.log("Verifying with secret:", process.env.ACCESS_TOKEN_SECRET);
+    
 
     // get token from header
     if (!req.headers.authorization)
@@ -31,7 +31,7 @@ export const jwtValidation = async (req, res, next) => {
         });
     }
 
-
+    console.log("Verifying with secret:", process.env.ACCESS_TOKEN_SECRET);
     // decode token
     try {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);

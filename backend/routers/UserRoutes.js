@@ -17,15 +17,4 @@ UserRouter.post('/logout', jwtValidation, logoutUser) // auth protected, call th
 
 UserRouter.get("/details", jwtValidation, getUserDetail) // auth protected, call this to identify the role as HR or employee. 
 
-// facility report routes
-UserRouter.post('/reports', jwtValidation, createFacilityReport);
-UserRouter.get('/reports/:houseId', jwtValidation, getReportsByHouse);
-UserRouter.patch('/reports/:id', jwtValidation, updateReportStatus);
-
-// house routes
-UserRouter.post('/houses', jwtValidation, createHouse);
-UserRouter.get('/houses', jwtValidation, getAllHouses);
-UserRouter.get('/houses/:id', jwtValidation, getHouseById);
-
-
 export default UserRouter
