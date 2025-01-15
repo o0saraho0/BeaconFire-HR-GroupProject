@@ -9,7 +9,7 @@ import JWTRevocationList from '../models/JWTRevocationList.js';
 
 // check if it's logged in, for protecting endpoints that requires JWT.
 export const jwtValidation = async (req, res, next) => {
-    
+
 
     // get token from header
     if (!req.headers.authorization)
@@ -31,7 +31,9 @@ export const jwtValidation = async (req, res, next) => {
         });
     }
 
+
     console.log("Verifying with secret:", process.env.ACCESS_TOKEN_SECRET);
+
     // decode token
     try {
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
@@ -53,7 +55,15 @@ export const jwtValidation = async (req, res, next) => {
         return next();
     }
     catch (err) {
+
         console.error(err);
+
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({
+                message: 'Your session has expired. Please logout and login again.'
+            });
+        }
+
         return res.status(500).json({ message: err.message });
     }
 };

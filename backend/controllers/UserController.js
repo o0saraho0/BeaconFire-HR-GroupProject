@@ -2,6 +2,9 @@ import UserModel from "../models/User.js";
 import HRProfile from "../models/HRProfile.js"
 import EmployeeProfile from "../models/EmployeeProfile.js"
 import JWTRevocationList from "../models/JWTRevocationList.js"
+
+import HouseModel from "../models/House.js";
+
 import * as argon2 from "argon2";
 
 import { generateJWTToken } from "../utils/jwt.js";
@@ -15,11 +18,10 @@ export const loginUsingUsername = async (req, res) => {
         const user = await UserModel.findOne({ username })
             .select("password")
             .lean().exec();
-        if (!user) {    
+
+        if (!user) {
             return res.status(401).json({ message: "Invalid credentials, Username Not found" });
         }
-
-
         //                                          db(hashed), raw input(password)
         const isPasswordCorrect = await argon2.verify(user.password, password);
         if (!isPasswordCorrect) return res.status(401).json({ message: "Invalid credentials, Password incorrect" });
@@ -33,7 +35,6 @@ export const loginUsingUsername = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
-
 
 export const createUser = async (req, res) => {
     const { username, email, password } = req.body;
@@ -53,10 +54,19 @@ export const createUser = async (req, res) => {
         const newUser = await UserModel.create({ username, email, password: hashedPassword });
         const token = generateJWTToken(newUser._id, username, email);
 
+
+        // `house` would be an array containing the randomly selected house document.
+        const house = await HouseModel.aggregate([{ $sample: { size: 1 } }]);
+        if (!house || house.length === 0) {
+            throw new Error("No houses available for assignment");
+        }
+
+        await HouseModel.findByIdAndUpdate(
+            house[0]._id,
+            { $push: { tenants: newUser._id } }
+        );
+
         await newUser.save();
-
-        // TODO: randomly assign to a house.
-
 
         res.status(201).json({ message: "User created successfully", token, "user_id": newUser._id });
     }

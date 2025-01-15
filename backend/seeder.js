@@ -8,6 +8,7 @@ import HRProfile from "./models/HRProfile.js";
 import Registration from "./models/Registration.js";
 import User from "./models/User.js";
 import Visa from "./models/Visa.js";
+import * as argon2 from "argon2";
 
 dotenv.config();
 
@@ -37,41 +38,41 @@ const seed_database = async () => {
     await Application.deleteMany({});
     await Visa.deleteMany({});
     await User.deleteMany({});
-
+    const hashedPassword = await argon2.hash("password1");
     // Create Users
     const users = await User.insertMany([
       {
         username: "employee1",
         email: "employee1@example.com",
-        password: "password1",
+        password: hashedPassword,
       },
       {
         username: "employee2",
         email: "employee2@example.com",
-        password: "password2",
+        password: hashedPassword,
       },
       {
         username: "employee3",
         email: "employee3@example.com",
-        password: "password3",
+        password: hashedPassword,
       },
       {
         username: "employee4",
         email: "employee4@example.com",
-        password: "password4",
+        password: hashedPassword,
       },
       {
         username: "employee5",
         email: "employee5@example.com",
-        password: "password5",
+        password: hashedPassword,
       },
-      { username: "hr1", email: "hr1@example.com", password: "password6" },
-      { username: "hr2", email: "hr2@example.com", password: "password7" },
+      { username: "hr1", email: "hr1@example.com", password: hashedPassword },
+      { username: "hr2", email: "hr2@example.com", password: hashedPassword },
     ]);
     console.log("Users created:", users);
 
     // Create Employee Profiles
-    const employeeProfiles = await EmployeeProfile.insertMany([
+    const employee_profiles = await EmployeeProfile.insertMany([
       {
         user_id: users[0]._id,
         first_name: "John",
@@ -234,7 +235,7 @@ const seed_database = async () => {
         car_model: "Altima",
         car_color: "Silver",
         ssn: "567890123",
-        visa_type: "Other",
+        visa_type: "F1 Category",
         reference: {
           first_name: "Emily",
           last_name: "White",
@@ -253,9 +254,9 @@ const seed_database = async () => {
         ],
       },
     ]);
-    console.log("Employee Profiles created:", employeeProfiles);
+    console.log("Employee Profiles created:", employee_profiles);
 
-    // Create HR Profiles (Link to next 2 users)
+    // Create HR Profiles
     const hr_profiles = await HRProfile.insertMany([
       {
         user_id: users[5]._id,
@@ -269,6 +270,25 @@ const seed_database = async () => {
       },
     ]);
     console.log("HR Profiles created:", hr_profiles);
+
+    // Create Visa
+    const visas = await Visa.insertMany([
+      {
+        user_id: users[1]._id,
+        is_opt: true,
+        stage: "I983",
+        status: "Pending",
+        message: "Awaiting I983 form approval.",
+      },
+      {
+        user_id: users[4]._id,
+        is_opt: true,
+        stage: "EAD",
+        status: "Not Started",
+        message: "Copy of EAD is required.",
+      },
+    ]);
+    console.log("Visa data created:", visas);
 
     // Create Houses
     const houses = await House.insertMany([
@@ -334,6 +354,39 @@ const seed_database = async () => {
       },
     ]);
     console.log("Houses created:", houses);
+
+    // Create Facility Reports
+    const facility_reports = await FacilityReport.insertMany([
+      {
+        house_id: houses[0]._id,
+        title: "Leaky Faucet in Kitchen",
+        description:
+          "The kitchen faucet is leaking and needs immediate repair.",
+        created_by: users[0]._id,
+        status: "Open",
+        comments: [
+          {
+            posted_by: "employee",
+            description: "Reported the issue to the landlord.",
+          },
+        ],
+      },
+      {
+        house_id: houses[2]._id,
+        title: "Broken Window in Living Room",
+        description:
+          "A window in the living room is broken and poses a security risk.",
+        created_by: users[3]._id,
+        status: "In Progress",
+        comments: [
+          {
+            posted_by: "hr",
+            description: "Contacted the repair service to fix the window.",
+          },
+        ],
+      },
+    ]);
+    console.log("Facility Reports created:", facility_reports);
 
     console.log("Database seeded successfully!");
   } catch (error) {
