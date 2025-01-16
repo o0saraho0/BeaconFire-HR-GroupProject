@@ -69,7 +69,7 @@ const PersonalProfile = () => {
 
   const dispatch = useDispatch();
   const { profile, status, error } = useSelector((state) => state.employee);
-  const { userId } = useSelector((state) => state.auth.userId);
+  const { userId } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (userId) {
