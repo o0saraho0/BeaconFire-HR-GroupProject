@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { logout } from "../../store/AuthSlice/auth.slice";
-
 import { Tabs, Tab, AppBar, Box, Button } from "@mui/material";
 
 const Navbar = () => {
-  const dispatch = useDispatch();
-
   const [value, setValue] = useState(0);
   const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
