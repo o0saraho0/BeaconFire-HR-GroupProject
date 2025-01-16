@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import userReducer from "./userSlice/user.slice";
+import AuthReducer from "./AuthSlice/auth.slice";
 import employeeReducer from "./employeeSlice/employee.slice";
 
 // // instead of createStore, we use configureStore
 const store = configureStore({
   // // you don't have to use the combineReducers method anymore, just pass an object as your combined reducer
   reducer: {
-    user: userReducer,
+    auth: AuthReducer,
     employee: employeeReducer,
   },
   // // you don't have to use third-party libraries to enable Redux devTools anymore
