@@ -33,10 +33,10 @@ const LoginPage = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      const resultAction = await dispatch(login(formData));
+      const resultAction = dispatch(login(formData));
       if (login.fulfilled.match(resultAction)) {
         navigate("/"); //TODO : added landing page: employee profile
       }

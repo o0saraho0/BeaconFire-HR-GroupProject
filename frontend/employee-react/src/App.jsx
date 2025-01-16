@@ -45,12 +45,6 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(login());
-  }, [dispatch]);
-
   return <RouterProvider router={router} />;
 }
 
