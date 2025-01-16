@@ -5,7 +5,15 @@ import {
   updateEmployeeProfile,
 } from "../../store/employeeSlice/employee.slice";
 
-import { Button, TextField, Box, Typography, Paper } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Paper,
+  Select,
+  MenuItem,
+} from "@mui/material";
 import "./PersonalProfile.css";
 
 const PersonalProfile = () => {
@@ -61,7 +69,8 @@ const PersonalProfile = () => {
 
   const dispatch = useDispatch();
   const { profile, status, error } = useSelector((state) => state.employee);
-  const userId = useSelector((state) => state.employee.profile.user_id);
+  // const userId = useSelector((state) => state.employee.profile.user_id);
+  const userId = "6787f9cc12031eef1f9f6852";
 
   useEffect(() => {
     dispatch(fetchEmployeeProfile(userId));
@@ -122,6 +131,23 @@ const PersonalProfile = () => {
     setEditingSection(null);
   };
 
+  // Dropdown management
+  const visaTypes = [
+    "Green Card",
+    "Citizen",
+    "H1B Category",
+    "F1 Category",
+    "Other",
+  ];
+  const genders = ["Male", "Female", "I do not wish to answer"];
+
+  // Date management
+  const formatDate = (isoDate) => {
+    if (!isoDate) return "";
+    const date = new Date(isoDate);
+    return date.toISOString().split("T")[0];
+  };
+
   const renderSection = (sectionName, fields, isArray = false) => {
     const isEditing = editingSection === sectionName;
 
@@ -177,22 +203,76 @@ const PersonalProfile = () => {
                   )}
                 </Box>
               ))
-            : fields.map(({ label, name }) => (
+            : fields.map(({ label, name, type, options }) => (
                 <Box key={name} sx={{ marginBottom: 2 }}>
                   {isEditing ? (
-                    <TextField
-                      fullWidth
-                      label={label}
-                      name={name}
-                      value={
-                        name.includes(".")
-                          ? name
-                              .split(".")
-                              .reduce((acc, key) => acc?.[key] || "", formData)
-                          : formData[name] || ""
-                      }
-                      onChange={handleChange}
-                    />
+                    type === "select" ? (
+                      <Select
+                        fullWidth
+                        name={name}
+                        value={
+                          name.includes(".")
+                            ? name
+                                .split(".")
+                                .reduce(
+                                  (acc, key) => acc?.[key] || "",
+                                  formData
+                                )
+                            : formData[name] || ""
+                        }
+                        onChange={handleChange}
+                        displayEmpty
+                      >
+                        <MenuItem value="" disabled>
+                          Select {label}
+                        </MenuItem>
+                        {options.map((option, index) => (
+                          <MenuItem key={index} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    ) : type === "date" ? (
+                      <TextField
+                        fullWidth
+                        label={label}
+                        name={name}
+                        type="date"
+                        value={
+                          name.includes(".")
+                            ? formatDate(
+                                name
+                                  .split(".")
+                                  .reduce(
+                                    (acc, key) => acc?.[key] || "",
+                                    formData
+                                  )
+                              )
+                            : formatDate(formData[name])
+                        }
+                        onChange={handleChange}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                      />
+                    ) : (
+                      <TextField
+                        fullWidth
+                        label={label}
+                        name={name}
+                        value={
+                          name.includes(".")
+                            ? name
+                                .split(".")
+                                .reduce(
+                                  (acc, key) => acc?.[key] || "",
+                                  formData
+                                )
+                            : formData[name] || ""
+                        }
+                        onChange={handleChange}
+                      />
+                    )
                   ) : (
                     <Typography>
                       <strong>{label}:</strong>{" "}
@@ -245,8 +325,8 @@ const PersonalProfile = () => {
         { label: "Preferred Name", name: "preferred_name" },
         { label: "Profile Pic", name: "profile_picture_url" },
         { label: "SSN*", name: "ssn" },
-        { label: "Date of Birth*", name: "dob" },
-        { label: "Gender", name: "gender" },
+        { label: "Date of Birth*", name: "dob", type: "date" },
+        { label: "Gender", name: "gender", type: "select", options: genders },
       ])}
       {renderSection("Address*", [
         { label: "Building", name: "current_address.building" },
@@ -260,9 +340,14 @@ const PersonalProfile = () => {
         { label: "Work Phone", name: "work_phone" },
       ])}
       {renderSection("Employment", [
-        { label: "Visa Title", name: "visa_type" },
-        { label: "Start Date", name: "visa_start_date" },
-        { label: "End Date", name: "visa_end_date" },
+        {
+          label: "Visa Title",
+          name: "visa_type",
+          type: "select",
+          options: visaTypes,
+        },
+        { label: "Start Date", name: "visa_start_date", type: "date" },
+        { label: "End Date", name: "visa_end_date", type: "date" },
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
       {renderSection("Documents", [
