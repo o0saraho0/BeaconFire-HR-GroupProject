@@ -14,6 +14,12 @@ const Application = () => {
   const documentKeys = useSelector(selectDocumentKeys);
   const [feedback, setFeedback] = useState('');
   const localHost = 'localhost:3000';
+  const [uploadedProfilePicture, setProfilePicture] = useState('');
+  const [uploadedDriverLicense, setDriverLicense] = useState('');
+  const [uploadedWorkAuth, setWorkAuth] = useState('');
+  const [profileUrl, setProfileUrl] = useState('')
+
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -66,10 +72,15 @@ const Application = () => {
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const response = await axios.get(`http://${localHost}/api/onboarding/status`);
-        setStatus(response.data.status);
-        setFeedback(response.data.feedback);
-        setFormData(response.data);
+        const response = await axios.get(`http://${localHost}/api/onboarding/status`, {
+          headers: {
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4OTY4MDc5NTUzNWNmYWExMzg4OTU5IiwiaWF0IjoxNzM3MDU4NjE5LCJleHAiOjE3MzcwNzMwMTl9.gLOO1EdsrfoACfgVvZiJshsMZpmvfIop-V_jb9qHScc'
+          }
+        });
+        console.log(response.data.application)
+        setStatus(response.data.application.status);
+        setFeedback(response.data.application.feedback);
+        setFormData(response.data.application);
       } catch (error) {
         console.error('Error fetching application:', error);
       }
@@ -105,9 +116,23 @@ const Application = () => {
   };
 
   const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const fileName = file.name;
+    switch (e.target.name) {
+      case 'profilePicture':
+        setProfilePicture(fileName);
+        break;
+      case 'uploadedFiles.driverLicense':
+        setDriverLicense(fileName);
+        break;
+      case 'uploadedFiles.workAuthorization':
+        setWorkAuth(fileName);
+        break;
+      default:
+        return;
+    }
     const formData = new FormData();
     formData.append('file', e.target.files[0]);
-
     let endpoint = '';
     switch (e.target.name) {
       case 'profilePicture':
@@ -127,7 +152,7 @@ const Application = () => {
       const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDQzODE5LCJleHAiOjE3MzcwNTgyMTl9.IW-g89gumG7gHTBP7lMcF5OvQLxkLry8DmE3xmttafo',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDUzNjM4LCJleHAiOjE3MzcwNjgwMzh9.9_bNPAkie_rHxVXLlcwD1oQ_PtSXQJ-Y7NvLV42Zb3k',
         },
       });
       dispatch(setDocumentKey({ documentType: e.target.name, key: response.data.key }));
@@ -135,17 +160,6 @@ const Application = () => {
       console.error('Error uploading file:', error);
     }
   };
-
-  useEffect(() => {
-    const fetchAndOpenUrl = async () => {
-      const url = await getPresignedUrl(documentKeys.profilePicture);
-      if (url) {
-        window.open(url, '_blank');
-      }
-    };
-
-    fetchAndOpenUrl();
-  }, [documentKeys]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -203,6 +217,7 @@ const Application = () => {
             hidden
           />
         </Button>
+        {uploadedProfilePicture && <Typography variant="body2">{uploadedProfilePicture}</Typography>}
       </Grid>
       <Grid item xs={12}>
         <Typography variant="h6">Current Address</Typography>
@@ -342,6 +357,8 @@ const Application = () => {
             />
           </Button>
         )}
+        {uploadedWorkAuth && <Typography variant="body2">{uploadedWorkAuth}</Typography>}
+
         {formData.visaType === 'Other' && (
           <TextField
             label="Specify Visa Title"
@@ -395,6 +412,7 @@ const Application = () => {
                 hidden
               />
             </Button>
+            {uploadedDriverLicense && <Typography variant="body2">{uploadedDriverLicense}</Typography>}
           </>
         )}
       </Grid>
@@ -535,18 +553,20 @@ const Application = () => {
         <ul>
           {documentKeys.profilePicture && (
             <li>
+              <span>Profile Picture: </span>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
                 const url = await getPresignedUrl(documentKeys.profilePicture);
+                setProfileUrl(url)
                 window.open(url, '_blank');
-              }}>Profile Picture</a>
+              }}>Preview</a>
+              {' | '}
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.profilePicture);
-                window.location.href = url;
-              }}>Download</a>
-            </li>
-          )}
+                const theprofileUrl = await getPresignedUrl(documentKeys.profilePicture);
+                window.location.href = theprofileUrl;
+              }} download>Download</a>
+            </li>)}
           {documentKeys.driverLicense && (
             <li>
               <a href="#" onClick={async (e) => {
@@ -598,7 +618,7 @@ const Application = () => {
       const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
         params: { fileName },
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDQzODE5LCJleHAiOjE3MzcwNTgyMTl9.IW-g89gumG7gHTBP7lMcF5OvQLxkLry8DmE3xmttafo',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDUzNjM4LCJleHAiOjE3MzcwNjgwMzh9.9_bNPAkie_rHxVXLlcwD1oQ_PtSXQJ-Y7NvLV42Zb3k',
         },
       });
       return response.data.url;
@@ -703,7 +723,19 @@ const Application = () => {
           <form onSubmit={handleSubmit}>
             {renderForm()}
             <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary">Submit</Button>
+              {page < totalPages ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button type="submit" variant="contained" color="primary">
+                  Submit
+                </Button>
+              )}
             </Grid>
           </form>
         );
