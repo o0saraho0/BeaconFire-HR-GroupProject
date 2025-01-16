@@ -81,3 +81,16 @@ export const validateToken = async (req, res) => {
         res.status(400).json({ message: "Invalid or expired token" });
         }
 };
+
+export const getAllRegistrations = async (req, res) => {
+    try {
+        // Fetch all registration records from the database
+        const registrations = await Registration.find();
+
+        // Return the records in the response
+        res.status(200).json(registrations);
+    } catch (error) {
+        // Handle errors
+        res.status(500).json({ error: "Error fetching registration data: " + error.message });
+    }
+};
