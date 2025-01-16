@@ -17,6 +17,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -55,6 +57,8 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
+    MatToolbarModule,
+    MatIconModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
