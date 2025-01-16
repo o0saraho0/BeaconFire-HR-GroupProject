@@ -16,7 +16,7 @@ import axios from "./interceptors/auth.interceptor";
 //import axios from 'axios';
 
 import LoginPage from "./pages/LoginPage/LoginPage.jsx";
-//import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
+import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -29,11 +29,11 @@ const router = createBrowserRouter([
     element: <LoginPage />,
     children: [],
   },
-  // {
-  //   path: "/register",
-  //   element: <RegisterPage />,
-  //   children: [],
-  // },
+  {
+    path: "/register/:token",
+    element: <RegisterPage />,
+    children: [],
+  },
   {
     path: "/application",
     element: <Application />,

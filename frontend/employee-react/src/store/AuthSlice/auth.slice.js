@@ -30,6 +30,25 @@ export const login = createAsyncThunk(
   }
 );
 
+export const registerUser = createAsyncThunk(
+  'auth/register',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(
+        'http://localhost:3000/api/user/register',
+        userData
+      );
+      return data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Registration failed'
+      );
+    }
+  }
+);
+
+// Supported by reduxjs-toolkit: When you create the slice with createSlice, 
+// automatically generates action creators for each reducer function in the reducers object.
 const authSlice = createSlice({
   name: "auth",
   initialState,
