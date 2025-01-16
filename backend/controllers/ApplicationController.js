@@ -8,7 +8,7 @@ const getApplicationStatus = async (req, res) => {
     if (!application) {
       return res.json({ status: 'Not Started' });
     }
-    return res.json({ status: application.status });
+    return res.json({ application: application });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }

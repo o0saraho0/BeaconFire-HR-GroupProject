@@ -34,6 +34,7 @@ export const uploadFileToS3 = async (file, fileName) => {
         Body: file.buffer, // File content as a buffer
         // Removed ACL setting as the bucket does not allow ACLs
         ACL: 'private', // You can either remove the ACL line or set it to 'private'
+        ContentType: file.mimetype,
       },
     });
 
