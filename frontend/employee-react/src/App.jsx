@@ -8,6 +8,8 @@ import LoginPage from "./pages/LoginPage/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.jsx";
 
+import Navbar from "./components/Navbar/Navbar.jsx";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -40,7 +42,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Navbar /> <RouterProvider router={router} />;
+    </>
+  );
 }
 
 export default App;
