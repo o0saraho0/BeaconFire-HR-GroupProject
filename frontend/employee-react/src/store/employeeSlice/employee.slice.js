@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axios from "../../interceptors/auth.interceptor";
 
 // Async thunk for fetching employee profile
 export const fetchEmployeeProfile = createAsyncThunk(
