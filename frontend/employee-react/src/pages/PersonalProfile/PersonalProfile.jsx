@@ -83,6 +83,8 @@ const PersonalProfile = () => {
     }
   }, [profile]);
 
+  // console.log(profile);
+
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
 
