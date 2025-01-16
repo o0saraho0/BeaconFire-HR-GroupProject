@@ -36,8 +36,9 @@ export const uploadOptReceipt = async (req, res) => {
 
 export const getPreSignedUrl = async (req, res) => {
   try {
-    const { filename } = req.query;
-    const signedUrl = await generatePresignedUrl(filename)
+    const { fileName } = req.query;
+    console.log('to get the url')
+    const signedUrl = await generatePresignedUrl(fileName)
     res.status(200).json({ url: signedUrl });
   } catch (error) {
     res.status(500).json({ error: `Error retrieving pre-signed URL: ${error.message}` });

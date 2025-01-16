@@ -36,7 +36,6 @@ export const uploadFileToS3 = async (file, fileName) => {
         ACL: 'private', // You can either remove the ACL line or set it to 'private'
       },
     });
-    console.log('the key of upload file', upload.params.Key)
 
     const result = await upload.done(); // Perform file upload
     return result.Location; // Return the URL of the uploaded file
