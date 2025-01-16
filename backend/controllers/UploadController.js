@@ -1,8 +1,9 @@
-import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js";
+import { generatePresignedUrl, uploadFileToS3 } from "../middlewares/AwsS3Middleware.js";
 
 export const uploadProfilePicture = async (req, res) => {
   try {
     const file = req.file;
+    console.log('file', file)
     const fileName = `profile-pictures/${Date.now()}-${file.originalname}`;
     const fileUrl = await uploadFileToS3(file, fileName);
     res.status(200).json({ success: true, fileUrl, key: fileName });
@@ -32,3 +33,13 @@ export const uploadOptReceipt = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+export const getPreSignedUrl = async (req, res) => {
+  try {
+    const { filename } = req.query;
+    const signedUrl = await generatePresignedUrl(filename)
+    res.status(200).json({ url: signedUrl });
+  } catch (error) {
+    res.status(500).json({ error: `Error retrieving pre-signed URL: ${error.message}` });
+  }
+}
