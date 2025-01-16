@@ -4,12 +4,12 @@ import { BrowserRouter as Router, Link } from "react-router-dom";
 const Navbar = () => {
   return (
     <Router>
-      <AppBar position="static" color="primary">
-        <Box sx={{ display: "flex", alignItems: "center", padding: 1 }}>
+      <AppBar position="fixed" color="primary">
+        <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
           <Tabs
             textColor="inherit"
             indicatorColor="secondary"
-            sx={{ flexGrow: 1 }}
+            sx={{ flexGrow: 2 }}
           >
             <Tab
               label="Personal Information"

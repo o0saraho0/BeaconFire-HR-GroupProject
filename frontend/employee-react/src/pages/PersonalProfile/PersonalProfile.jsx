@@ -154,7 +154,11 @@ const PersonalProfile = () => {
     return (
       <Paper elevation={3} sx={{ padding: 3, marginBottom: 3 }}>
         <Box>
-          <Typography variant="h6" className="section-header">
+          <Typography
+            variant="h6"
+            className="section-header"
+            sx={{ marginBottom: 2 }}
+          >
             {sectionName}
           </Typography>
           {isArray
@@ -315,7 +319,11 @@ const PersonalProfile = () => {
 
   return (
     <Box sx={{ maxWidth: 500, margin: "0 auto" }}>
-      <Typography variant="h4" className="section-header">
+      <Typography
+        variant="h4"
+        className="section-header"
+        sx={{ marginTop: 10 }}
+      >
         Personal Profile
       </Typography>
       {renderSection("Name", [
@@ -333,7 +341,7 @@ const PersonalProfile = () => {
         { label: "Street", name: "current_address.street" },
         { label: "City", name: "current_address.city" },
         { label: "State", name: "current_address.state" },
-        { label: "ZIP", name: "current_address.zip" },
+        { label: "Zipcode", name: "current_address.zip" },
       ])}
       {renderSection("Contact Information", [
         { label: "Cell Phone*", name: "cell_phone" },
