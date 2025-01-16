@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import { setDocumentKey, selectDocumentKeys } from '../../store/documentSlice/documentSlice';
 
 const Application = () => {
+  const dispatch = useDispatch();
   const [application, setApplication] = useState(null);
   const [status, setStatus] = useState('Not Started');
+  const documentKeys = useSelector(selectDocumentKeys);
   const [feedback, setFeedback] = useState('');
   const localHost = 'localhost:3000'
   const [formData, setFormData] = useState({
@@ -94,12 +98,14 @@ const Application = () => {
     }
 
     try {
+      console.log('formdata', formData)
       const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
       console.log('File uploaded successfully:', response.data);
+      dispatch(setDocumentKey({ documentType: e.target.name, key: response.data.key }));
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -257,6 +263,16 @@ const Application = () => {
       <button type="submit">Submit</button>
     </form>
   );
+  const getPresignedUrl = async (fileName) => {
+    try {
+      const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
+        params: { fileName },
+      });
+      return response.data.url;
+    } catch (error) {
+      console.error('Error fetching pre-signed URL:', error);
+    }
+  };
 
   const renderPendingMessage = () => (
     <div>
@@ -286,29 +302,53 @@ const Application = () => {
           )}
         </div>
       </div>
-      {/* <div>
+      <div>
         <h3>Uploaded Documents</h3>
         <ul>
-          {formData.profilePicture && (
+          {documentKeys.profilePicture && (
             <li>
-              <a href={`http://localhost:3000/uploads/${formData.profilePicture}`} target="_blank" rel="noopener noreferrer">Profile Picture</a>
-              <a href={`http://localhost:3000/uploads/${formData.profilePicture}`} download>Download</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.profilePicture);
+                window.open(url, '_blank');
+              }}>Profile Picture</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.profilePicture);
+                window.location.href = url;
+              }}>Download</a>
             </li>
           )}
-          {formData.uploadedFiles.driverLicense && (
+          {documentKeys.driverLicense && (
             <li>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.driverLicense}`} target="_blank" rel="noopener noreferrer">Driver's License</a>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.driverLicense}`} download>Download</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+                window.open(url, '_blank');
+              }}>Driver's License</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+                window.location.href = url;
+              }}>Download</a>
             </li>
           )}
-          {formData.uploadedFiles.workAuthorization && (
+          {documentKeys.workAuthorization && (
             <li>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.workAuthorization}`} target="_blank" rel="noopener noreferrer">Work Authorization</a>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.workAuthorization}`} download>Download</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await fetchPresignedUrl(documentKeys.uploadedFiles.workAuthorization);
+                window.open(url, '_blank');
+              }}>Work Authorization</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await fetchPresignedUrl(documentKeys.workAuthorization);
+                window.location.href = url;
+              }}>Download</a>
             </li>
           )}
         </ul>
-      </div> */}
+      </div>
     </div>
   );
 
