@@ -5,7 +5,7 @@ import axiosauth from '../../interceptors/auth.interceptor'
 
 const initialState = {
   token: localStorage.getItem("token") || null,
-  userId: null,
+  userId: localStorage.getItem("userId") || null,
   isAuthenticated: !!localStorage.getItem("token"),
   loading: false,
   error: null,
@@ -22,6 +22,7 @@ export const login = createAsyncThunk(
 
       // store token in localStorage
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data.user_id);
 
       return response.data;
     } catch (error) {
@@ -96,6 +97,7 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.error = null;
         localStorage.removeItem("token");
+        localStorage.removeItem("userId")
       })
       .addCase(logout.rejected, (state, action) => {
         state.error = action.payload;
