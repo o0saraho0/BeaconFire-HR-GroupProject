@@ -10,6 +10,7 @@ import { useEffect } from "react";
 
 import Application from "./pages/Application/application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
+import Navbar from "./components/Navbar/Navbar.jsx";
 
 const router = createBrowserRouter([
   {
@@ -34,7 +35,11 @@ function App() {
     dispatch(login());
   }, [dispatch]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <Navbar /> <RouterProvider router={router} />;
+    </>
+  );
 }
 
 export default App;

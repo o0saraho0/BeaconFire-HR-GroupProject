@@ -8,7 +8,7 @@ export const fetchEmployeeProfile = createAsyncThunk(
     try {
       // const token = localStorage.getItem("token");
       const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTc4MDQ4LCJleHAiOjE3MzY5OTI0NDh9.sG2ZJko_9gEdL7dDTOxIL_SUVsm2fbqpSzSpEup1J_U";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTk1NDczLCJleHAiOjE3MzcwMDk4NzN9.qvoyI8vO8aP8MlecIU64YQpXugrF4_RVu08fOfvpeno";
       const response = await axios.get(
         "http://localhost:3000/api/personalinfo",
         {
@@ -30,7 +30,7 @@ export const updateEmployeeProfile = createAsyncThunk(
   async (profileData, { rejectWithValue }) => {
     // const token = localStorage.getItem("token");
     const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTc4MDQ4LCJleHAiOjE3MzY5OTI0NDh9.sG2ZJko_9gEdL7dDTOxIL_SUVsm2fbqpSzSpEup1J_U";
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTk1NDczLCJleHAiOjE3MzcwMDk4NzN9.qvoyI8vO8aP8MlecIU64YQpXugrF4_RVu08fOfvpeno";
     try {
       console.log(profileData);
       const response = await axios.post(
