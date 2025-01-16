@@ -6,6 +6,7 @@ import { setDocumentKey, selectDocumentKeys } from '../../store/documentSlice/do
 const Application = () => {
   const dispatch = useDispatch();
   const [application, setApplication] = useState(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState(null);
   const [status, setStatus] = useState('Not Started');
   const documentKeys = useSelector(selectDocumentKeys);
   const [feedback, setFeedback] = useState('');
@@ -102,6 +103,7 @@ const Application = () => {
       const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDQzODE5LCJleHAiOjE3MzcwNTgyMTl9.IW-g89gumG7gHTBP7lMcF5OvQLxkLry8DmE3xmttafo',
         },
       });
       console.log('File uploaded successfully:', response.data);
@@ -110,6 +112,18 @@ const Application = () => {
       console.error('Error uploading file:', error);
     }
   };
+
+  useEffect(() => {
+    const fetchAndOpenUrl = async () => {
+      console.log('Updated documentKeys:', documentKeys);
+      const url = await getPresignedUrl(documentKeys.profilePicture);
+      if (url) {
+        window.open(url, '_blank');
+      }
+    };
+
+    fetchAndOpenUrl();
+  }, [documentKeys]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -255,9 +269,48 @@ const Application = () => {
       <div>
         <label>Summary of Uploaded Files:</label>
         <ul>
-          {formData.profilePicture && <li>Profile Picture</li>}
-          {formData.uploadedFiles.driverLicense && <li>Driver's License</li>}
-          {formData.uploadedFiles.workAuthorization && <li>Work Authorization</li>}
+          {documentKeys.profilePicture && (
+            <li>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.profilePicture);
+                window.open(url, '_blank');
+              }}>Profile Picture</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.profilePicture);
+                window.location.href = url;
+              }}>Download</a>
+            </li>
+          )}
+          {documentKeys.driverLicense && (
+            <li>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+                window.open(url, '_blank');
+              }}>Driver's License</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+                window.location.href = url;
+              }}>Download</a>
+            </li>
+          )}
+          {documentKeys.workAuthorization && (
+            <li>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.uploadedFiles.workAuthorization);
+                window.open(url, '_blank');
+              }}>Work Authorization</a>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.workAuthorization);
+                window.location.href = url;
+              }}>Download</a>
+            </li>
+          )}
         </ul>
       </div>
       <button type="submit">Submit</button>
@@ -265,9 +318,14 @@ const Application = () => {
   );
   const getPresignedUrl = async (fileName) => {
     try {
+      console.log('starting the get request');
       const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
         params: { fileName },
+        headers: {
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDQzODE5LCJleHAiOjE3MzcwNTgyMTl9.IW-g89gumG7gHTBP7lMcF5OvQLxkLry8DmE3xmttafo',
+        },
       });
+      console.log('presigned url', response.data.url);
       return response.data.url;
     } catch (error) {
       console.error('Error fetching pre-signed URL:', error);
@@ -309,8 +367,16 @@ const Application = () => {
             <li>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.profilePicture);
-                window.open(url, '_blank');
+                try {
+                  const url = await getPresignedUrl(documentKeys.profilePicture);
+                  if (url) {
+                    window.open(url, '_blank');
+                  } else {
+                    console.error('Failed to retrieve URL');
+                  }
+                } catch (error) {
+                  console.error('Error fetching profile picture URL:', error);
+                }
               }}>Profile Picture</a>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
@@ -337,12 +403,12 @@ const Application = () => {
             <li>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await fetchPresignedUrl(documentKeys.uploadedFiles.workAuthorization);
+                const url = await getPresignedUrl(documentKeys.uploadedFiles.workAuthorization);
                 window.open(url, '_blank');
               }}>Work Authorization</a>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await fetchPresignedUrl(documentKeys.workAuthorization);
+                const url = await getPresignedUrl(documentKeys.workAuthorization);
                 window.location.href = url;
               }}>Download</a>
             </li>
