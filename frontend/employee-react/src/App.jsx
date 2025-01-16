@@ -1,22 +1,12 @@
 import "./App.css";
-
 import { createBrowserRouter, RouterProvider } from "react-router";
 import Guard from "./components/Auth/AuthGuard";
 
-import { useDispatch } from "react-redux";
-import { login } from "./store/AuthSlice/auth.slice.js";
-
-import { useEffect } from "react";
-
 import Application from "./pages/Application/application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
-// import the axios object that we have defined with interceptors
-import axios from "./interceptors/auth.interceptor";
-// // if you don't use interceptors:
-//import axios from 'axios';
-
 import LoginPage from "./pages/LoginPage/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
+import LogoutPage from "./pages/LogoutPage/LogoutPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -32,6 +22,11 @@ const router = createBrowserRouter([
   {
     path: "/register/:token",
     element: <RegisterPage />,
+    children: [],
+  },
+  {
+    path: "/logout",
+    element: <LogoutPage />,
     children: [],
   },
   {

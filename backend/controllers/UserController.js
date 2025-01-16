@@ -118,7 +118,11 @@ export const logoutUser = async (req, res) => {
     try {
 
         const token = req.headers.authorization.split(' ')[1];
-
+        // NOTE: here will send 2 loggout request and the later one will be error because of duplicated keys
+        const existingToken = await JWTRevocationList.findOne({ token }).lean().exec();
+        if (existingToken) {
+            return res.status(200).json({ message: 'The token already logged out' });
+        }
         await JWTRevocationList.create({ token }) // remoke/blacklist/invalidate the JWT in our db
 
         return res.status(200).json({ message: 'Logged out successfully' });

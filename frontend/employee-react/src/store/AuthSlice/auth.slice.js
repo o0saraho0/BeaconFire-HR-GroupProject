@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import axiosauth from '../../interceptors/auth.interceptor'
+
 
 const initialState = {
   token: localStorage.getItem("token") || null,
@@ -46,6 +48,20 @@ export const registerUser = createAsyncThunk(
     }
   }
 );
+export const logout = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      await axiosauth.post('http://localhost:3000/api/user/logout');
+      return;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Logout failed'
+      );
+    }
+  }
+);
+
 
 // Supported by reduxjs-toolkit: When you create the slice with createSlice, 
 // automatically generates action creators for each reducer function in the reducers object.
@@ -53,16 +69,6 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
-      state.token = null;
-      state.userId = null;
-      state.isAuthenticated = false;
-      state.error = null;
-
-      // Clear only token from localStorage
-      localStorage.removeItem("token");
-
-    },
     clearError: (state) => {
       state.error = null;
     },
@@ -83,9 +89,19 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.token = null;
+        state.userId = null;
+        state.isAuthenticated = false;
+        state.error = null;
+        localStorage.removeItem("token");
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { clearError } = authSlice.actions;
 export default authSlice.reducer;

@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 
-import { login } from "../../store/AuthSlice/auth.slice"; // Adjust the path as needed
+import { clearError, login } from "../../store/AuthSlice/auth.slice"; // Adjust the path as needed
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -46,6 +46,7 @@ const LoginPage = () => {
   };
   // Redirect if already authenticated
   useEffect(() => {
+    dispatch(clearError());
     if (isAuthenticated) {
       navigate("/");
     }
