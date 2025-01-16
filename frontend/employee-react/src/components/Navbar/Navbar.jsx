@@ -1,8 +1,15 @@
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+
+import { logout } from "../../store/AuthSlice/auth.slice";
+
 import { Tabs, Tab, AppBar, Box, Button } from "@mui/material";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
+
   const [value, setValue] = useState(0);
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
   // Synchronize the `value` with the current URL path
   useEffect(() => {
@@ -57,13 +64,24 @@ const Navbar = () => {
           <Tab label="Visa Status Management" />
           <Tab label="Housing" />
         </Tabs>
-        <Button
-          color="inherit"
-          href="/login"
-          sx={{ textDecoration: "none", color: "inherit" }}
-        >
-          Login
-        </Button>
+        {!loading &&
+          (isAuthenticated ? (
+            <Button
+              color="inherit"
+              href="/logout"
+              sx={{ textDecoration: "none", color: "inherit" }}
+            >
+              Logout
+            </Button>
+          ) : (
+            <Button
+              color="inherit"
+              href="/login"
+              sx={{ textDecoration: "none", color: "inherit" }}
+            >
+              Login
+            </Button>
+          ))}
       </Box>
     </AppBar>
   );
