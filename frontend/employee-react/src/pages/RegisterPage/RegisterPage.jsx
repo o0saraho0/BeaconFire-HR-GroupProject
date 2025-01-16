@@ -10,7 +10,7 @@ import {
   Box,
   Alert,
 } from "@mui/material";
-import { registerUser } from "../../store/AuthSlice/auth.slice"; // Assuming this exists
+import { clearError, registerUser } from "../../store/AuthSlice/auth.slice"; // Assuming this exists
 
 const Register = () => {
   const { token } = useParams(); // Get token from URL
@@ -26,6 +26,7 @@ const Register = () => {
   const [isValidating, setIsValidating] = useState(true);
 
   useEffect(() => {
+    dispatch(clearError());
     validateToken();
   }, [token]);
 
