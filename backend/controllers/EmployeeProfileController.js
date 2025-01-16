@@ -5,9 +5,7 @@ const getEmployeeProfile = async (req, res) => {
     const userId = req.body.user_id;
     const profile = await EmployeeProfile.findOne({ user_id: userId });
     if (!profile) {
-      return res
-        .status(404)
-        .json({ message: "Emit's gettployee profile not found." });
+      return res.status(404).json({ message: "Employee profile not found." });
     }
     res.json(profile);
   } catch (err) {

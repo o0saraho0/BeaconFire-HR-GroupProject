@@ -6,16 +6,8 @@ export const fetchEmployeeProfile = createAsyncThunk(
   "employee/fetchProfile",
   async (_, { rejectWithValue }) => {
     try {
-      // const token = localStorage.getItem("token");
-      const token =
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTk1NDczLCJleHAiOjE3MzcwMDk4NzN9.qvoyI8vO8aP8MlecIU64YQpXugrF4_RVu08fOfvpeno";
       const response = await axios.get(
-        "http://localhost:3000/api/personalinfo",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        "http://localhost:3000/api/personalinfo"
       );
       return response.data;
     } catch (error) {
@@ -28,19 +20,10 @@ export const fetchEmployeeProfile = createAsyncThunk(
 export const updateEmployeeProfile = createAsyncThunk(
   "employee/updateProfile",
   async (profileData, { rejectWithValue }) => {
-    // const token = localStorage.getItem("token");
-    const token =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM2OTk1NDczLCJleHAiOjE3MzcwMDk4NzN9.qvoyI8vO8aP8MlecIU64YQpXugrF4_RVu08fOfvpeno";
     try {
-      console.log(profileData);
-      const response = await axios.post(
+      const response = await axios.put(
         "http://localhost:3000/api/personalinfo",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          profileData,
-        }
+        profileData
       );
       return response.data;
     } catch (error) {
