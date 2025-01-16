@@ -7,7 +7,7 @@ import Registration from "../models/Registration.js";
  */
 export const generateAndSendRegisterToken = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { email, first_name, last_name } = req.body;
 
         // Check if the email already exists
         const existingRecord = await Registration.findOne({ email, status: "Unused" });
@@ -20,8 +20,8 @@ export const generateAndSendRegisterToken = async (req, res) => {
         const expiresAt = new Date(Date.now() + 3 * 60 * 60 * 1000); // Token expires in 3 hours
 
         // Save token in the database
-        const newRecord = await Registration.create({ email, token, expires_at: expiresAt });
 
+        const registration_link = `http://localhost:5173/register/${token}`
         // Send token to the user's email
         const transporter = nodemailer.createTransport({
             service: "Gmail",
@@ -35,10 +35,12 @@ export const generateAndSendRegisterToken = async (req, res) => {
             from: process.env.EMAIL_USER,
             to: email,
             subject: "Registration Token",
-            text: `Your registration token is: ${token}. It will expire in 3 hours.`,
+            text: `Your registration token is: ${token}. Open this link ${registration_link} to register your username and password. It will expire in 3 hours.`,
         };
 
         await transporter.sendMail(mailOptions);
+
+        const newRecord = await Registration.create({ email, first_name, last_name, status: "Unused", token, registration_link, expires_at: expiresAt });
 
         res.status(200).json({ message: "Token generated and sent to email.", data: newRecord });
     } catch (err) {
@@ -70,7 +72,7 @@ export const validateRegisterToken = async (req, res) => {
         record.status = "Used";
         await record.save();
 
-        res.status(200).json({ message: "Token validated successfully." });
+        res.status(200).json({ message: "Token validated successfully.", email: record.email });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

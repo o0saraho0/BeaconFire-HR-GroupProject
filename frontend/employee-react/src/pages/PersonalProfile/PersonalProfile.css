@@ -1,0 +1,47 @@
+.profile-container {
+  max-width: 500px;
+  margin: 30px auto;
+}
+
+.profile-header {
+  text-align: center;
+  padding: 30px;
+}
+
+.section-paper {
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.section-header {
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+.field-box,
+.contact-box {
+  margin-bottom: 8px;
+}
+
+.field-input,
+.contact-input {
+  margin-bottom: 8px;
+}
+
+.field-text,
+.contact-text {
+  margin-bottom: 4px;
+}
+
+.button-box {
+  display: flex;
+  justify-content: flex-end;
+}
+
+h4 {
+  padding: 30px;
+}
+
+.section-header {
+  text-align: center;
+}

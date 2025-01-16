@@ -22,7 +22,7 @@ const employee_profile_schema = new mongoose.Schema({
   car_make: { type: String },
   car_model: { type: String },
   car_color: { type: String },
-  ssn: { type: Date, required: true },
+  ssn: { type: String, required: true },
   dob: { type: Date, required: true },
   gender: {
     type: String,
