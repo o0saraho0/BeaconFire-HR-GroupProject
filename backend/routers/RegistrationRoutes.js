@@ -1,18 +1,13 @@
 import express from "express";
-import { generateAndSendRegisterToken, validateRegisterToken } from "../controllers/RegistrationController.js";
+import { validateRegisterToken, generateAndSendRegisterToken, getAllRegistrations } from "../controllers/RegistrationController.js";
 
 const router = express.Router();
 
-/**
- * POST /api/registration/generate-token
- * Generate a registration token and send it via email
- */
+// Register and send email
 router.post("/generate-and-send-email", generateAndSendRegisterToken);
-
-/**
- * POST /api/registration/validate-token
- * Validate a registration token
- */
+// Validate token route
 router.post("/validate-register-token", validateRegisterToken);
+// New API to fetch all registrations
+router.get("/all", getAllRegistrations);
 
 export default router;

@@ -1,0 +1,24 @@
+mat-card {
+  padding: 50px 100px;
+  height: 90vh;
+}
+
+h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  text-decoration: underline;
+}
+
+table {
+  width: 100%;
+}
+
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.margin-left > div {
+  margin-left: 30px;
+}

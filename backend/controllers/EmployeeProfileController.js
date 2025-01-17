@@ -15,14 +15,13 @@ const getEmployeeProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const userId = req.body.profileData.user_id;
-    const updatedData = req.body.profileData;
+    const userId = req.body.user_id;
+    const updatedData = req.body;
     const profile = await EmployeeProfile.findOneAndUpdate(
       { user_id: userId },
       updatedData,
       { new: true }
     );
-    console.log("profile", profile);
     if (!profile) {
       return res.status(404).json({ message: "Employee profile not found." });
     }

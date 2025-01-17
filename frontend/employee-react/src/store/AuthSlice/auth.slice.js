@@ -1,11 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import axiosauth from '../../interceptors/auth.interceptor'
-
+import axiosauth from "../../interceptors/auth.interceptor";
 
 const initialState = {
   token: localStorage.getItem("token") || null,
-  userId: null,
+  userId: localStorage.getItem("userId") || null,
   isAuthenticated: !!localStorage.getItem("token"),
   loading: false,
   error: null,
@@ -22,6 +21,7 @@ export const login = createAsyncThunk(
 
       // store token in localStorage
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("userId", response.data.user_id);
 
       return response.data;
     } catch (error) {
@@ -33,37 +33,34 @@ export const login = createAsyncThunk(
 );
 
 export const registerUser = createAsyncThunk(
-  'auth/register',
+  "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
       const { data } = await axios.post(
-        'http://localhost:3000/api/user/register',
+        "http://localhost:3000/api/user/register",
         userData
       );
       return data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 'Registration failed'
+        error.response?.data?.message || "Registration failed"
       );
     }
   }
 );
 export const logout = createAsyncThunk(
-  'auth/logout',
+  "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      await axiosauth.post('http://localhost:3000/api/user/logout');
+      await axiosauth.post("http://localhost:3000/api/user/logout");
       return;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || 'Logout failed'
-      );
+      return rejectWithValue(error.response?.data?.message || "Logout failed");
     }
   }
 );
 
-
-// Supported by reduxjs-toolkit: When you create the slice with createSlice, 
+// Supported by reduxjs-toolkit: When you create the slice with createSlice,
 // automatically generates action creators for each reducer function in the reducers object.
 const authSlice = createSlice({
   name: "auth",
@@ -96,21 +93,16 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.error = null;
         localStorage.removeItem("token");
-
-        // Temp
-        localStorage.removeItem("userId");
+        localStorage.removeItem("userId")
       })
       .addCase(logout.rejected, (state, action) => {
         state.error = action.payload;
-        
-
-        // Temp
         state.token = null;
         state.userId = null;
         state.isAuthenticated = false;
         state.error = null;
         localStorage.removeItem("token");
-        localStorage.removeItem("userId");
+        localStorage.removeItem("userId")
       });
   },
 });
