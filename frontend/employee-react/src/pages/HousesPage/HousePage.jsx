@@ -1,89 +1,59 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployeeProfile } from "../../store/employeeSlice/employee.slice";
+import { useSelector } from "react-redux";
 import { Container, Typography, Card, CardContent, List, ListItem, Box } from "@mui/material";
 
 const HousePage = () => {
-    const dispatch = useDispatch();
-
-    const profile = useSelector((state) => state.employee.profile);
-    const userId = profile?.user_id; // Extract userId from employee profile
-    const status = useSelector((state) => state.employee.status);
-
+    const userId = useSelector((state) => state.auth.userId); // Access userId from auth slice
     const [houseDetails, setHouseDetails] = useState(null);
     const [facilityReports, setFacilityReports] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        dispatch(fetchEmployeeProfile());
-    }, [dispatch]);
-
-    useEffect(() => {
-        const fetchHouseData = async () => {
-            if (!userId) {
-                console.log("No userId available");
-                setLoading(false);
-                return;
+        if (!userId) {
+            // Log the error only in development for debugging purposes
+            if (import.meta.env.MODE === "development") {
+                console.error("User ID is not available");
             }
+            return;
+        }
 
+        const fetchData = async () => {
             setLoading(true);
             try {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    throw new Error("Authorization token is missing");
-                }
-
                 // Fetch house details
-                const houseResponse = await fetch(`http://localhost:3000/api/houses/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (!houseResponse.ok) {
-                    throw new Error(`Failed to fetch house details: ${houseResponse.status} ${houseResponse.statusText}`);
-                }
+                const houseResponse = await fetch(`http://localhost:3000/api/houses/${userId}`);
+                if (!houseResponse.ok) throw new Error("Failed to fetch house details");
                 const houseData = await houseResponse.json();
                 setHouseDetails(houseData);
 
                 // Fetch facility reports
-                const reportsResponse = await fetch(`http://localhost:3000/api/facility-reports/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                if (!reportsResponse.ok) {
-                    throw new Error(`Failed to fetch facility reports: ${reportsResponse.status} ${reportsResponse.statusText}`);
-                }
+                const reportsResponse = await fetch(`http://localhost:3000/api/facility-reports/${userId}`);
+                if (!reportsResponse.ok) throw new Error("Failed to fetch facility reports");
                 const reportsData = await reportsResponse.json();
                 setFacilityReports(reportsData);
             } catch (error) {
-                console.error("Error fetching house or reports data:", error);
-                alert("Failed to fetch house or facility reports. Please ensure you're logged in.");
+                console.error("Error fetching data:", error);
             }
             setLoading(false);
         };
 
-        if (userId) {
-            fetchHouseData();
-        }
+        fetchData();
     }, [userId]);
 
-    if (status === "loading" || loading) {
+    if (!userId) {
         return (
             <Container style={{ marginTop: "80px" }}>
-                <Typography>Loading...</Typography>
+                <Typography variant="h5" color="error" align="center" marginTop={4}>
+                    You are not logged in. Please log in to view your house details.
+                </Typography>
             </Container>
         );
     }
 
-    if (!houseDetails) {
+    if (loading) {
         return (
             <Container style={{ marginTop: "80px" }}>
-                <Typography>No house details found. Please contact support.</Typography>
+                <Typography>Loading...</Typography>
             </Container>
         );
     }
@@ -95,15 +65,21 @@ const HousePage = () => {
             </Typography>
             <Card>
                 <CardContent>
-                    <Typography variant="h6">Address: {houseDetails.address}</Typography>
-                    <Typography variant="h6">Roommates:</Typography>
-                    <List>
-                        {houseDetails.roommates.map((roommate, index) => (
-                            <ListItem key={index}>
-                                {roommate.name} - {roommate.phone}
-                            </ListItem>
-                        ))}
-                    </List>
+                    {houseDetails ? (
+                        <>
+                            <Typography variant="h6">Address: {houseDetails.address}</Typography>
+                            <Typography variant="h6">Roommates:</Typography>
+                            <List>
+                                {houseDetails.roommates.map((roommate, index) => (
+                                    <ListItem key={index}>
+                                        {roommate.name} - {roommate.phone}
+                                    </ListItem>
+                                ))}
+                            </List>
+                        </>
+                    ) : (
+                        <Typography>No house details found.</Typography>
+                    )}
                 </CardContent>
             </Card>
 
@@ -126,7 +102,7 @@ const HousePage = () => {
                         ))}
                     </List>
                 ) : (
-                    <Typography>No facility reports found. You can create one if needed.</Typography>
+                    <Typography>No reports found.</Typography>
                 )}
             </Box>
         </Container>

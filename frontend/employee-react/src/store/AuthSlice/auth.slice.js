@@ -96,9 +96,21 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.error = null;
         localStorage.removeItem("token");
+
+        // Temp
+        localStorage.removeItem("userId");
       })
       .addCase(logout.rejected, (state, action) => {
         state.error = action.payload;
+        
+
+        // Temp
+        state.token = null;
+        state.userId = null;
+        state.isAuthenticated = false;
+        state.error = null;
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
       });
   },
 });
