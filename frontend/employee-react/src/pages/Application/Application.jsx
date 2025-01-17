@@ -1,11 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from '../../interceptors/auth.interceptor'
+import { setDocumentKey, selectUserDocuments } from '../../store/documentSlice/documentSlice';
+import {
+  TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel,
+  Container, Typography, Paper, Pagination
+} from '@mui/material';
+import { Grid2 as Grid } from '@mui/material';
 
 const Application = () => {
-  const [application, setApplication] = useState(null);
+  const userId = localStorage.getItem('userId');
+  const dispatch = useDispatch();
   const [status, setStatus] = useState('Not Started');
-  const [feedback, setFeedback] = useState('');
-  const localHost = 'localhost:3000'
+  const userDocuments = useSelector(state => selectUserDocuments(state, userId)); const [feedback, setFeedback] = useState('');
+  const localHost = 'localhost:3000';
+  const [uploadedProfilePicture, setProfilePicture] = useState('');
+  const [uploadedDriverLicense, setDriverLicense] = useState('');
+  const [uploadedWorkAuth, setWorkAuth] = useState('');
+  const [profileUrl, setProfileUrl] = useState('')
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -52,15 +65,26 @@ const Application = () => {
     },
   });
 
+  const [page, setPage] = useState(1);
+  const totalPages = 3;
+
   useEffect(() => {
     const fetchApplication = async () => {
       try {
         const response = await axios.get(`http://${localHost}/api/onboarding/status`);
-        console.log('response of status', response)
-        // setApplication(response.data);
-        setStatus(response.data.status);
-        setFeedback(response.data.feedback);
-        setFormData(response.data);
+        console.log(response.data)
+        if (response.data.status == 'Not Started') {
+          setStatus(response.data.status);
+        } else {
+          setStatus(response.data.application.status);
+          setFeedback(response.data.application.feedback);
+          setFormData(response.data.application);
+        }
+        console.log(response.data.email)
+        setFormData((prevData) => ({
+          ...prevData,
+          email: response.data.email
+        }));
       } catch (error) {
         console.error('Error fetching application:', error);
       }
@@ -71,22 +95,57 @@ const Application = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const keys = name.split(/[\.\[\]]+/).filter(Boolean);
+
+    setFormData((prevState) => {
+      let newState = { ...prevState };
+      let current = newState;
+
+      for (let i = 0; i < keys.length - 1; i++) {
+        if (Array.isArray(current)) {
+          current = current[parseInt(keys[i], 10)];
+        } else {
+          current = current[keys[i]];
+        }
+      }
+
+      if (Array.isArray(current)) {
+        current[parseInt(keys[keys.length - 1], 10)] = value;
+      } else {
+        current[keys[keys.length - 1]] = value;
+      }
+
+      return newState;
+    });
   };
 
   const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const fileName = file.name;
+    switch (e.target.name) {
+      case 'profilePicture':
+        setProfilePicture(fileName);
+        break;
+      case 'driversLicenseFile':
+        setDriverLicense(fileName);
+        break;
+      case 'workAuthorizationFile':
+        setWorkAuth(fileName);
+        break;
+      default:
+        return;
+    }
     const formData = new FormData();
     formData.append('file', e.target.files[0]);
-
     let endpoint = '';
     switch (e.target.name) {
       case 'profilePicture':
         endpoint = '/api/upload/profile-picture';
         break;
-      case 'uploadedFiles.driverLicense':
+      case 'driversLicenseFile':
         endpoint = '/api/upload/driver-license';
         break;
-      case 'uploadedFiles.workAuthorization':
+      case 'workAuthorizationFile':
         endpoint = '/api/upload/opt-receipt';
         break;
       default:
@@ -96,10 +155,11 @@ const Application = () => {
     try {
       const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data'
         },
       });
-      console.log('File uploaded successfully:', response.data);
+      dispatch(setDocumentKey({ userId, documentType: e.target.name, key: response.data.key }));
+      console.log('userDocuments', userDocuments)
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -108,222 +168,598 @@ const Application = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/onboarding', formData);
+      console.log('formdata', formData)
+      const response = await axios.post(`http://${localHost}/api/onboarding`, formData);
+      // if (response)
       setStatus('Pending');
     } catch (error) {
       console.error('Error submitting application:', error);
     }
   };
 
-  const renderForm = () => (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>First Name:</label>
-        <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Last Name:</label>
-        <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Middle Name:</label>
-        <input type="text" name="middleName" value={formData.middleName} onChange={handleInputChange} />
-      </div>
-      <div>
-        <label>Preferred Name:</label>
-        <input type="text" name="preferredName" value={formData.preferredName} onChange={handleInputChange} />
-      </div>
-      <div>
-        <label>Profile Picture:</label>
-        <input type="file" name="profilePicture" onChange={handleFileUpload} />
-      </div>
-      <div>
-        <label>Current Address:</label>
-        <input type="text" name="currentAddress.building" placeholder="Building/Apt #" value={formData.currentAddress.building} onChange={handleInputChange} />
-        <input type="text" name="currentAddress.street" placeholder="Street Name" value={formData.currentAddress.street} onChange={handleInputChange} />
-        <input type="text" name="currentAddress.city" placeholder="City" value={formData.currentAddress.city} onChange={handleInputChange} />
-        <input type="text" name="currentAddress.state" placeholder="State" value={formData.currentAddress.state} onChange={handleInputChange} />
-        <input type="text" name="currentAddress.zip" placeholder="Zip" value={formData.currentAddress.zip} onChange={handleInputChange} />
-      </div>
-      <div>
-        <label>Cell Phone:</label>
-        <input type="text" name="cellPhone" value={formData.cellPhone} onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Work Phone:</label>
-        <input type="text" name="workPhone" value={formData.workPhone} onChange={handleInputChange} />
-      </div>
-      <div>
-        <label>Car Information:</label>
-        <input type="text" name="carInfo.make" placeholder="Make" value={formData.carInfo.make} onChange={handleInputChange} />
-        <input type="text" name="carInfo.model" placeholder="Model" value={formData.carInfo.model} onChange={handleInputChange} />
-        <input type="text" name="carInfo.color" placeholder="Color" value={formData.carInfo.color} onChange={handleInputChange} />
-      </div>
-      <div>
-        <label>Email:</label>
-        <input type="email" name="email" value={formData.email} readOnly />
-      </div>
-      <div>
-        <label>SSN:</label>
-        <input type="text" name="ssn" value={formData.ssn} onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Date of Birth:</label>
-        <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Gender:</label>
-        <select name="gender" value={formData.gender} onChange={handleInputChange}>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="I do not wish to answer">I do not wish to answer</option>
-        </select>
-      </div>
-      <div>
-        <label>Are you a citizen or permanent resident of the U.S?</label>
-        <select name="visaType" value={formData.visaType} onChange={handleInputChange} required>
-          <option value="Green Card">Green Card</option>
-          <option value="Citizen">Citizen</option>
-          <option value="H1B Category">H1B Category</option>
-          <option value="F1 Category">F1 Category</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      {formData.visaType === 'F1 Category' && (
-        <div>
-          <label>Upload OPT Receipt:</label>
-          <input type="file" name="uploadedFiles.workAuthorization" onChange={handleFileUpload} />
-        </div>
-      )}
-      {formData.visaType === 'Other' && (
-        <div>
-          <label>Specify Visa Title:</label>
-          <input type="text" name="visaTitle" value={formData.visaTitle} onChange={handleInputChange} />
-        </div>
-      )}
-      <div>
-        <label>Do you have a driver's license?</label>
-        <input type="checkbox" name="hasDriverLicense" checked={formData.hasDriverLicense} onChange={handleInputChange} />
-      </div>
-      {formData.hasDriverLicense && (
-        <>
-          <div>
-            <label>Driver's License Number:</label>
-            <input type="text" name="driverLicense.number" value={formData.driverLicense.number} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <label>Expiration Date:</label>
-            <input type="date" name="driverLicense.expireDate" value={formData.driverLicense.expireDate} onChange={handleInputChange} required />
-          </div>
-          <div>
-            <label>Upload Driver's License:</label>
-            <input type="file" name="uploadedFiles.driverLicense" onChange={handleFileUpload} />
-          </div>
-        </>
-      )}
-      <div>
-        <label>Reference:</label>
-        <input type="text" name="reference.firstName" placeholder="First Name" value={formData.reference.firstName} onChange={handleInputChange} required />
-        <input type="text" name="reference.lastName" placeholder="Last Name" value={formData.reference.lastName} onChange={handleInputChange} required />
-        <input type="text" name="reference.middleName" placeholder="Middle Name" value={formData.reference.middleName} onChange={handleInputChange} />
-        <input type="text" name="reference.phone" placeholder="Phone" value={formData.reference.phone} onChange={handleInputChange} required />
-        <input type="email" name="reference.email" placeholder="Email" value={formData.reference.email} onChange={handleInputChange} required />
-        <input type="text" name="reference.relationship" placeholder="Relationship" value={formData.reference.relationship} onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Emergency Contacts:</label>
-        {formData.emergencyContacts.map((contact, index) => (
-          <div key={index}>
-            <input type="text" name={`emergencyContacts[${index}].firstName`} placeholder="First Name" value={contact.firstName} onChange={handleInputChange} required />
-            <input type="text" name={`emergencyContacts[${index}].lastName`} placeholder="Last Name" value={contact.lastName} onChange={handleInputChange} required />
-            <input type="text" name={`emergencyContacts[${index}].middleName`} placeholder="Middle Name" value={contact.middleName} onChange={handleInputChange} />
-            <input type="text" name={`emergencyContacts[${index}].phone`} placeholder="Phone" value={contact.phone} onChange={handleInputChange} required />
-            <input type="email" name={`emergencyContacts[${index}].email`} placeholder="Email" value={contact.email} onChange={handleInputChange} required />
-            <input type="text" name={`emergencyContacts[${index}].relationship`} placeholder="Relationship" value={contact.relationship} onChange={handleInputChange} required />
-          </div>
-        ))}
-        <button type="button" onClick={() => setFormData({ ...formData, emergencyContacts: [...formData.emergencyContacts, { firstName: '', lastName: '', middleName: '', phone: '', email: '', relationship: '' }] })}>
-          Add Emergency Contact
-        </button>
-      </div>
-      <div>
-        <label>Summary of Uploaded Files:</label>
-        <ul>
-          {formData.profilePicture && <li>Profile Picture</li>}
-          {formData.uploadedFiles.driverLicense && <li>Driver's License</li>}
-          {formData.uploadedFiles.workAuthorization && <li>Work Authorization</li>}
-        </ul>
-      </div>
-      <button type="submit">Submit</button>
-    </form>
+  const renderFormPage1 = () => (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h6">Personal Information</Typography>
+        <TextField
+          label="First Name"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Last Name"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Middle Name"
+          name="middleName"
+          value={formData.middleName}
+          onChange={handleInputChange}
+          fullWidth
+        />
+        <TextField
+          label="Preferred Name"
+          name="preferredName"
+          value={formData.preferredName}
+          onChange={handleInputChange}
+          fullWidth
+        />
+        <Button
+          variant="contained"
+          component="label"
+        >
+          Upload Profile Picture
+          <input
+            type="file"
+            name="profilePicture"
+            placeholder='Profile Picture'
+            onChange={handleFileUpload}
+            hidden
+          />
+        </Button>
+        {uploadedProfilePicture && <Typography variant="body2">{uploadedProfilePicture}</Typography>}
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant="h6">Current Address</Typography>
+        <TextField
+          label="Building/Apt #"
+          name="currentAddress.building"
+          placeholder="Building/Apt #"
+          value={formData.currentAddress.building}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Street Name"
+          name="currentAddress.street"
+          placeholder="Street Name"
+          value={formData.currentAddress.street}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="City"
+          name="currentAddress.city"
+          placeholder="City"
+          value={formData.currentAddress.city}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="State"
+          name="currentAddress.state"
+          placeholder="State"
+          value={formData.currentAddress.state}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Zip"
+          name="currentAddress.zip"
+          placeholder="Zip"
+          value={formData.currentAddress.zip}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+      </Grid>
+    </Grid>
   );
+
+  const renderFormPage2 = () => (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h6">Car Information</Typography>
+        <TextField
+          label="Make"
+          name="carInfo.make"
+          placeholder="Make"
+          value={formData.carInfo.make}
+          onChange={handleInputChange}
+          fullWidth
+        />
+        <TextField
+          label="Model"
+          name="carInfo.model"
+          placeholder="Model"
+          value={formData.carInfo.model}
+          onChange={handleInputChange}
+          fullWidth
+        />
+        <TextField
+          label="Color"
+          name="carInfo.color"
+          placeholder="Color"
+          value={formData.carInfo.color}
+          onChange={handleInputChange}
+          fullWidth
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant="h6">Additional Information</Typography>
+        <TextField
+          label='Email'
+          name='email'
+          value={formData.email}
+          fullWidth
+          disabled
+        />
+        <TextField
+          label="SSN"
+          name="ssn"
+          value={formData.ssn}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Date of Birth"
+          name="dob"
+          type="date"
+          value={formData.dob}
+          onChange={handleInputChange}
+          fullWidth
+          InputLabelProps={{
+            shrink: true,
+          }}
+          required
+        />
+        <FormControl fullWidth>
+          <InputLabel>Gender</InputLabel>
+          <Select
+            name="gender"
+            value={formData.gender}
+            onChange={handleInputChange}
+          >
+            <MenuItem value="Male">Male</MenuItem>
+            <MenuItem value="Female">Female</MenuItem>
+            <MenuItem value="I do not wish to answer">I do not wish to answer</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl fullWidth>
+          <InputLabel>Are you a citizen or permanent resident of the U.S?</InputLabel>
+          <Select
+            name="visaType"
+            value={formData.visaType}
+            onChange={handleInputChange}
+            required
+          >
+            <MenuItem value="Green Card">Green Card</MenuItem>
+            <MenuItem value="Citizen">Citizen</MenuItem>
+            <MenuItem value="H1B Category">H1B Category</MenuItem>
+            <MenuItem value="F1 Category">F1 Category</MenuItem>
+            <MenuItem value="Other">Other</MenuItem>
+          </Select>
+        </FormControl>
+        {formData.visaType === 'F1 Category' && (
+          <Button
+            variant="contained"
+            component="label"
+          >
+            Upload OPT Receipt
+            <input
+              type="file"
+              name="workAuthorizationFile"
+              onChange={handleFileUpload}
+              hidden
+            />
+          </Button>
+        )}
+        {uploadedWorkAuth && <Typography variant="body2">{uploadedWorkAuth}</Typography>}
+
+        {formData.visaType === 'Other' && (
+          <TextField
+            label="Specify Visa Title"
+            name="visaTitle"
+            value={formData.visaTitle}
+            onChange={handleInputChange}
+            fullWidth
+          />
+        )}
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="hasDriverLicense"
+              checked={formData.hasDriverLicense}
+              onChange={handleInputChange}
+              required
+            />
+          }
+          label="Do you have a driver's license?"
+        />
+        {formData.hasDriverLicense && (
+          <>
+            <TextField
+              label="Driver's License Number"
+              name="driverLicense.number"
+              value={formData.driverLicense.number}
+              onChange={handleInputChange}
+              fullWidth
+              required
+            />
+            <TextField
+              label="Expiration Date"
+              name="driverLicense.expireDate"
+              type="date"
+              value={formData.driverLicense.expireDate}
+              onChange={handleInputChange}
+              fullWidth
+              InputLabelProps={{
+                shrink: true,
+              }}
+              required
+            />
+            <Button
+              variant="contained"
+              component="label"
+            >
+              Upload Driver's License
+              <input
+                type="file"
+                name="driversLicenseFile"
+                onChange={handleFileUpload}
+                hidden
+              />
+            </Button>
+            {uploadedDriverLicense && <Typography variant="body2">{uploadedDriverLicense}</Typography>}
+          </>
+        )}
+      </Grid>
+    </Grid>
+  );
+
+  const renderFormPage3 = () => (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h6">Reference (who referred you to this company? There can only be 1)</Typography>
+        <TextField
+          label="First Name"
+          name="reference.firstName"
+          placeholder="First Name"
+          value={formData.reference.firstName}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Last Name"
+          name="reference.lastName"
+          placeholder="Last Name"
+          value={formData.reference.lastName}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Middle Name"
+          name="reference.middleName"
+          placeholder="Middle Name"
+          value={formData.reference.middleName}
+          onChange={handleInputChange}
+          fullWidth
+        />
+        <TextField
+          label="Phone"
+          name="reference.phone"
+          placeholder="Phone"
+          value={formData.reference.phone}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Email"
+          name="reference.email"
+          placeholder="Email"
+          value={formData.reference.email}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+        <TextField
+          label="Relationship"
+          name="reference.relationship"
+          placeholder="Relationship"
+          value={formData.reference.relationship}
+          onChange={handleInputChange}
+          fullWidth
+          required
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant="h6">Emergency Contacts</Typography>
+        {formData.emergencyContacts.map((contact, index) => (
+          <Grid container spacing={2} key={index}>
+            <Grid item xs={12}>
+              <TextField
+                label="First Name"
+                name={`emergencyContacts[${index}].firstName`}
+                placeholder="First Name"
+                value={contact.firstName}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Last Name"
+                name={`emergencyContacts[${index}].lastName`}
+                placeholder="Last Name"
+                value={contact.lastName}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Middle Name"
+                name={`emergencyContacts[${index}].middleName`}
+                placeholder="Middle Name"
+                value={contact.middleName}
+                onChange={handleInputChange}
+                fullWidth
+              />
+              <TextField
+                label="Phone"
+                name={`emergencyContacts[${index}].phone`}
+                placeholder="Phone"
+                value={contact.phone}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Email"
+                name={`emergencyContacts[${index}].email`}
+                placeholder="Email"
+                value={contact.email}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Relationship"
+                name={`emergencyContacts[${index}].relationship`}
+                placeholder="Relationship"
+                value={contact.relationship}
+                onChange={handleInputChange}
+                fullWidth
+                required
+              />
+            </Grid>
+          </Grid>
+        ))}
+        <Button
+          variant="contained"
+          onClick={() => setFormData({
+            ...formData,
+            emergencyContacts: [...formData.emergencyContacts, { firstName: '', lastName: '', middleName: '', phone: '', email: '', relationship: '' }]
+          })}
+        >
+          Add Emergency Contact
+        </Button>
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant="h6">Summary of Uploaded Files</Typography>
+        <ul>
+          {userDocuments.profilePicture && (
+            <li>
+              <span>Profile Picture: </span>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(userDocuments.profilePicture);
+                setProfileUrl(url)
+                window.open(url, '_blank');
+              }}>Preview</a>
+              {' | '}
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const theprofileUrl = await getPresignedUrl(userDocuments.profilePicture);
+                window.location.href = theprofileUrl;
+              }} download>Download</a>
+            </li>)}
+          {userDocuments.driversLicenseFile && (
+            <li>
+              <span>Driver's License: </span>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
+                window.open(url, '_blank');
+              }}>Preview</a>
+              {' | '}
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
+                window.location.href = url;
+              }} download>Download</a>
+            </li>
+          )}
+          {userDocuments.workAuthorizationFile && (
+            <li>
+              <span>Work Authorization: </span>
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(userDocuments.workAuthorization);
+                window.open(url, '_blank');
+              }}>Preview</a>
+              {' | '}
+              <a href="#" onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(userDocuments.workAuthorization);
+                window.location.href = url;
+              }} download>Download</a>
+            </li>
+          )}
+        </ul>
+      </Grid>
+    </Grid >
+  );
+
+  const renderForm = () => {
+    switch (page) {
+      case 1:
+        return renderFormPage1();
+      case 2:
+        return renderFormPage2();
+      case 3:
+        return renderFormPage3();
+      default:
+        return null;
+    }
+  };
+
+  const getPresignedUrl = async (fileName) => {
+    try {
+      const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
+        params: { fileName }
+      });
+      return response.data.url;
+    } catch (error) {
+      console.error('Error fetching pre-signed URL:', error);
+    }
+  };
 
   const renderPendingMessage = () => (
-    <div>
-      <p>Please wait for HR to review your application. Below is your submitted application and uploaded documents:</p>
-      <div>
-        <h3>Submitted Application</h3>
-        <div>
-          <p><strong>First Name:</strong> {formData.firstName}</p>
-          <p><strong>Last Name:</strong> {formData.lastName}</p>
-          <p><strong>Middle Name:</strong> {formData.middleName}</p>
-          <p><strong>Preferred Name:</strong> {formData.preferredName}</p>
-          <p><strong>Email:</strong> {formData.email}</p>
-          <p><strong>Cell Phone:</strong> {formData.cellPhone}</p>
-          <p><strong>Work Phone:</strong> {formData.workPhone}</p>
-          <p><strong>Current Address:</strong> {`${formData.currentAddress.building}, ${formData.currentAddress.street}, ${formData.currentAddress.city}, ${formData.currentAddress.state}, ${formData.currentAddress.zip}`}</p>
-          <p><strong>Car Information:</strong> {`${formData.carInfo.make}, ${formData.carInfo.model}, ${formData.carInfo.color}`}</p>
-          <p><strong>SSN:</strong> {formData.ssn}</p>
-          <p><strong>Date of Birth:</strong> {formData.dob}</p>
-          <p><strong>Gender:</strong> {formData.gender}</p>
-          <p><strong>Visa Type:</strong> {formData.visaType}</p>
-          {formData.visaType === 'Other' && <p><strong>Visa Title:</strong> {formData.visaTitle}</p>}
-          {formData.hasDriverLicense && (
-            <>
-              <p><strong>Driver's License Number:</strong> {formData.driverLicense.number}</p>
-              <p><strong>Expiration Date:</strong> {formData.driverLicense.expireDate}</p>
-            </>
-          )}
-        </div>
-      </div>
-      {/* <div>
-        <h3>Uploaded Documents</h3>
-        <ul>
-          {formData.profilePicture && (
-            <li>
-              <a href={`http://localhost:3000/uploads/${formData.profilePicture}`} target="_blank" rel="noopener noreferrer">Profile Picture</a>
-              <a href={`http://localhost:3000/uploads/${formData.profilePicture}`} download>Download</a>
-            </li>
-          )}
-          {formData.uploadedFiles.driverLicense && (
-            <li>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.driverLicense}`} target="_blank" rel="noopener noreferrer">Driver's License</a>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.driverLicense}`} download>Download</a>
-            </li>
-          )}
-          {formData.uploadedFiles.workAuthorization && (
-            <li>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.workAuthorization}`} target="_blank" rel="noopener noreferrer">Work Authorization</a>
-              <a href={`http://localhost:3000/uploads/${formData.uploadedFiles.workAuthorization}`} download>Download</a>
-            </li>
-          )}
-        </ul>
-      </div> */}
-    </div>
+    <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+      <Typography variant="body1">
+        Please wait for HR to review your application. Below is your submitted application and uploaded documents:
+      </Typography>
+      <Typography variant="h6">Submitted Application</Typography>
+      <Typography variant="body2"><strong>First Name:</strong> {formData.firstName}</Typography>
+      <Typography variant="body2"><strong>Last Name:</strong> {formData.lastName}</Typography>
+      <Typography variant="body2"><strong>Middle Name:</strong> {formData.middleName}</Typography>
+      <Typography variant="body2"><strong>Preferred Name:</strong> {formData.preferredName}</Typography>
+      <Typography variant="body2"><strong>Email:</strong> {formData.email}</Typography>
+      <Typography variant="body2"><strong>Cell Phone:</strong> {formData.cellPhone}</Typography>
+      <Typography variant="body2"><strong>Work Phone:</strong> {formData.workPhone}</Typography>
+      <Typography variant="body2"><strong>Current Address:</strong> {`${formData.currentAddress.building}, ${formData.currentAddress.street}, ${formData.currentAddress.city}, ${formData.currentAddress.state}, ${formData.currentAddress.zip}`}</Typography>
+      <Typography variant="body2"><strong>Car Information:</strong> {`${formData.carInfo.make}, ${formData.carInfo.model}, ${formData.carInfo.color}`}</Typography>
+      <Typography variant="body2"><strong>SSN:</strong> {formData.ssn}</Typography>
+      <Typography variant="body2"><strong>Date of Birth:</strong> {formData.dob}</Typography>
+      <Typography variant="body2"><strong>Gender:</strong> {formData.gender}</Typography>
+      <Typography variant="body2"><strong>Visa Type:</strong> {formData.visaType}</Typography>
+      {formData.visaType === 'Other' && <Typography variant="body2"><strong>Visa Title:</strong> {formData.visaTitle}</Typography>}
+      {formData.hasDriverLicense && (
+        <>
+          <Typography variant="body2"><strong>Driver's License Number:</strong> {formData.driverLicense.number}</Typography>
+          <Typography variant="body2"><strong>Expiration Date:</strong> {formData.driverLicense.expireDate}</Typography>
+        </>
+      )}
+      <Typography variant="h6">Uploaded Documents</Typography>
+      <ul>
+        {documentKeys.profilePicture && (
+          <li>
+            <a href="#" onClick={async (e) => {
+              e.preventDefault();
+              try {
+                const url = await getPresignedUrl(documentKeys.profilePicture);
+                if (url) {
+                  window.open(url, '_blank');
+                } else {
+                  console.error('Failed to retrieve URL');
+                }
+              } catch (error) {
+                console.error('Error fetching profile picture URL:', error);
+              }
+            }}>Profile Picture</a>
+            <a href="#" onClick={async (e) => {
+              e.preventDefault();
+              const url = await getPresignedUrl(documentKeys.profilePicture);
+              window.location.href = url;
+            }}>Download</a>
+          </li>
+        )}
+        {documentKeys.driverLicense && (
+          <li>
+            <a href="#" onClick={async (e) => {
+              e.preventDefault();
+              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
+              window.open(url, '_blank');
+            }}>Driver's License</a>
+            <a href="#" onClick={async (e) => {
+              e.preventDefault();
+              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
+              window.location.href = url;
+            }}>Download</a>
+          </li>
+        )}
+        {documentKeys.workAuthorization && (
+          <li>
+            <a href="#" onClick={async (e) => {
+              e.preventDefault();
+              const url = await getPresignedUrl(documentKeys.workAuthorizationFile);
+              window.open(url, '_blank');
+            }}>Work Authorization</a>
+            <a href="#" onClick={async (e) => {
+              e.preventDefault();
+              const url = await getPresignedUrl(documentKeys.workAuthorization);
+              window.location.href = url;
+            }}>Download</a>
+          </li>
+        )}
+      </ul>
+    </Paper>
   );
 
-
   const renderRejectedMessage = () => (
-    <div>
-      <p>Your application was rejected. Feedback: {feedback}</p>
+    <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+      <Typography variant="body1">Your application was rejected. Feedback: {feedback}</Typography>
       {renderForm()}
-    </div>
+    </Paper>
   );
 
   const renderContent = () => {
     switch (status) {
       case 'Not Started':
-        return renderForm();
+        return (
+          <form onSubmit={handleSubmit}>
+            {renderForm()}
+            <Grid item xs={12}>
+              {page < totalPages ? (
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => setPage(page + 1)}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button type="submit" variant="contained" color="primary">
+                  Submit
+                </Button>
+              )}
+            </Grid>
+          </form>
+        );
       case 'Pending':
         return renderPendingMessage();
       case 'Rejected':
@@ -337,10 +773,17 @@ const Application = () => {
   };
 
   return (
-    <div>
-      <h1>Onboarding Application</h1>
+    <Container>
+      <Typography variant="h4" gutterBottom>Onboarding Application</Typography>
       {renderContent()}
-    </div>
+      <Pagination
+        count={totalPages}
+        page={page}
+        onChange={(event, value) => setPage(value)}
+        color="primary"
+        style={{ marginTop: '20px' }}
+      />
+    </Container>
   );
 };
 

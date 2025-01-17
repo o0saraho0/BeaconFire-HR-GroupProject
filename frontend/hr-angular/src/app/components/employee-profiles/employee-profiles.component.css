@@ -1,11 +1,37 @@
-table {
-  width: 100%;
+.tool-bar-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
 }
 
-.search-bar {
+table {
   width: 100%;
+  padding: 10px 50px 50px;
 }
 
 mat-form-field {
+  width: 100%;
   background-color: #424242;
+  text-align: center;
+}
+
+mat-label {
+  text-align: center;
+}
+
+a {
+  color: white;
+}
+
+mat-paginator {
+  padding-bottom: 55vh;
+}
+
+.summary {
+  background-color: #424242;
+  color: white;
+  text-align: end;
+  padding-right: 50px;
+  margin-bottom: 0px;
 }

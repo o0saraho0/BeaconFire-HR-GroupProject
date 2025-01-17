@@ -17,15 +17,13 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'logout', component: LogoutComponent },
   {
+    path: 'employee-profiles/:employeeId',
+    component: EmployeeDetailComponent,
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'employee-profiles',
     component: EmployeeProfilesComponent,
-
-    children: [
-      {
-        path: ':id',
-        component: EmployeeDetailComponent,
-      },
-    ],
     canActivate: [AuthGuard],
   },
   {

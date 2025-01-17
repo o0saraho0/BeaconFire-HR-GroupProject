@@ -1,9 +1,11 @@
-<nav>
-  <ul>
-    <li><a routerLink="/home">Home</a></li>
-    <li *ngIf="!isLoggedIn()"><a routerLink="/login">Log In</a></li>
-    <li *ngIf="isLoggedIn()">
-      <a (click)="onLogoutClick()" style="cursor: pointer">Log Out</a>
-    </li>
-  </ul>
-</nav>
+<mat-toolbar color="primary">
+  <button mat-button routerLink="/home">Home</button>
+  <button mat-button routerLink="/employee-profiles">Employee Profiles</button>
+  <button mat-button routerLink="/visa-status">Visa Status Management</button>
+  <button mat-button routerLink="/hiring">Hiring Management</button>
+  <button mat-button routerLink="/housing">Housing Management</button>
+  <button mat-button *ngIf="!isLoggedIn()" routerLink="/login">Log In</button>
+  <button mat-button *ngIf="isLoggedIn()" (click)="onLogoutClick()">
+    Log Out
+  </button>
+</mat-toolbar>
