@@ -1,42 +1,49 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { Container, Typography, Card, CardContent, List, ListItem, Box, Alert, CircularProgress } from "@mui/material";
+import {
+    Container,
+    Typography,
+    Card,
+    CardContent,
+    List,
+    ListItem,
+    Box,
+    Alert,
+    CircularProgress,
+} from "@mui/material";
+import axios from "../../interceptors/auth.interceptor";
 
 const HousePage = () => {
-    const userId = useSelector((state) => state.auth?.userId); // Access userId from auth slice
+    const token = useSelector((state) => state.auth.token); // Retrieve token from auth slice
     const [houseDetails, setHouseDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (!userId) {
+        if (!token) {
             setError("You are not logged in. Please log in to view your house details.");
             setLoading(false);
             return;
         }
 
         const fetchHouseDetails = async () => {
-            setLoading(true);
-            setError(null);
-
             try {
-                const response = await fetch(`http://localhost:3000/api/houses/${userId}`);
-
-                if (!response.ok) {
-                    throw new Error("Failed to fetch house details. Please try again later.");
+                setLoading(true);
+                const response = await axios.get("http://localhost:3000/api/houses/by-user");
+                setHouseDetails(response.data.house);
+            } catch (err) {
+                if (err.response?.status === 401) {
+                    setError("Unauthorized. Please log in again.");
+                } else {
+                    setError(err.response?.data?.message || "Failed to fetch house details.");
                 }
-
-                const data = await response.json();
-                setHouseDetails(data);
-            } catch (error) {
-                setError(error.message);
             } finally {
                 setLoading(false);
             }
         };
 
         fetchHouseDetails();
-    }, [userId]);
+    }, []);
 
     if (loading) {
         return (
@@ -64,14 +71,37 @@ const HousePage = () => {
             {houseDetails ? (
                 <Card>
                     <CardContent>
-                        <Typography variant="h6">Address: {houseDetails.address}</Typography>
-                        <Typography variant="h6">Roommates:</Typography>
+                        <Typography variant="h6">Address:</Typography>
+                        <Typography>{`${houseDetails.address.building}, ${houseDetails.address.street}, ${houseDetails.address.city}, ${houseDetails.address.state}, ${houseDetails.address.zip}`}</Typography>
+                        
+                        <Typography variant="h6" style={{ marginTop: "16px" }}>
+                            Landlord:
+                        </Typography>
+                        <Typography>{`${houseDetails.landlord.first_name} ${houseDetails.landlord.last_name}`}</Typography>
+                        <Typography>{`Phone: ${houseDetails.landlord.phone_number}`}</Typography>
+                        <Typography>{`Email: ${houseDetails.landlord.email}`}</Typography>
+
+                        <Typography variant="h6" style={{ marginTop: "16px" }}>
+                            Facility Information:
+                        </Typography>
+                        <Typography>{`Beds: ${houseDetails.beds}`}</Typography>
+                        <Typography>{`Mattresses: ${houseDetails.mattresses}`}</Typography>
+                        <Typography>{`Tables: ${houseDetails.tables}`}</Typography>
+                        <Typography>{`Chairs: ${houseDetails.chairs}`}</Typography>
+
+                        <Typography variant="h6" style={{ marginTop: "16px" }}>
+                            Tenants:
+                        </Typography>
                         <List>
-                            {houseDetails.roommates.map((roommate, index) => (
-                                <ListItem key={index}>
-                                    {roommate.name} - {roommate.phone}
-                                </ListItem>
-                            ))}
+                            {houseDetails.tenants.length > 0 ? (
+                                houseDetails.tenants.map((tenantId, index) => (
+                                    <ListItem key={index}>
+                                        Tenant ID: {tenantId}
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <Typography>No tenants assigned.</Typography>
+                            )}
                         </List>
                     </CardContent>
                 </Card>
