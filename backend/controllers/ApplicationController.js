@@ -3,12 +3,13 @@ import Application from "../models/Application.js";
 const getApplicationStatus = async (req, res) => {
   try {
     const userId = req.body.user_id;
+    const email = req.body.email;
     let application = await Application.findOne({ user_id: userId });
-
+    console.log('email', email)
     if (!application) {
-      return res.json({ status: 'Not Started' });
+      return res.json({ status: 'Not Started', email: email });
     }
-    return res.json({ application: application });
+    return res.json({ application: application, email: email });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
