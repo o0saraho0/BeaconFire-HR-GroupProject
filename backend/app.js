@@ -20,7 +20,8 @@ const corsOptions = {
   methods: "GET, POST, DELETE, PATCH, PUT",
 };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +36,7 @@ app.use("/api/upload", UploadRouter);
 app.use("/api/houses", HouseRouter);
 app.use("/api/reports", FacilityReportRouter);
 app.use("/api/hr/employees", HREmployessRouter);
+
 
 app.all("*", (_req, res) => {
   return res.status(404).json({ message: "Page Not Found" });

@@ -1,1 +1,78 @@
-<p>hiring-management works!</p>
+<mat-card class="registration-card">
+    <mat-card-title>Register</mat-card-title>
+    <mat-card-content>
+        <form [formGroup]="hiringForm" (ngSubmit)="onSubmit()">
+            <mat-form-field appearance="fill" class="full-width">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstname" placeholder="Enter your first name" />
+            <mat-error *ngIf="hiringForm.get('firstname')?.hasError('required')">
+                First name is required
+            </mat-error>
+            </mat-form-field>
+    
+            <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastname" placeholder="Enter your last name" />
+            <mat-error *ngIf="hiringForm.get('lastname')?.hasError('required')">
+                Last name is required
+            </mat-error>
+            </mat-form-field>
+    
+            <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput formControlName="email" placeholder="Enter your email" />
+            <mat-error *ngIf="hiringForm.get('email')?.hasError('required')">
+                Email is required
+            </mat-error>
+            <mat-error *ngIf="hiringForm.get('email')?.hasError('email')">
+                Invalid email format
+            </mat-error>
+            </mat-form-field>
+    
+            <button mat-raised-button color="primary" type="submit" [disabled]="hiringForm.invalid">
+            Submit
+            </button>
+        </form>
+        </mat-card-content>
+    </mat-card>
+    
+    <mat-card class="registration-list">
+        <mat-card-title>All Registrations</mat-card-title>
+        <table mat-table [dataSource]="registrations" class="mat-elevation-z8">
+        <!-- Email Column -->
+        <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let reg">{{ reg.email }}</td>
+        </ng-container>
+    
+        <!-- First Name Column -->
+        <ng-container matColumnDef="first_name">
+            <th mat-header-cell *matHeaderCellDef>First Name</th>
+            <td mat-cell *matCellDef="let reg">{{ reg.first_name }}</td>
+        </ng-container>
+    
+        <!-- Last Name Column -->
+        <ng-container matColumnDef="last_name">
+            <th mat-header-cell *matHeaderCellDef>Last Name</th>
+            <td mat-cell *matCellDef="let reg">{{ reg.last_name }}</td>
+        </ng-container>
+    
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let reg">{{ reg.status }}</td>
+        </ng-container>
+    
+        <!-- Registration Link Column -->
+        <ng-container matColumnDef="registration_link">
+            <th mat-header-cell *matHeaderCellDef>Registration Link</th>
+            <td mat-cell *matCellDef="let reg">
+            <a [href]="reg.registration_link" target="_blank">View</a>
+            </td>
+        </ng-container>
+    
+        <tr mat-header-row *matHeaderRowDef="['email', 'first_name', 'last_name', 'status', 'registration_link']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['email', 'first_name', 'last_name', 'status', 'registration_link']"></tr>
+        </table>
+    </mat-card>
+    
