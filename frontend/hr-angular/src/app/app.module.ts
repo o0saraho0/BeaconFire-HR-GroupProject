@@ -22,7 +22,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-
+import { MatGridListModule } from '@angular/material/grid-list';
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -68,7 +68,8 @@ import { EmployeesEffects } from './store/employees/employees.effects';
     FormsModule,
     MatToolbarModule,
     MatIconModule,
-    MatDividerModule
+    MatDividerModule,
+    MatGridListModule
   ],
   providers: [],
   bootstrap: [AppComponent]
