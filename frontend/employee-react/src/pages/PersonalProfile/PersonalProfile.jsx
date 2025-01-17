@@ -69,18 +69,21 @@ const PersonalProfile = () => {
 
   const dispatch = useDispatch();
   const { profile, status, error } = useSelector((state) => state.employee);
-  // const userId = useSelector((state) => state.employee.profile.user_id);
-  const userId = "6787f9cc12031eef1f9f6852";
+  const { userId } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(fetchEmployeeProfile(userId));
-  }, [dispatch]);
+    if (userId) {
+      dispatch(fetchEmployeeProfile(userId));
+    }
+  }, [userId, dispatch]);
 
   useEffect(() => {
     if (profile) {
       setFormData(profile);
     }
   }, [profile]);
+
+  // console.log(profile);
 
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
