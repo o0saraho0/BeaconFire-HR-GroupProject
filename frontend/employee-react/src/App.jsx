@@ -10,6 +10,7 @@ import { useEffect } from "react";
 
 import Application from "./pages/Application/application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
+import VisaManagement from "./pages/VisaManagement/VisaManagement.jsx";
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
   {
     path: "/personalprofile",
     element: <PersonalProfile />,
+  },
+  {
+    path: "/visamanagement",
+    element: <VisaManagement />,
   },
 ]);
 

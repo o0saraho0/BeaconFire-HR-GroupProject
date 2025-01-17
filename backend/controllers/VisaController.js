@@ -53,7 +53,7 @@ export const uploadVisaDocument = async (req, res) => {
         // Handle errors and send appropriate response
         res.status(500).json({ message: `Error uploading file: ${error.message}` });
     }
-    };
+};
 
 
 // Get visa details for a user
@@ -89,6 +89,7 @@ export const reviewDocument = async (req, res) => {
         if (currentStageIndex !== -1 && currentStageIndex < stages.length - 1) {
             visa.stage = stages[currentStageIndex + 1];
             visa.status = "Not Started"; // Reset status for the next stage
+            visa.message=visa.stage=="Complete"?"All documents have been approved":`${visa.stage} stage`
         }
         } else if (action === "reject") {
         visa.status = "Reject";
