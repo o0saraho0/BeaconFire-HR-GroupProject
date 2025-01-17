@@ -8,24 +8,43 @@ import { VisaStatusManagementComponent } from './components/visa-status-manageme
 import { HiringManagementComponent } from './components/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './components/housing-management/housing-management.component';
 
+import { AuthGuard } from './guards/auth.guard';
+
 const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
-  { path: 'login', component: LoginComponent},
-  { path: 'employee-profiles', component: EmployeeProfilesComponent, children: [
-    {
-      path: ':id', 
-      component: EmployeeDetailComponent
-    }
-  ]},
-  { path: 'visa-status', component: VisaStatusManagementComponent },
-  { path: 'hiring', component: HiringManagementComponent },
-  { path: 'housing', component: HousingManagementComponent },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'login', component: LoginComponent },
+  {
+    path: 'employee-profiles',
+    component: EmployeeProfilesComponent,
 
+    children: [
+      {
+        path: ':id',
+        component: EmployeeDetailComponent,
+      },
+    ],
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'visa-status',
+    component: VisaStatusManagementComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'hiring',
+    component: HiringManagementComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'housing',
+    component: HousingManagementComponent,
+    canActivate: [AuthGuard],
+  },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

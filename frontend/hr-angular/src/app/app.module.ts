@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms'
+import { ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { StoreModule } from '@ngrx/store';
@@ -8,7 +8,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { HttpClientModule } from '@angular/common/http';
 // Angular Material Modules
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
@@ -17,6 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatIconModule } from '@angular/material/icon';
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -38,7 +39,7 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
     HousingManagementComponent,
     NavbarComponent,
     LoginComponent,
-    EmployeeDetailComponent
+    EmployeeDetailComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,8 +47,12 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
     ReactiveFormsModule,
     StoreModule.forRoot({}, {}),
     EffectsModule.forRoot([]),
-    StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
+    StoreDevtoolsModule.instrument({
+      maxAge: 25,
+      logOnly: environment.production,
+    }),
     BrowserAnimationsModule,
+    HttpClientModule,
     MatInputModule,
     MatButtonModule,
     MatCardModule,
@@ -55,8 +60,9 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
+    MatIconModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
