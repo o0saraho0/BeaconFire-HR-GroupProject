@@ -1,4 +1,15 @@
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable, of } from 'rxjs';
+import { Employee } from '../../store/employees/employees.state';
+import {
+  fetchEmployees,
+} from '../../store/employees/employees.actions';
+import {
+  selectAllEmployees,
+  selectEmployeesLoading,
+  selectEmployeesError,
+} from '../../store/employees/employees.selectors';
 
 @Component({
   selector: 'app-employee-profiles',
@@ -6,31 +17,37 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./employee-profiles.component.css'],
 })
 export class EmployeeProfilesComponent implements OnInit {
-  employees = [
-    {
-      id: 1,
-      first_name: 'John',
-      last_name: 'Doe',
-      ssn: '123-45-6789',
-      visa_type: 'H1B',
-      cell_phone: '123-456-7890',
-      email: 'john.doe@example.com',
-    },
-    {
-      id: 2,
-      first_name: 'Jane',
-      last_name: 'Smith',
-      ssn: '987-65-4321',
-      visa_type: 'Green Card',
-      cell_phone: '987-654-3210',
-      email: 'jane.smith@example.com',
-    },
-  ];
-  // NEED TO GET EMPLOYEES FROM THE BACKEND, RIGHT NOW IT'S FOR MATERIAL UI DISPLAY PURPOSE FAKE DATA
+  employees$: Observable<Employee[]> = of([]); 
+  loading$: Observable<boolean> = of(false);
+  error$: Observable<string | null> = of(null);
+  filteredEmployees: Employee[] = []; 
+  displayedColumns: string[] = ['name', 'ssn', 'visa_type', 'cell_phone', 'email']; 
 
-  displayedColumns: string[] = ['name', 'ssn', 'visa_type', 'cell_phone', 'email'];
+  constructor(private store: Store) {}
 
-  constructor() {}
+  ngOnInit(): void {
+    // Fetch employees and set up loading and error states
+    this.employees$ = this.store.select(selectAllEmployees);
+    this.loading$ = this.store.select(selectEmployeesLoading);
+    this.error$ = this.store.select(selectEmployeesError);
 
-  ngOnInit(): void {}
+    // Dispatch action to fetch employees
+    this.store.dispatch(fetchEmployees());
+
+    // Subscribe to the employee list and initialize filteredEmployees
+    this.employees$.subscribe((employees) => {
+      this.filteredEmployees = employees; 
+    });
+  }
+
+  applyFilter(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    this.employees$.subscribe((employees) => {
+      this.filteredEmployees = employees.filter((employee) =>
+        `${employee.first_name} ${employee.last_name}`
+          .toLowerCase()
+          .includes(filterValue)
+      );
+    });
+  }
 }

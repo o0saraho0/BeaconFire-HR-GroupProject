@@ -84,7 +84,7 @@ const seed_database = async () => {
           state: "CA",
           zip: "94105",
         },
-        cell_phone: "123-456-7890",
+        cell_phone: "1234567890",
         dob: new Date("1990-01-01"),
         gender: "Male",
         car_make: "Toyota",

@@ -1,1 +1,10 @@
-<p>employee-detail works!</p>
+<div *ngIf="employee">
+  <h2>{{ employee.first_name }} {{ employee.last_name }}</h2>
+  <p><strong>SSN:</strong> {{ employee.ssn }}</p>
+  <p><strong>Work Authorization Title:</strong> {{ employee.visa_type }}</p>
+  <p><strong>Phone Number:</strong> {{ employee.cell_phone }}</p>
+  <p><strong>Email:</strong> {{ employee.email }}</p>
+</div>
+<div *ngIf="!employee">
+  <p>Loading employee details...</p>
+</div>

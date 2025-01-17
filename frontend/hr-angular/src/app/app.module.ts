@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -30,6 +31,9 @@ import { HousingManagementComponent } from './components/housing-management/hous
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { EmployeeDetailComponent } from './components/employee-detail/employee-detail.component';
 
+import { employeesReducer } from './store/employees/employees.reducer';
+import { EmployeesEffects } from './store/employees/employees.effects';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -44,10 +48,11 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({}, {}),
-    EffectsModule.forRoot([]),
+    StoreModule.forRoot({ employees: employeesReducer }, {}),
+    EffectsModule.forRoot([EmployeesEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     BrowserAnimationsModule,
     MatInputModule,

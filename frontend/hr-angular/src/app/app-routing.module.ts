@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent},
   { path: 'employee-profiles', component: EmployeeProfilesComponent, children: [
     {
-      path: ':id', 
+      path: ':employeeId', 
       component: EmployeeDetailComponent
     }
   ]},
