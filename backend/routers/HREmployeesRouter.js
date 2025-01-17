@@ -8,7 +8,7 @@ import {
 const HREmployessRouter = express.Router();
 
 // link: /api/hr/employees
+HREmployessRouter.get("/:employeeId", getEmployeeById);
 HREmployessRouter.get("/", getAllEmployees);
-HREmployessRouter.get("/:employeeId", jwtValidation, getEmployeeById);
 
 export default HREmployessRouter;

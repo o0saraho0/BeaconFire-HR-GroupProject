@@ -22,7 +22,7 @@
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Name</th>
       <td mat-cell *matCellDef="let employee">
-        <a [routerLink]="[employee.user_id]">
+        <a [routerLink]="[employee._id]">
           {{ employee.first_name }} {{ employee.last_name }}</a
         >
       </td>
