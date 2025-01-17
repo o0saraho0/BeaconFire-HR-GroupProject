@@ -51,6 +51,8 @@ export const jwtValidation = async (req, res, next) => {
         req.body.username = decoded.username
         req.body.email = decoded.email
 
+        console.log("Decoded User ID:", decoded.user_id);
+
         // later handelers would have access to JWT content...
         return next();
     }

@@ -73,7 +73,7 @@ const HousePage = () => {
                     <CardContent>
                         <Typography variant="h6">Address:</Typography>
                         <Typography>{`${houseDetails.address.building}, ${houseDetails.address.street}, ${houseDetails.address.city}, ${houseDetails.address.state}, ${houseDetails.address.zip}`}</Typography>
-                        
+
                         <Typography variant="h6" style={{ marginTop: "16px" }}>
                             Landlord:
                         </Typography>
@@ -94,9 +94,11 @@ const HousePage = () => {
                         </Typography>
                         <List>
                             {houseDetails.tenants.length > 0 ? (
-                                houseDetails.tenants.map((tenantId, index) => (
+                                houseDetails.tenants.map((tenant, index) => (
                                     <ListItem key={index}>
-                                        Tenant ID: {tenantId}
+                                        <Typography>
+                                            {tenant.preferred_name || `${tenant.first_name} ${tenant.last_name}`} - {tenant.cell_phone}
+                                        </Typography>
                                     </ListItem>
                                 ))
                             ) : (
