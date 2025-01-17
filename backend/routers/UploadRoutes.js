@@ -5,9 +5,9 @@ import { jwtValidation, authenticatedEmployee } from '../middlewares/AuthMiddlew
 
 const router = express.Router();
 
-router.post('/profile-picture', jwtValidation, authenticatedEmployee, singleUpload, uploadProfilePicture);
-router.post('/driver-license', jwtValidation, authenticatedEmployee, singleUpload, uploadDriverLicense);
-router.post('/opt-receipt', jwtValidation, authenticatedEmployee, singleUpload, uploadOptReceipt);
-router.get('/presigned-url', jwtValidation, authenticatedEmployee, getPreSignedUrl);
+router.post('/profile-picture', jwtValidation, singleUpload, uploadProfilePicture);
+router.post('/driver-license', jwtValidation, singleUpload, uploadDriverLicense);
+router.post('/opt-receipt', jwtValidation, singleUpload, uploadOptReceipt);
+router.get('/presigned-url', jwtValidation, getPreSignedUrl);
 
 export default router;   

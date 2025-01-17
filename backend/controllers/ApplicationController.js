@@ -50,7 +50,7 @@ const postOnboarding = async (req, res) => {
       uploadedFiles
     } = req.body;
 
-    if (!firstName || !lastName || !cellPhone || !ssn || !dob || !visaType || !driverLicense || !emergencyContacts) {
+    if (!firstName || !lastName || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !emergencyContacts) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -61,7 +61,13 @@ const postOnboarding = async (req, res) => {
       middle_name: middleName,
       preferred_name: preferredName,
       profile_picture_url: profilePicture || 'default-placeholder-url',
-      current_address: currentAddress,
+      current_address: {
+        building: currentAddress?.building,
+        street: currentAddress?.street,
+        city: currentAddress?.city,
+        state: currentAddress?.state,
+        zip: currentAddress?.zip,
+      },
       cell_phone: cellPhone,
       work_phone: workPhone,
       car_make: carInfo?.make,
@@ -76,8 +82,22 @@ const postOnboarding = async (req, res) => {
       visa_end_date: visaEndDate,
       driver_licence_number: driverLicense?.number,
       driver_license_expire_date: driverLicense?.expireDate,
-      reference,
-      emergency_contacts: emergencyContacts,
+      reference: {
+        first_name: reference?.firstName,
+        last_name: reference?.lastName,
+        middle_name: reference?.middleName,
+        phone: reference?.phone,
+        email: reference?.email,
+        relationship: reference?.relationship,
+      },
+      emergency_contacts: emergencyContacts.map(contact => ({
+        first_name: contact.firstName,
+        last_name: contact.lastName,
+        middle_name: contact.middleName,
+        phone: contact.phone,
+        email: contact.email,
+        relationship: contact.relationship,
+      })),
       driver_licence_url: uploadedFiles?.driverLicense,
       work_auth_url: uploadedFiles?.workAuthorization
     };
