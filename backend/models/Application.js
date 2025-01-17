@@ -60,7 +60,10 @@ const application_schema = new mongoose.Schema({
       relationship: { type: String, required: true },
     },
   ],
-  profile_picture_url: { type: String },
+  profile_picture_url: {
+    type: String,
+    default: "../../frontend/employee-react/public/default-user.png",
+  },
   driver_licence_url: { type: String },
   work_auth_url: { type: String },
 });
