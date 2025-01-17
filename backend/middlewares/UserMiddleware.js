@@ -8,7 +8,7 @@ export const loginUsernameValidation = (req, res, next) => {
     validator.isEmpty(username) ||
     validator.isEmpty(password)
   ) {
-    return res.status(400).json({ message: 'Missing username fields!' });
+    return res.status(400).json({ message: 'Missing username/password fields!' });
   }
 
   if (!validator.isAlphanumeric(username)) {

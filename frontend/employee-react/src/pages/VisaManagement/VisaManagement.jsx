@@ -25,7 +25,7 @@ import {
         const fetchVisaData = async () => {
         try {
             const response = await axios.get(
-            "http://localhost:3000/api/visa/6789f1d23d548a24c1fa6d1f"
+            "http://localhost:3000/api/visa/678a955831d59dfd3708aeb4"
             );
             setVisaData(response.data.visa); // Set the fetched data
             setLoading(false);
