@@ -43,6 +43,7 @@ const Application = () => {
     ssn: '',
     dob: '',
     gender: '',
+    citizenOrResident: '',
     visaType: '',
     visaStartDate: '',
     visaEndDate: '',
@@ -62,7 +63,10 @@ const Application = () => {
     uploadedFiles: {
       driverLicense: '',
       workAuthorization: '',
+      optReceipt: '',
     },
+    hasDriverLicense: false,
+    visaTitle: '',
   });
 
   const [page, setPage] = useState(1);
@@ -178,9 +182,9 @@ const Application = () => {
   };
 
   const renderFormPage1 = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h6">Personal Information</Typography>
+        <Typography variant="h6" gutterBottom>Personal Information</Typography>
         <TextField
           label="First Name"
           name="firstName"
@@ -188,6 +192,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Last Name"
@@ -196,6 +201,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Middle Name"
@@ -203,6 +209,7 @@ const Application = () => {
           value={formData.middleName}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Preferred Name"
@@ -210,10 +217,31 @@ const Application = () => {
           value={formData.preferredName}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
+        />
+        <TextField
+          label="Cell Phone"
+          name="cellPhone"
+          placeholder="Cell Phone"
+          value={formData.cellPhone}
+          onChange={handleInputChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextField
+          label="Work Phone"
+          name="workPhone"
+          placeholder="Work Phone"
+          value={formData.workPhone}
+          onChange={handleInputChange}
+          fullWidth
+          margin="normal"
         />
         <Button
           variant="contained"
           component="label"
+          style={{ marginTop: '16px', marginBottom: '16px' }}
         >
           Upload Profile Picture
           <input
@@ -224,10 +252,10 @@ const Application = () => {
             hidden
           />
         </Button>
-        {uploadedProfilePicture && <Typography variant="body2">{uploadedProfilePicture}</Typography>}
+        {uploadedProfilePicture && <Typography variant="body2" style={{ marginTop: '8px' }}>{uploadedProfilePicture}</Typography>}
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Current Address</Typography>
+        <Typography variant="h6" gutterBottom>Current Address</Typography>
         <TextField
           label="Building/Apt #"
           name="currentAddress.building"
@@ -236,6 +264,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Street Name"
@@ -245,6 +274,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="City"
@@ -254,6 +284,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="State"
@@ -263,6 +294,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Zip"
@@ -272,15 +304,16 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
       </Grid>
     </Grid>
   );
 
   const renderFormPage2 = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h6">Car Information</Typography>
+        <Typography variant="h6" gutterBottom>Car Information</Typography>
         <TextField
           label="Make"
           name="carInfo.make"
@@ -288,6 +321,7 @@ const Application = () => {
           value={formData.carInfo.make}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Model"
@@ -296,6 +330,7 @@ const Application = () => {
           value={formData.carInfo.model}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Color"
@@ -304,16 +339,18 @@ const Application = () => {
           value={formData.carInfo.color}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Additional Information</Typography>
+        <Typography variant="h6" gutterBottom>Additional Information</Typography>
         <TextField
           label='Email'
           name='email'
           value={formData.email}
           fullWidth
           disabled
+          margin="normal"
         />
         <TextField
           label="SSN"
@@ -322,6 +359,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Date of Birth"
@@ -330,12 +368,15 @@ const Application = () => {
           value={formData.dob}
           onChange={handleInputChange}
           fullWidth
-          InputLabelProps={{
-            shrink: true,
-          }}
           required
+          margin="normal"
+          sx={{
+            '& .MuiInputLabel-root': {
+              transform: 'translate(14px, -9px) scale(0.75)',
+            }
+          }}
         />
-        <FormControl fullWidth>
+        <FormControl fullWidth margin="normal">
           <InputLabel>Gender</InputLabel>
           <Select
             name="gender"
@@ -347,56 +388,141 @@ const Application = () => {
             <MenuItem value="I do not wish to answer">I do not wish to answer</MenuItem>
           </Select>
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>Are you a citizen or permanent resident of the U.S?</InputLabel>
+        <FormControl fullWidth margin="normal">
+          <InputLabel required>Are you a citizen or permanent resident of the U.S?</InputLabel>
           <Select
-            name="visaType"
-            value={formData.visaType}
+            name="citizenOrResident"
+            value={formData.citizenOrResident}
             onChange={handleInputChange}
             required
           >
-            <MenuItem value="Green Card">Green Card</MenuItem>
-            <MenuItem value="Citizen">Citizen</MenuItem>
-            <MenuItem value="H1B Category">H1B Category</MenuItem>
-            <MenuItem value="F1 Category">F1 Category</MenuItem>
-            <MenuItem value="Other">Other</MenuItem>
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
           </Select>
         </FormControl>
-        {formData.visaType === 'F1 Category' && (
-          <Button
-            variant="contained"
-            component="label"
-          >
-            Upload OPT Receipt
-            <input
-              type="file"
-              name="workAuthorizationFile"
-              onChange={handleFileUpload}
-              hidden
-            />
-          </Button>
-        )}
-        {uploadedWorkAuth && <Typography variant="body2">{uploadedWorkAuth}</Typography>}
 
-        {formData.visaType === 'Other' && (
-          <TextField
-            label="Specify Visa Title"
-            name="visaTitle"
-            value={formData.visaTitle}
-            onChange={handleInputChange}
-            fullWidth
-          />
+        {formData.citizenOrResident === 'Yes' && (
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Choose your status</InputLabel>
+            <Select
+              name="visaType"
+              value={formData.visaType}
+              onChange={(e) => {
+                // Clear any existing non-citizen visa values when switching to citizen status
+                setFormData(prev => ({
+                  ...prev,
+                  visaType: e.target.value,
+                  visaTitle: '',
+                  visaStartDate: '',
+                  visaEndDate: ''
+                }));
+              }}
+              required
+            >
+              <MenuItem value="Green Card">Green Card</MenuItem>
+              <MenuItem value="Citizen">Citizen</MenuItem>
+            </Select>
+          </FormControl>
         )}
+
+        {formData.citizenOrResident === 'No' && (
+          <>
+            <FormControl fullWidth margin="normal">
+              <InputLabel required>What is your work authorization?</InputLabel>
+              <Select
+                name="visaType"
+                value={formData.visaType}
+                onChange={(e) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    visaType: e.target.value,
+                    visaTitle: '',
+                    visaStartDate: '',
+                    visaEndDate: ''
+                  }));
+                }}
+                required
+              >
+                <MenuItem value="H1B">H1-B</MenuItem>
+                <MenuItem value="L2">L2</MenuItem>
+                <MenuItem value="F1">F1 (CPT/OPT)</MenuItem>
+                <MenuItem value="H4">H4</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
+
+            {formData.visaType === 'F1' && (
+              <Button
+                variant="contained"
+                component="label"
+                style={{ marginTop: '16px', marginBottom: '16px' }}
+              >
+                Upload OPT Receipt
+                <input
+                  type="file"
+                  name="workAuthorizationFile"
+                  onChange={handleFileUpload}
+                  hidden
+                />
+              </Button>
+            )}
+
+            {formData.visaType === 'Other' && (
+              <TextField
+                label="Specify Visa Title"
+                name="visaTitle"
+                value={formData.visaTitle}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+            )}
+
+            <TextField
+              label="Visa Start Date"
+              name="visaStartDate"
+              type="date"
+              value={formData.visaStartDate}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              margin="normal"
+              sx={{
+                '& .MuiInputLabel-root': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
+                }
+              }}
+            />
+
+            <TextField
+              label="Visa End Date"
+              name="visaEndDate"
+              type="date"
+              value={formData.visaEndDate}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              margin="normal"
+              sx={{
+                '& .MuiInputLabel-root': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
+                }
+              }}
+            />
+          </>
+        )}
+        {uploadedWorkAuth && <Typography variant="body2" style={{ marginTop: '8px' }}>{uploadedWorkAuth}</Typography>}
         <FormControlLabel
           control={
             <Checkbox
               name="hasDriverLicense"
               checked={formData.hasDriverLicense}
-              onChange={handleInputChange}
+              onChange={(e) => handleInputChange({ target: { name: 'hasDriverLicense', value: e.target.checked } })}
               required
             />
           }
           label="Do you have a driver's license?"
+          style={{ marginTop: '16px', marginBottom: '16px' }}
         />
         {formData.hasDriverLicense && (
           <>
@@ -407,6 +533,7 @@ const Application = () => {
               onChange={handleInputChange}
               fullWidth
               required
+              margin="normal"
             />
             <TextField
               label="Expiration Date"
@@ -415,14 +542,18 @@ const Application = () => {
               value={formData.driverLicense.expireDate}
               onChange={handleInputChange}
               fullWidth
-              InputLabelProps={{
-                shrink: true,
+              sx={{
+                '& .MuiInputLabel-root': {
+                  transform: 'translate(14px, -9px) scale(0.75)',
+                }
               }}
               required
+              margin="normal"
             />
             <Button
               variant="contained"
               component="label"
+              style={{ marginTop: '16px', marginBottom: '16px' }}
             >
               Upload Driver's License
               <input
@@ -432,7 +563,7 @@ const Application = () => {
                 hidden
               />
             </Button>
-            {uploadedDriverLicense && <Typography variant="body2">{uploadedDriverLicense}</Typography>}
+            {uploadedDriverLicense && <Typography variant="body2" style={{ marginTop: '8px' }}>{uploadedDriverLicense}</Typography>}
           </>
         )}
       </Grid>
@@ -440,9 +571,9 @@ const Application = () => {
   );
 
   const renderFormPage3 = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h6">Reference (who referred you to this company? There can only be 1)</Typography>
+        <Typography variant="h6" gutterBottom>Reference (who referred you to this company? There can only be 1)</Typography>
         <TextField
           label="First Name"
           name="reference.firstName"
@@ -451,6 +582,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Last Name"
@@ -460,6 +592,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Middle Name"
@@ -468,6 +601,7 @@ const Application = () => {
           value={formData.reference.middleName}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Phone"
@@ -477,6 +611,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Email"
@@ -486,6 +621,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Relationship"
@@ -495,12 +631,19 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Emergency Contacts</Typography>
+        <Typography variant="h6" gutterBottom>Emergency Contacts</Typography>
+        {formData.emergencyContacts.length === 0 && (
+          setFormData({
+            ...formData,
+            emergencyContacts: [{ firstName: '', lastName: '', middleName: '', phone: '', email: '', relationship: '' }]
+          })
+        )}
         {formData.emergencyContacts.map((contact, index) => (
-          <Grid container spacing={2} key={index}>
+          <Grid container spacing={3} key={index}>
             <Grid item xs={12}>
               <TextField
                 label="First Name"
@@ -510,6 +653,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Last Name"
@@ -519,6 +663,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Middle Name"
@@ -527,6 +672,7 @@ const Application = () => {
                 value={contact.middleName}
                 onChange={handleInputChange}
                 fullWidth
+                margin="normal"
               />
               <TextField
                 label="Phone"
@@ -536,6 +682,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Email"
@@ -545,6 +692,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Relationship"
@@ -554,6 +702,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
             </Grid>
           </Grid>
@@ -564,12 +713,13 @@ const Application = () => {
             ...formData,
             emergencyContacts: [...formData.emergencyContacts, { firstName: '', lastName: '', middleName: '', phone: '', email: '', relationship: '' }]
           })}
+          style={{ marginTop: '16px', marginBottom: '16px' }}
         >
           Add Emergency Contact
         </Button>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Summary of Uploaded Files</Typography>
+        <Typography variant="h6" gutterBottom>Summary of Uploaded Files</Typography>
         <ul>
           {userDocuments.profilePicture && (
             <li>
@@ -676,7 +826,7 @@ const Application = () => {
       )}
       <Typography variant="h6">Uploaded Documents</Typography>
       <ul>
-        {documentKeys.profilePicture && (
+        {userDocuments.profilePicture && (
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
@@ -698,7 +848,7 @@ const Application = () => {
             }}>Download</a>
           </li>
         )}
-        {documentKeys.driverLicense && (
+        {userDocuments.driverLicense && (
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
@@ -712,7 +862,7 @@ const Application = () => {
             }}>Download</a>
           </li>
         )}
-        {documentKeys.workAuthorization && (
+        {userDocuments.workAuthorization && (
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();

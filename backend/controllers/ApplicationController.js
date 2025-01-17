@@ -18,15 +18,6 @@ const getApplicationStatus = async (req, res) => {
 const postOnboarding = async (req, res) => {
   try {
     const userId = req.body.user_id;
-
-    let application = await Application.findOne({ user_id: userId });
-
-    if (!application) {
-      application = await Application.create({
-        user_id: userId,
-        status: 'Pending',
-      });
-    }
     const {
       firstName,
       lastName,
@@ -50,12 +41,8 @@ const postOnboarding = async (req, res) => {
       uploadedFiles
     } = req.body;
 
-    if (!firstName || !lastName || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !emergencyContacts) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
     const applicationData = {
-      user_id: req.user.id,
+      user_id: userId,
       first_name: firstName,
       last_name: lastName,
       middle_name: middleName,
@@ -99,10 +86,30 @@ const postOnboarding = async (req, res) => {
         relationship: contact.relationship,
       })),
       driver_licence_url: uploadedFiles?.driverLicense,
-      work_auth_url: uploadedFiles?.workAuthorization
+      work_auth_url: uploadedFiles?.workAuthorization,
+      driver_licence_number: driverLicense?.number,
+      driver_license_expire_date: driverLicense?.expireDate,
     };
 
-    await application.update(applicationData);
+    let application = await Application.findOne({ user_id: userId });
+    console.log('application not found', application);
+
+    if (!application) {
+      application = await Application.create({
+        ...applicationData,
+        status: 'Pending',
+      });
+    } else {
+      await Application.updateOne({ user_id: userId }, applicationData);
+    }
+
+    console.log('application created or updated', application);
+
+    if (!firstName || !lastName || !currentAddress || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !driverLicense?.expireDate || !emergencyContacts) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    console.log('application data', applicationData);
 
     res.status(201).json({ message: "Onboarding completed successfully", application });
   } catch (error) {
