@@ -34,6 +34,7 @@ export const uploadFileToS3 = async (file, fileName) => {
         Body: file.buffer, // File content as a buffer
         // Removed ACL setting as the bucket does not allow ACLs
         ACL: 'private', // You can either remove the ACL line or set it to 'private'
+        ContentType: file.mimetype,
       },
     });
 
@@ -60,13 +61,12 @@ export const deleteFile = async (key) => {
 };
 
 // Function to generate a pre-signed URL for private file access
-export const generatePresignedUrl = async (key) => {
+export const generatePresignedUrl = async (fileName) => {
   try {
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: key,
+      Key: `visa-documents/${fileName}`,
     });
-
     // Generate a pre-signed URL valid for 1 hour
     const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     return signedUrl;
