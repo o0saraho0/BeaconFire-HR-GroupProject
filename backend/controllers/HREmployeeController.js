@@ -2,7 +2,7 @@ import EmployeeProfile from "../models/EmployeeProfile.js";
 
 const getAllEmployees = async (req, res) => {
   try {
-    const profiles = await EmployeeProfile.find();
+    const profiles = await EmployeeProfile.find().populate("user_id");
     if (!profiles) {
       return res.status(404).json({ message: "Employee profile not found." });
     }
