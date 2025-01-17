@@ -62,9 +62,9 @@
         <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let visa">
-            <button mat-raised-button color="primary" (click)="approveDocument(visa)">Approve</button>
-            <button mat-raised-button color="warn" (click)="rejectDocument(visa)">Reject</button>
-            <button mat-raised-button color="accent" (click)="sendNotification(visa)">Send Notification</button>
+            <button mat-raised-button color="primary"  *ngIf="visa.status === 'Pending'" (click)="approveDocument(visa)">Approve</button>
+            <button mat-raised-button color="warn"  *ngIf="visa.status === 'Pending'" (click)="rejectDocument(visa)">Reject</button>
+            <button mat-raised-button color="accent"  *ngIf="visa.status === 'Not Started'" (click)="sendNotification(visa)">Send Notification</button>
             </td>
         </ng-container>
 
