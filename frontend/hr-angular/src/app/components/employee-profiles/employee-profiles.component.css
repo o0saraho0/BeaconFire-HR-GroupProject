@@ -27,3 +27,11 @@ a {
 mat-paginator {
   padding-bottom: 55vh;
 }
+
+.summary {
+  background-color: #424242;
+  color: white;
+  text-align: end;
+  padding-right: 50px;
+  margin-bottom: 0px;
+}

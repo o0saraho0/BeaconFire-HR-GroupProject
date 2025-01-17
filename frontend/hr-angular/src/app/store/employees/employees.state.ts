@@ -19,9 +19,13 @@ export interface Employee {
   gender: string;
   ssn: string;
   visa_type: string;
-  car_make?: string; // Optional field
-  car_model?: string; // Optional field
-  car_color?: string; // Optional field
+  visa_start_date?: Date;
+  visa_end_date?: Date;
+  car_make?: string; 
+  car_model?: string; 
+  car_color?: string; 
+  driver_licence_number?: string,
+  driver_license_expire_date?: Date,
   reference: {
     first_name: string;
     last_name: string;

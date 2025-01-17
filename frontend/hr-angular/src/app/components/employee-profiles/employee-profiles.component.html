@@ -1,4 +1,4 @@
-<div *ngIf="loading$ | async" class="loading-container"></div>
+<div *ngIf="loading$ | async" class="loading-container">Loading...</div>
 <div *ngIf="error$ | async as error" class="error-container">
   <mat-card class="error-card"> Error: {{ error }} </mat-card>
 </div>
@@ -17,14 +17,20 @@
     />
   </mat-form-field>
 
+  <p class="summary">Total Employees: {{ totalEmployees }}</p>
+
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Name</th>
       <td mat-cell *matCellDef="let employee">
         <a [routerLink]="[employee.user_id._id]">
-          {{ employee.first_name }} {{ employee.last_name }}</a
-        >
+          {{ employee.first_name }} {{ employee.middle_name || "" }}
+          {{ employee.last_name }}
+          <span *ngIf="employee.preferred_name"
+            >({{ employee.preferred_name }})</span
+          >
+        </a>
       </td>
     </ng-container>
 

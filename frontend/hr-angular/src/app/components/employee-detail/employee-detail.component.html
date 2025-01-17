@@ -1,6 +1,8 @@
 <mat-card *ngIf="employee" class="employee-details-card">
   <mat-card-title>
-    {{ employee.first_name }} {{ employee.last_name }}
+    {{ employee.first_name }} {{ employee.middle_name || "" }}
+    {{ employee.last_name }}
+    <span *ngIf="employee.preferred_name">({{ employee.preferred_name }})</span>
   </mat-card-title>
 
   <mat-card-content>
@@ -10,7 +12,7 @@
         <div><strong>SSN:</strong> {{ employee.ssn }}</div>
         <div>
           <strong>Date of Birth:</strong>
-          {{ employee.dob | date : "yyyy-MM-dd" }}
+          {{ employee.dob | date : "yyyy-MM-dd" : "UTC" }}
         </div>
         <div><strong>Gender:</strong> {{ employee.gender }}</div>
       </div>
@@ -53,6 +55,14 @@
       <div class="margin-left">
         <h3>Employment</h3>
         <div><strong>Visa Type:</strong> {{ employee.visa_type }}</div>
+        <div *ngIf="employee.visa_start_date">
+          <strong>Visa Start Date:</strong>
+          {{ employee.visa_start_date | date : "yyyy-MM-dd" : "UTC" }}
+        </div>
+        <div *ngIf="employee.visa_end_date">
+          <strong>Visa End Date:</strong>
+          {{ employee.visa_end_date | date : "yyyy-MM-dd" : "UTC" }}
+        </div>
       </div>
       <div></div>
     </div>

@@ -22,10 +22,12 @@ export class EmployeeProfilesComponent implements OnInit {
   employees$: Observable<Employee[]> = of([]);
   loading$: Observable<boolean> = of(false);
   error$: Observable<string | null> = of(null);
-  dataSource = new MatTableDataSource<Employee>(); // MatTableDataSource for pagination
+  dataSource = new MatTableDataSource<Employee>();
   displayedColumns: string[] = ['name', 'ssn', 'visa_type', 'cell_phone', 'email'];
+  totalEmployees: number = 0;
+  sortedEmployees: Employee[] = []
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator; // Paginator reference
+  @ViewChild(MatPaginator) paginator!: MatPaginator; 
 
   constructor(private store: Store) {}
 
@@ -35,20 +37,32 @@ export class EmployeeProfilesComponent implements OnInit {
     this.loading$ = this.store.select(selectEmployeesLoading);
     this.error$ = this.store.select(selectEmployeesError);
 
-    console.log(this.employees$);
-
     // Dispatch action to fetch employees
     this.store.dispatch(fetchEmployees());
 
+    // Define a custom filterPredicate for filtering by multiple fields
+    this.dataSource.filterPredicate = (data: Employee, filter: string) => {
+      const searchString = `${data.first_name} ${data.middle_name || ''} ${data.last_name} ${data.preferred_name || ''}`
+        .trim()
+        .toLowerCase();
+      return searchString.includes(filter);
+    };
+
     // Subscribe to the employee list and update the data source
     this.employees$.subscribe((employees) => {
-      this.dataSource.data = employees; // Set table data
-      this.dataSource.paginator = this.paginator; // Assign paginator
+      this.totalEmployees = employees.length;
+
+      this.sortedEmployees = [...employees].sort((a, b) =>
+        a.last_name.localeCompare(b.last_name)
+      );
+
+      this.dataSource.data = this.sortedEmployees;
+      this.dataSource.paginator = this.paginator;
     });
   }
 
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.dataSource.filter = filterValue; // Apply filter to the data source
+    this.dataSource.filter = filterValue; 
   }
 }
