@@ -26,3 +26,19 @@ button {
   width: 100%;
   margin: 30px auto;
 }
+
+.server-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 4px;
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.server-error mat-icon {
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}

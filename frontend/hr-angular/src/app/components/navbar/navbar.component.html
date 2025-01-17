@@ -4,6 +4,8 @@
   <button mat-button routerLink="/visa-status">Visa Status Management</button>
   <button mat-button routerLink="/hiring">Hiring Management</button>
   <button mat-button routerLink="/housing">Housing Management</button>
-  <button mat-button routerLink="/login">Log In</button>
-  <!-- <button mat-button *ngIf="isLoggedIn" (click)="logout()">Log Out</button> -->
+  <button mat-button *ngIf="!isLoggedIn()" routerLink="/login">Log In</button>
+  <button mat-button *ngIf="isLoggedIn()" (click)="onLogoutClick()">
+    Log Out
+  </button>
 </mat-toolbar>
