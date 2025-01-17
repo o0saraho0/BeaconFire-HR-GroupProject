@@ -16,7 +16,7 @@ export const generateAndSendRegisterToken = async (req, res) => {
         }
 
         // Generate a unique token
-        const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "3h" });
+        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "3h" });
         const expiresAt = new Date(Date.now() + 3 * 60 * 60 * 1000); // Token expires in 3 hours
 
         // Save token in the database
@@ -43,9 +43,11 @@ export const generateAndSendRegisterToken = async (req, res) => {
         `,
         };
 
+        const newRecord = await Registration.create({ email, first_name, last_name, status: "Unused", token, registration_link, expires_at: expiresAt });
+
         await transporter.sendMail(mailOptions);
 
-        const newRecord = await Registration.create({ email, first_name, last_name, status: "Unused", token, registration_link, expires_at: expiresAt });
+
 
         res.status(200).json({ message: "Registration email sent!", newRecord });
     } catch (error) {
@@ -53,12 +55,12 @@ export const generateAndSendRegisterToken = async (req, res) => {
     }
 };
 
-export const validateToken = async (req, res) => {
-    const { token } = req.params;
+export const validateRegisterToken = async (req, res) => {
+    const { token } = req.body;
 
     try {
         // Decode and verify the token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         const { email } = decoded;
 
         // Find the registration record in the database
