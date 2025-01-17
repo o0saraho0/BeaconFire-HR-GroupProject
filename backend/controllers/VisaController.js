@@ -2,6 +2,7 @@ import Visa from "../models/Visa.js";
 import User from "../models/User.js";
 import EmployeeProfile from "../models/EmployeeProfile.js";
 import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js"; // Import the file upload function
+import { generatePresignedUrl } from "../middlewares/AwsS3Middleware.js";
 import mongoose from "mongoose";
 
 
@@ -125,6 +126,14 @@ export const getInProgressVisas = async (req, res) => {
                     )
                     : null;
                 // Combine visa and employee profile data
+
+                // Format visa_start_date and visa_end_date to concise format
+                const formattedVisaStartDate = profile.visa_start_date
+                ? new Date(profile.visa_start_date).toISOString().split('T')[0]
+                : null;
+                const formattedVisaEndDate = profile.visa_end_date
+                    ? new Date(profile.visa_end_date).toISOString().split('T')[0]
+                    : null;
                 return {
                     // Visa fields
                     user_id: visa.user_id,
@@ -138,8 +147,8 @@ export const getInProgressVisas = async (req, res) => {
                     message: visa.message,
                     // EmployeeProfile fields
                     visa_type: profile.visa_type,
-                    visa_start_date: profile.visa_start_date,
-                    visa_end_date: profile.visa_end_date,
+                    visa_start_date: formattedVisaStartDate,
+                    visa_end_date: formattedVisaEndDate,
                     visa_remaining_days: visaRemainingDays,
                     employee_name: `${profile.first_name} ${profile.last_name}`,
                 };
@@ -227,3 +236,19 @@ export const searchEmployees = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+//preview or download aws3 files
+export const handleAws3=async(req,res)=>{
+    const { key, type } = req.query;
+
+    if (!key) {
+        return res.status(400).json({ message: "Key is required" });
+    }
+
+    try {
+        const url = await generatePresignedUrl(key, type);
+        res.status(200).json({ url });
+    } catch (error) {
+        res.status(500).json({ message: `Failed to generate URL: ${error.message}` });
+    }
+}

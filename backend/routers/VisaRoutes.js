@@ -5,6 +5,7 @@ import {
     reviewDocument,
     getInProgressVisas,
     searchEmployees,
+    handleAws3
 } from "../controllers/VisaController.js";
 import { singleUpload } from "../middlewares/AwsS3Middleware.js";
 import { jwtValidation, authenticatedHR, authenticatedEmployee } from '../middlewares/AuthMiddleware.js';
@@ -26,8 +27,13 @@ router.get("/in-progress", getInProgressVisas);
 // Route to get all visa-status employees (with search functionality)
 router.get("/search", searchEmployees);
 
+// //Route to toggle between preview or download aws3 files
+// router.get("/files", handleAws3)
+
 // Route to get visa details for a user
 // router.get("/:user_id", jwtValidation, authenticatedHR, getVisaDetails);
 router.get("/:user_id", getVisaDetails);
+
+
 
 export default router;

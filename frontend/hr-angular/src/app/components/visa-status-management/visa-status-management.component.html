@@ -43,7 +43,22 @@
             <td mat-cell *matCellDef="let visa">{{ visa.stage }}</td>
         </ng-container>
     
-        <!-- Actions Column -->
+        <!-- Preview Column -->
+        <ng-container matColumnDef="preview">
+            <th mat-header-cell *matHeaderCellDef>Preview</th>
+            <td mat-cell *matCellDef="let visa">
+            <button
+                mat-raised-button
+                color="primary"
+                (click)="previewDocument(visa)"
+                [disabled]="!getDocumentUrl(visa)"
+            >
+                Preview
+            </button>
+            </td>
+        </ng-container>
+            
+                <!-- Actions Column -->
         <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let visa">
@@ -52,12 +67,12 @@
             <button mat-raised-button color="accent" (click)="sendNotification(visa)">Send Notification</button>
             </td>
         </ng-container>
-    
+
         <!-- Header and Row Declarations -->
-        <tr mat-header-row *matHeaderRowDef="['name', 'visaType', 'startDate', 'endDate', 'daysRemaining', 'nextStep', 'actions']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['name', 'visaType', 'startDate', 'endDate', 'daysRemaining', 'nextStep', 'actions']"></tr>
+        <tr mat-header-row *matHeaderRowDef="['name', 'visaType', 'startDate', 'endDate', 'daysRemaining', 'nextStep', 'preview', 'actions']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['name', 'visaType', 'startDate', 'endDate', 'daysRemaining', 'nextStep', 'preview', 'actions']"></tr>
         </table>
-    
+            
         <!-- No Results Message for In-Progress -->
         <p *ngIf="!isLoading && inProgressVisas.length === 0">No in-progress visa applications found.</p>
     
@@ -99,54 +114,117 @@
                 <button mat-raised-button color="primary" (click)="searchVisas()">Search</button>
         </div>
     
-        <!-- Search Loading Spinner
-        <mat-spinner *ngIf="isSearchLoading"></mat-spinner> -->
-    
-        <!-- Search Results Table -->
         <div *ngIf="!isSearchLoading && searchResults.length > 0">
-        <h3>Search Results</h3>
-        <table mat-table [dataSource]="searchResults" class="mat-elevation-z8">
-            <!-- Name Column -->
-            <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef>Name</th>
-            <td mat-cell *matCellDef="let visa">
-                {{ visa.first_name }} {{ visa.last_name }}
-            </td>
-            </ng-container>
-    
-            <!-- Visa Type Column -->
-            <ng-container matColumnDef="visaType">
-            <th mat-header-cell *matHeaderCellDef>Visa Type</th>
-            <td mat-cell *matCellDef="let visa">{{ visa.visa_type }}</td>
-            </ng-container>
-    
-            <!-- Start Date Column -->
-            <ng-container matColumnDef="startDate">
-            <th mat-header-cell *matHeaderCellDef>Start Date</th>
-            <td mat-cell *matCellDef="let visa">{{ visa.visa_start_date }}</td>
-            </ng-container>
-    
-            <!-- End Date Column -->
-            <ng-container matColumnDef="endDate">
-            <th mat-header-cell *matHeaderCellDef>End Date</th>
-            <td mat-cell *matCellDef="let visa">{{ visa.visa_end_date }}</td>
-            </ng-container>
-    
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let visa">
-                <button mat-raised-button color="primary" (click)="approveDocument(visa)">Approve</button>
-                <button mat-raised-button color="warn" (click)="rejectDocument(visa)">Reject</button>
-                <button mat-raised-button color="accent" (click)="sendNotification(visa)">Send Notification</button>
-            </td>
-            </ng-container>
-    
-            <!-- Header and Row Declarations -->
-            <tr mat-header-row *matHeaderRowDef="['name', 'visaType', 'startDate', 'endDate', 'actions']"></tr>
-            <tr mat-row *matRowDef="let row; columns: ['name', 'visaType', 'startDate', 'endDate', 'actions']"></tr>
-        </table>
+            <h3>Search Results</h3>
+            <table mat-table [dataSource]="searchResults" class="mat-elevation-z8">
+        
+                <!-- Name Column -->
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let visa">
+                        {{ visa.first_name }} {{ visa.last_name }}
+                    </td>
+                </ng-container>
+        
+                <!-- Visa Type Column -->
+                <ng-container matColumnDef="visaType">
+                    <th mat-header-cell *matHeaderCellDef>Visa Type</th>
+                    <td mat-cell *matCellDef="let visa">{{ visa.visa_type }}</td>
+                </ng-container>
+        
+                <!-- Start Date Column -->
+                <ng-container matColumnDef="startDate">
+                    <th mat-header-cell *matHeaderCellDef>Start Date</th>
+                    <td mat-cell *matCellDef="let visa">{{ visa.visa_start_date | date }}</td>
+                </ng-container>
+        
+                <!-- End Date Column -->
+                <ng-container matColumnDef="endDate">
+                    <th mat-header-cell *matHeaderCellDef>End Date</th>
+                    <td mat-cell *matCellDef="let visa">{{ visa.visa_end_date | date }}</td>
+                </ng-container>
+        
+                <!-- Days Remaining Column -->
+                <ng-container matColumnDef="daysRemaining">
+                    <th mat-header-cell *matHeaderCellDef>Days Remaining</th>
+                    <td mat-cell *matCellDef="let visa">{{ visa.visa_remaining_days }}</td>
+                </ng-container>
+        
+                <!-- Next Step Column -->
+                <ng-container matColumnDef="nextStep">
+                    <th mat-header-cell *matHeaderCellDef>Next Step</th>
+                    <td mat-cell *matCellDef="let visa">{{ visa.stage }}</td>
+                </ng-container>
+        
+                <!-- i983 Document Column -->
+                <ng-container matColumnDef="i983">
+                    <th mat-header-cell *matHeaderCellDef>i983 Document</th>
+                    <td mat-cell *matCellDef="let visa">
+                        <button   mat-raised-button color="primary" *ngIf="visa.i983_url" (click)="downloadDocument(visa.i983_url)">
+                            Download
+                        </button>
+                    </td>
+                </ng-container>
+        
+                <!-- OPT Receipt Document Column -->
+                <ng-container matColumnDef="optReceipt">
+                    <th mat-header-cell *matHeaderCellDef>OPT Receipt</th>
+                    <td mat-cell *matCellDef="let visa">
+                        <button  mat-raised-button color="primary"  *ngIf="visa.opt_receipt_url" (click)="downloadDocument(visa.opt_receipt_url)">
+                            Download
+                        </button>
+                    </td>
+                </ng-container>
+        
+                <!-- I-20 Document Column -->
+                <ng-container matColumnDef="i20">
+                    <th mat-header-cell *matHeaderCellDef>I-20 Document</th>
+                    <td mat-cell *matCellDef="let visa">
+                        <button  mat-raised-button color="primary" *ngIf="visa.i20_url" (click)="downloadDocument(visa.i20_url)">
+                            Download
+                        </button>
+                    </td>
+                </ng-container>
+        
+                <!-- OPT EAD Document Column -->
+                <ng-container matColumnDef="optEad">
+                    <th mat-header-cell *matHeaderCellDef>OPT EAD</th>
+                    <td mat-cell *matCellDef="let visa">
+                        <button   mat-raised-button color="primary"   *ngIf="visa.opt_ead_url" (click)="downloadDocument(visa.opt_ead_url)">
+                            Download
+                        </button>
+                    </td>
+                </ng-container>
+        
+                <!-- Header and Row Declarations -->
+                <tr mat-header-row *matHeaderRowDef="[
+                    'name', 
+                    'visaType', 
+                    'startDate', 
+                    'endDate', 
+                    'daysRemaining', 
+                    'nextStep', 
+                    'i983', 
+                    'optReceipt', 
+                    'i20', 
+                    'optEad'
+                ]"></tr>
+                <tr mat-row *matRowDef="let row; columns: [
+                    'name', 
+                    'visaType', 
+                    'startDate', 
+                    'endDate', 
+                    'daysRemaining', 
+                    'nextStep', 
+                    'i983', 
+                    'optReceipt', 
+                    'i20', 
+                    'optEad'
+                ]"></tr>
+            </table>
         </div>
+        
+        
     
         <!-- No Results Message for Search -->
         <p *ngIf="!isSearchLoading && searchResults.length === 0">No results found.</p>
