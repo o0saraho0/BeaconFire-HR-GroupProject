@@ -77,7 +77,7 @@ const seed_database = async () => {
         user_id: users[0]._id,
         first_name: "John",
         last_name: "Doe",
-        address: {
+        current_address: {
           building: "101",
           street: "Main St",
           city: "San Francisco",
@@ -113,7 +113,7 @@ const seed_database = async () => {
         user_id: users[1]._id,
         first_name: "Jane",
         last_name: "Smith",
-        address: {
+        current_address: {
           building: "202",
           street: "Market St",
           city: "San Francisco",
@@ -149,7 +149,7 @@ const seed_database = async () => {
         user_id: users[2]._id,
         first_name: "Emily",
         last_name: "Clark",
-        address: {
+        current_address: {
           building: "303",
           street: "Broadway",
           city: "New York",
@@ -185,7 +185,7 @@ const seed_database = async () => {
         user_id: users[3]._id,
         first_name: "Michael",
         last_name: "Brown",
-        address: {
+        current_address: {
           building: "404",
           street: "Elm St",
           city: "Chicago",
@@ -221,7 +221,7 @@ const seed_database = async () => {
         user_id: users[4]._id,
         first_name: "Sarah",
         last_name: "Johnson",
-        address: {
+        current_address: {
           building: "505",
           street: "Oak St",
           city: "Seattle",

@@ -20,6 +20,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -64,6 +66,7 @@ import { EmployeesEffects } from './store/employees/employees.effects';
     MatSortModule,
     MatToolbarModule,
     MatIconModule,
+    MatDividerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

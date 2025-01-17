@@ -18,20 +18,19 @@ export class EmployeeDetailComponent implements OnInit {
 
   ngOnInit(): void {
     const employeeId = this.route.snapshot.paramMap.get('employeeId');
-    console.log('Retrieved Employee ID:', employeeId);
   
     if (employeeId) {
       this.employeeService.getEmployeeById(employeeId).subscribe(
         (data) => {
           this.employee = data;
-          console.log('Fetched Employee Data:', this.employee); // Debug fetched data
+          console.log('Fetched Employee Data:', this.employee);
         },
         (error) => {
-          console.error('Error fetching employee data:', error); // Log any errors
+          console.error('Error fetching employee data:', error);
         }
       );
     } else {
-      console.error('Employee ID is null or invalid:', employeeId); // Handle invalid or null employeeId
+      console.error('Employee ID is null or invalid:', employeeId);
     }
   }
   

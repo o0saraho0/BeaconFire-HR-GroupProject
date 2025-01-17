@@ -23,3 +23,7 @@ mat-label {
 a {
   color: white;
 }
+
+mat-paginator {
+  padding-bottom: 55vh;
+}

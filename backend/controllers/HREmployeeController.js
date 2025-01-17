@@ -15,10 +15,9 @@ const getAllEmployees = async (req, res) => {
 const getEmployeeById = async (req, res) => {
   try {
     const userId = req.params.employeeId;
-    console.log(userId);
-
-    const profile = await EmployeeProfile.findOne({ user_id: userId });
-    console.log(profile);
+    const profile = await EmployeeProfile.findOne({ user_id: userId }).populate(
+      "user_id"
+    );
     if (!profile) {
       return res.status(404).json({ message: "Employee profile not found." });
     }
