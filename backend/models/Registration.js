@@ -8,7 +8,7 @@ const registration_schema = new mongoose.Schema({
   last_name: { type: String, required: true },
   status: {
     type: String,
-    enum: ["Not Started", "Registered"],
+    enum: ["Unused", "Expired", "Used"],
     required: true,
   },
   created_at: { type: Date, default: Date.now },

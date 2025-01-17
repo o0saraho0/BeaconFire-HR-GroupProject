@@ -1,10 +1,10 @@
 import express from "express";
-import { validateToken, registerAndSendEmail,getAllRegistrations,} from "../controllers/RegistrationController.js";
+import { validateToken, generateAndSendRegisterToken, getAllRegistrations } from "../controllers/RegistrationController.js";
 
 const router = express.Router();
 
 // Register and send email
-router.post("/register", registerAndSendEmail);
+router.post("/register", generateAndSendRegisterToken);
 // Validate token route
 router.get("/validate/:token", validateToken);
 // New API to fetch all registrations
