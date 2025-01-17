@@ -23,6 +23,12 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit(): void {
+    if (localStorage.getItem('token')) {
+      this.router.navigate(['/home']);
+    }
+  }
+
   onSubmit(): void {
     if (this.loginForm.valid) {
       console.log('Login data:', this.loginForm.value);
