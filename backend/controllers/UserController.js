@@ -6,7 +6,6 @@ import JWTRevocationList from "../models/JWTRevocationList.js"
 import HouseModel from "../models/House.js";
 
 import * as argon2 from "argon2";
-
 import { generateJWTToken } from "../utils/jwt.js";
 
 // for general login purpose, only verifies correct username/password combination

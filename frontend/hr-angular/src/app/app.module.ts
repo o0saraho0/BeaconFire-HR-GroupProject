@@ -8,6 +8,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
 
 // Angular Material Modules
 import { MatTableModule } from '@angular/material/table';
@@ -55,6 +56,7 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
