@@ -12,12 +12,8 @@ const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent},
-  { path: 'employee-profiles', component: EmployeeProfilesComponent, children: [
-    {
-      path: ':id', 
-      component: EmployeeDetailComponent
-    }
-  ]},
+  { path: 'employee-profiles/:employeeId', component: EmployeeDetailComponent },
+  { path: 'employee-profiles', component: EmployeeProfilesComponent},
   { path: 'visa-status', component: VisaStatusManagementComponent },
   { path: 'hiring', component: HiringManagementComponent },
   { path: 'housing', component: HousingManagementComponent },

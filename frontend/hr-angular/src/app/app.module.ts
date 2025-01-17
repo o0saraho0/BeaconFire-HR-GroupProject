@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -18,6 +19,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -28,6 +33,9 @@ import { HiringManagementComponent } from './components/hiring-management/hiring
 import { HousingManagementComponent } from './components/housing-management/housing-management.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { EmployeeDetailComponent } from './components/employee-detail/employee-detail.component';
+
+import { employeesReducer } from './store/employees/employees.reducer';
+import { EmployeesEffects } from './store/employees/employees.effects';
 
 @NgModule({
   declarations: [
@@ -43,10 +51,11 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({}, {}),
-    EffectsModule.forRoot([]),
+    StoreModule.forRoot({ employees: employeesReducer }, {}),
+    EffectsModule.forRoot([EmployeesEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: environment.production }),
     BrowserAnimationsModule,
     MatInputModule,
@@ -56,7 +65,10 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    FormsModule
+    FormsModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatDividerModule
   ],
   providers: [],
   bootstrap: [AppComponent]
