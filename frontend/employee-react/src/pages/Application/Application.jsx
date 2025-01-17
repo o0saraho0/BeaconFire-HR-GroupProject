@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from '../../interceptors/auth.interceptor'
-import { setDocumentKey, selectDocumentKeys } from '../../store/documentSlice/documentSlice';
+import { setDocumentKey, selectUserDocuments } from '../../store/documentSlice/documentSlice';
 import {
   TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel,
   Container, Typography, Paper, Pagination
@@ -9,16 +9,15 @@ import {
 import { Grid2 as Grid } from '@mui/material';
 
 const Application = () => {
+  const userId = localStorage.getItem('userId');
   const dispatch = useDispatch();
   const [status, setStatus] = useState('Not Started');
-  const documentKeys = useSelector(selectDocumentKeys);
-  const [feedback, setFeedback] = useState('');
+  const userDocuments = useSelector(state => selectUserDocuments(state, userId)); const [feedback, setFeedback] = useState('');
   const localHost = 'localhost:3000';
   const [uploadedProfilePicture, setProfilePicture] = useState('');
   const [uploadedDriverLicense, setDriverLicense] = useState('');
   const [uploadedWorkAuth, setWorkAuth] = useState('');
   const [profileUrl, setProfileUrl] = useState('')
-
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -127,10 +126,10 @@ const Application = () => {
       case 'profilePicture':
         setProfilePicture(fileName);
         break;
-      case 'uploadedFiles.driverLicense':
+      case 'driversLicenseFile':
         setDriverLicense(fileName);
         break;
-      case 'uploadedFiles.workAuthorization':
+      case 'workAuthorizationFile':
         setWorkAuth(fileName);
         break;
       default:
@@ -143,10 +142,10 @@ const Application = () => {
       case 'profilePicture':
         endpoint = '/api/upload/profile-picture';
         break;
-      case 'uploadedFiles.driverLicense':
+      case 'driversLicenseFile':
         endpoint = '/api/upload/driver-license';
         break;
-      case 'uploadedFiles.workAuthorization':
+      case 'workAuthorizationFile':
         endpoint = '/api/upload/opt-receipt';
         break;
       default:
@@ -159,7 +158,8 @@ const Application = () => {
           'Content-Type': 'multipart/form-data'
         },
       });
-      dispatch(setDocumentKey({ documentType: e.target.name, key: response.data.key }));
+      dispatch(setDocumentKey({ userId, documentType: e.target.name, key: response.data.key }));
+      console.log('userDocuments', userDocuments)
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -168,7 +168,9 @@ const Application = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/onboarding', formData);
+      console.log('formdata', formData)
+      const response = await axios.post(`http://${localHost}/api/onboarding`, formData);
+      // if (response)
       setStatus('Pending');
     } catch (error) {
       console.error('Error submitting application:', error);
@@ -217,6 +219,7 @@ const Application = () => {
           <input
             type="file"
             name="profilePicture"
+            placeholder='Profile Picture'
             onChange={handleFileUpload}
             hidden
           />
@@ -232,6 +235,7 @@ const Application = () => {
           value={formData.currentAddress.building}
           onChange={handleInputChange}
           fullWidth
+          required
         />
         <TextField
           label="Street Name"
@@ -240,6 +244,7 @@ const Application = () => {
           value={formData.currentAddress.street}
           onChange={handleInputChange}
           fullWidth
+          required
         />
         <TextField
           label="City"
@@ -248,6 +253,7 @@ const Application = () => {
           value={formData.currentAddress.city}
           onChange={handleInputChange}
           fullWidth
+          required
         />
         <TextField
           label="State"
@@ -256,6 +262,7 @@ const Application = () => {
           value={formData.currentAddress.state}
           onChange={handleInputChange}
           fullWidth
+          required
         />
         <TextField
           label="Zip"
@@ -264,6 +271,7 @@ const Application = () => {
           value={formData.currentAddress.zip}
           onChange={handleInputChange}
           fullWidth
+          required
         />
       </Grid>
     </Grid>
@@ -304,6 +312,7 @@ const Application = () => {
           label='Email'
           name='email'
           value={formData.email}
+          fullWidth
           disabled
         />
         <TextField
@@ -361,7 +370,7 @@ const Application = () => {
             Upload OPT Receipt
             <input
               type="file"
-              name="uploadedFiles.workAuthorization"
+              name="workAuthorizationFile"
               onChange={handleFileUpload}
               hidden
             />
@@ -384,6 +393,7 @@ const Application = () => {
               name="hasDriverLicense"
               checked={formData.hasDriverLicense}
               onChange={handleInputChange}
+              required
             />
           }
           label="Do you have a driver's license?"
@@ -417,7 +427,7 @@ const Application = () => {
               Upload Driver's License
               <input
                 type="file"
-                name="uploadedFiles.driverLicense"
+                name="driversLicenseFile"
                 onChange={handleFileUpload}
                 hidden
               />
@@ -561,53 +571,57 @@ const Application = () => {
       <Grid item xs={12}>
         <Typography variant="h6">Summary of Uploaded Files</Typography>
         <ul>
-          {documentKeys.profilePicture && (
+          {userDocuments.profilePicture && (
             <li>
               <span>Profile Picture: </span>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.profilePicture);
+                const url = await getPresignedUrl(userDocuments.profilePicture);
                 setProfileUrl(url)
                 window.open(url, '_blank');
               }}>Preview</a>
               {' | '}
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const theprofileUrl = await getPresignedUrl(documentKeys.profilePicture);
+                const theprofileUrl = await getPresignedUrl(userDocuments.profilePicture);
                 window.location.href = theprofileUrl;
               }} download>Download</a>
             </li>)}
-          {documentKeys.driverLicense && (
+          {userDocuments.driversLicenseFile && (
             <li>
+              <span>Driver's License: </span>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
                 window.open(url, '_blank');
-              }}>Driver's License</a>
+              }}>Preview</a>
+              {' | '}
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
                 window.location.href = url;
-              }}>Download</a>
+              }} download>Download</a>
             </li>
           )}
-          {documentKeys.workAuthorization && (
+          {userDocuments.workAuthorizationFile && (
             <li>
+              <span>Work Authorization: </span>
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.uploadedFiles.workAuthorization);
+                const url = await getPresignedUrl(userDocuments.workAuthorization);
                 window.open(url, '_blank');
-              }}>Work Authorization</a>
+              }}>Preview</a>
+              {' | '}
               <a href="#" onClick={async (e) => {
                 e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.workAuthorization);
+                const url = await getPresignedUrl(userDocuments.workAuthorization);
                 window.location.href = url;
-              }}>Download</a>
+              }} download>Download</a>
             </li>
           )}
         </ul>
       </Grid>
-    </Grid>
+    </Grid >
   );
 
   const renderForm = () => {
@@ -688,12 +702,12 @@ const Application = () => {
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
               window.open(url, '_blank');
             }}>Driver's License</a>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.uploadedFiles.driverLicense);
+              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
               window.location.href = url;
             }}>Download</a>
           </li>
@@ -702,7 +716,7 @@ const Application = () => {
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.uploadedFiles.workAuthorization);
+              const url = await getPresignedUrl(documentKeys.workAuthorizationFile);
               window.open(url, '_blank');
             }}>Work Authorization</a>
             <a href="#" onClick={async (e) => {
