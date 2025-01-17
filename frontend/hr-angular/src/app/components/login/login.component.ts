@@ -1,7 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { login } from '../../store/auth/auth.actions';
+import {
+  selectAuthError,
+  selectIsAuthenticated,
+} from '../../store/auth/auth.selectors';
 
 @Component({
   selector: 'app-login',
@@ -10,11 +15,12 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-  errorMessage: string = '';
+  errorMessage$ = this.store.select(selectAuthError);
+  isAuthenticated$ = this.store.select(selectIsAuthenticated);
 
   constructor(
     private fb: FormBuilder,
-    private http: HttpClient,
+    private store: Store,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -24,31 +30,16 @@ export class LoginComponent {
   }
 
   ngOnInit(): void {
-    if (localStorage.getItem('token')) {
-      this.router.navigate(['/home']);
-    }
+    this.isAuthenticated$.subscribe((isAuthenticated) => {
+      if (isAuthenticated) {
+        this.router.navigate(['/home']);
+      }
+    });
   }
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      console.log('Login data:', this.loginForm.value);
-      this.errorMessage = '';
-      // Implement login functionality here
-      this.http
-        .post('http://localhost:3000/api/user/login-hr', this.loginForm.value)
-        .subscribe({
-          next: (res: any) => {
-            if (res.token) {
-              localStorage.setItem('token', res.token);
-            }
-            this.router.navigate(['/home']);
-          },
-          error: (e) => {
-            console.error('Login failed: ', e);
-            this.errorMessage =
-              e.error?.message || 'Login failed. Please try again.';
-          },
-        });
+      this.store.dispatch(login({ credentials: this.loginForm.value }));
     }
   }
 }

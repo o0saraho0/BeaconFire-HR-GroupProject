@@ -6,10 +6,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
+import { authReducer } from './store/auth/auth.reducer';
+import { AuthEffects } from './store/auth/auth.effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 // Angular Material Modules
 import { MatTableModule } from '@angular/material/table';
@@ -35,6 +38,7 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
 
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
+import { AuthInterceptor } from './interceptors/auth.interceptors';
 
 @NgModule({
   declarations: [
@@ -53,8 +57,8 @@ import { EmployeesEffects } from './store/employees/employees.effects';
     HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({ employees: employeesReducer }, {}),
-    EffectsModule.forRoot([EmployeesEffects]),
+    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer }, {}),
+    EffectsModule.forRoot([EmployeesEffects, AuthEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production,
@@ -73,7 +77,13 @@ import { EmployeesEffects } from './store/employees/employees.effects';
     MatIconModule,
     MatDividerModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

@@ -44,8 +44,11 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Replace the div with Material Alert -->
-        <mat-error class="server-error" *ngIf="errorMessage">
+        <!-- Using async pipe for errorMessage$ Observable -->
+        <mat-error
+          class="server-error"
+          *ngIf="errorMessage$ | async as errorMessage"
+        >
           <mat-icon>error</mat-icon>
           {{ errorMessage }}
         </mat-error>
