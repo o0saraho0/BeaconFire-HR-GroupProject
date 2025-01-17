@@ -1,7 +1,9 @@
 <nav>
   <ul>
     <li><a routerLink="/home">Home</a></li>
-    <li><a routerLink="/login">Log In</a></li>
-    <!-- NEED LOGIC HERE TO SHOW LOG OUT -->
+    <li *ngIf="!isLoggedIn()"><a routerLink="/login">Log In</a></li>
+    <li *ngIf="isLoggedIn()">
+      <a (click)="onLogoutClick()" style="cursor: pointer">Log Out</a>
+    </li>
   </ul>
 </nav>

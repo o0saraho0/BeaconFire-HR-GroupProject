@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
+import { LogoutComponent } from './components/logout/logout.component';
 import { HomeComponent } from './components/home/home.component';
 import { EmployeeProfilesComponent } from './components/employee-profiles/employee-profiles.component';
 import { EmployeeDetailComponent } from './components/employee-detail/employee-detail.component';
@@ -14,6 +15,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'login', component: LoginComponent },
+  { path: 'logout', component: LogoutComponent },
   {
     path: 'employee-profiles',
     component: EmployeeProfilesComponent,
