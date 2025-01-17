@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { Employee } from '../../store/employees/employees.state';
 import {
   fetchEmployees,
@@ -25,7 +25,9 @@ export class EmployeeProfilesComponent implements OnInit {
   dataSource = new MatTableDataSource<Employee>();
   displayedColumns: string[] = ['name', 'ssn', 'visa_type', 'cell_phone', 'email'];
   totalEmployees: number = 0;
-  sortedEmployees: Employee[] = []
+  sortedEmployees: Employee[] = [];
+  private subscriptions: Subscription = new Subscription();
+
 
   @ViewChild(MatPaginator) paginator!: MatPaginator; 
 
@@ -64,5 +66,9 @@ export class EmployeeProfilesComponent implements OnInit {
   applyFilter(event: Event): void {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSource.filter = filterValue; 
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

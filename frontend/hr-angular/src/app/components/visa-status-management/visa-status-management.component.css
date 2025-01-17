@@ -1,0 +1,29 @@
+h2 {
+  text-align: center;
+  padding-top: 50px;
+  margin-bottom: 0px;
+  background-color: #424242;
+  color: white;
+}
+
+h3 {
+  text-align: center;
+  margin-bottom: 0px;
+  background-color: #424242;
+  color: white;
+}
+
+table {
+  padding: 0px 50px 50px;
+  width: 100%;
+}
+
+.search-bar {
+  background-color: #424242;
+  color: white;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
