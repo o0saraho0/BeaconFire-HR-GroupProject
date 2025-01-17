@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import axios from '../../interceptors/auth.interceptor'
 import { setDocumentKey, selectDocumentKeys } from '../../store/documentSlice/documentSlice';
 import {
   TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel,
@@ -72,15 +72,20 @@ const Application = () => {
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const response = await axios.get(`http://${localHost}/api/onboarding/status`, {
-          headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4OTY4MDc5NTUzNWNmYWExMzg4OTU5IiwiaWF0IjoxNzM3MDU4NjE5LCJleHAiOjE3MzcwNzMwMTl9.gLOO1EdsrfoACfgVvZiJshsMZpmvfIop-V_jb9qHScc'
-          }
-        });
-        console.log(response.data.application)
-        setStatus(response.data.application.status);
-        setFeedback(response.data.application.feedback);
-        setFormData(response.data.application);
+        const response = await axios.get(`http://${localHost}/api/onboarding/status`);
+        console.log(response.data)
+        if (response.data.status == 'Not Started') {
+          setStatus(response.data.status);
+        } else {
+          setStatus(response.data.application.status);
+          setFeedback(response.data.application.feedback);
+          setFormData(response.data.application);
+        }
+        console.log(response.data.email)
+        setFormData((prevData) => ({
+          ...prevData,
+          email: response.data.email
+        }));
       } catch (error) {
         console.error('Error fetching application:', error);
       }
@@ -151,8 +156,7 @@ const Application = () => {
     try {
       const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDUzNjM4LCJleHAiOjE3MzcwNjgwMzh9.9_bNPAkie_rHxVXLlcwD1oQ_PtSXQJ-Y7NvLV42Zb3k',
+          'Content-Type': 'multipart/form-data'
         },
       });
       dispatch(setDocumentKey({ documentType: e.target.name, key: response.data.key }));
@@ -296,6 +300,12 @@ const Application = () => {
       </Grid>
       <Grid item xs={12}>
         <Typography variant="h6">Additional Information</Typography>
+        <TextField
+          label='Email'
+          name='email'
+          value={formData.email}
+          disabled
+        />
         <TextField
           label="SSN"
           name="ssn"
@@ -616,10 +626,7 @@ const Application = () => {
   const getPresignedUrl = async (fileName) => {
     try {
       const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
-        params: { fileName },
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNjc4N2Y5Y2MxMjAzMWVlZjFmOWY2ODRhIiwiaWF0IjoxNzM3MDUzNjM4LCJleHAiOjE3MzcwNjgwMzh9.9_bNPAkie_rHxVXLlcwD1oQ_PtSXQJ-Y7NvLV42Zb3k',
-        },
+        params: { fileName }
       });
       return response.data.url;
     } catch (error) {
