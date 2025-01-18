@@ -1,67 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import axios from '../../interceptors/auth.interceptor'
-import { setDocumentKey, selectUserDocuments } from '../../store/documentSlice/documentSlice';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "../../interceptors/auth.interceptor";
 import {
-  TextField, Button, Select, MenuItem, FormControl, InputLabel, Checkbox, FormControlLabel,
-  Container, Typography, Paper, Pagination
-} from '@mui/material';
-import { Grid2 as Grid } from '@mui/material';
+  setDocumentKey,
+  selectUserDocuments,
+} from "../../store/documentSlice/documentSlice";
+import {
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
+  Container,
+  Typography,
+  Paper,
+  Pagination,
+} from "@mui/material";
+import { Grid2 as Grid } from "@mui/material";
 
 const Application = () => {
-  const userId = localStorage.getItem('userId');
+  const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
-  const [status, setStatus] = useState('Not Started');
-  const userDocuments = useSelector(state => selectUserDocuments(state, userId)); const [feedback, setFeedback] = useState('');
-  const localHost = 'localhost:3000';
-  const [uploadedProfilePicture, setProfilePicture] = useState('');
-  const [uploadedDriverLicense, setDriverLicense] = useState('');
-  const [uploadedWorkAuth, setWorkAuth] = useState('');
-  const [profileUrl, setProfileUrl] = useState('')
+  const [status, setStatus] = useState("Not Started");
+  const userDocuments = useSelector((state) =>
+    selectUserDocuments(state, userId)
+  );
+  const [feedback, setFeedback] = useState("");
+  const localHost = "localhost:3000";
+  const [uploadedProfilePicture, setProfilePicture] = useState("");
+  const [uploadedDriverLicense, setDriverLicense] = useState("");
+  const [uploadedWorkAuth, setWorkAuth] = useState("");
+  const [profileUrl, setProfileUrl] = useState("");
 
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    middleName: '',
-    preferredName: '',
-    profilePicture: '',
+    firstName: "",
+    lastName: "",
+    middleName: "",
+    preferredName: "",
+    profilePicture: "",
     currentAddress: {
-      building: '',
-      street: '',
-      city: '',
-      state: '',
-      zip: '',
+      building: "",
+      street: "",
+      city: "",
+      state: "",
+      zip: "",
     },
-    cellPhone: '',
-    workPhone: '',
+    cellPhone: "",
+    workPhone: "",
     carInfo: {
-      make: '',
-      model: '',
-      color: '',
+      make: "",
+      model: "",
+      color: "",
     },
-    email: '',
-    ssn: '',
-    dob: '',
-    gender: '',
-    visaType: '',
-    visaStartDate: '',
-    visaEndDate: '',
+    email: "",
+    ssn: "",
+    dob: "",
+    gender: "",
+    visaType: "",
+    visaStartDate: "",
+    visaEndDate: "",
     driverLicense: {
-      number: '',
-      expireDate: '',
+      number: "",
+      expireDate: "",
     },
     reference: {
-      firstName: '',
-      lastName: '',
-      middleName: '',
-      phone: '',
-      email: '',
-      relationship: '',
+      firstName: "",
+      lastName: "",
+      middleName: "",
+      phone: "",
+      email: "",
+      relationship: "",
     },
     emergencyContacts: [],
     uploadedFiles: {
-      driverLicense: '',
-      workAuthorization: '',
+      driverLicense: "",
+      workAuthorization: "",
     },
   });
 
@@ -71,22 +87,24 @@ const Application = () => {
   useEffect(() => {
     const fetchApplication = async () => {
       try {
-        const response = await axios.get(`http://${localHost}/api/onboarding/status`);
-        console.log(response.data)
-        if (response.data.status == 'Not Started') {
+        const response = await axios.get(
+          `http://${localHost}/api/onboarding/status`
+        );
+        console.log(response.data);
+        if (response.data.status == "Not Started") {
           setStatus(response.data.status);
         } else {
           setStatus(response.data.application.status);
           setFeedback(response.data.application.feedback);
           setFormData(response.data.application);
         }
-        console.log(response.data.email)
+        console.log(response.data.email);
         setFormData((prevData) => ({
           ...prevData,
-          email: response.data.email
+          email: response.data.email,
         }));
       } catch (error) {
-        console.error('Error fetching application:', error);
+        console.error("Error fetching application:", error);
       }
     };
 
@@ -123,57 +141,70 @@ const Application = () => {
     const file = e.target.files[0];
     const fileName = file.name;
     switch (e.target.name) {
-      case 'profilePicture':
+      case "profilePicture":
         setProfilePicture(fileName);
         break;
-      case 'driversLicenseFile':
+      case "driversLicenseFile":
         setDriverLicense(fileName);
         break;
-      case 'workAuthorizationFile':
+      case "workAuthorizationFile":
         setWorkAuth(fileName);
         break;
       default:
         return;
     }
     const formData = new FormData();
-    formData.append('file', e.target.files[0]);
-    let endpoint = '';
+    formData.append("file", e.target.files[0]);
+    let endpoint = "";
     switch (e.target.name) {
-      case 'profilePicture':
-        endpoint = '/api/upload/profile-picture';
+      case "profilePicture":
+        endpoint = "/api/upload/profile-picture";
         break;
-      case 'driversLicenseFile':
-        endpoint = '/api/upload/driver-license';
+      case "driversLicenseFile":
+        endpoint = "/api/upload/driver-license";
         break;
-      case 'workAuthorizationFile':
-        endpoint = '/api/upload/opt-receipt';
+      case "workAuthorizationFile":
+        endpoint = "/api/upload/opt-receipt";
         break;
       default:
         return;
     }
 
     try {
-      const response = await axios.post(`http://localhost:3000${endpoint}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-      });
-      dispatch(setDocumentKey({ userId, documentType: e.target.name, key: response.data.key }));
-      console.log('userDocuments', userDocuments)
+      const response = await axios.post(
+        `http://localhost:3000${endpoint}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      dispatch(
+        setDocumentKey({
+          userId,
+          documentType: e.target.name,
+          key: response.data.key,
+        })
+      );
+      console.log("userDocuments", userDocuments);
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error("Error uploading file:", error);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('formdata', formData)
-      const response = await axios.post(`http://${localHost}/api/onboarding`, formData);
+      console.log("formdata", formData);
+      const response = await axios.post(
+        `http://${localHost}/api/onboarding`,
+        formData
+      );
       // if (response)
-      setStatus('Pending');
+      setStatus("Pending");
     } catch (error) {
-      console.error('Error submitting application:', error);
+      console.error("Error submitting application:", error);
     }
   };
 
@@ -211,20 +242,19 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
         />
-        <Button
-          variant="contained"
-          component="label"
-        >
+        <Button variant="contained" component="label">
           Upload Profile Picture
           <input
             type="file"
             name="profilePicture"
-            placeholder='Profile Picture'
+            placeholder="Profile Picture"
             onChange={handleFileUpload}
             hidden
           />
         </Button>
-        {uploadedProfilePicture && <Typography variant="body2">{uploadedProfilePicture}</Typography>}
+        {uploadedProfilePicture && (
+          <Typography variant="body2">{uploadedProfilePicture}</Typography>
+        )}
       </Grid>
       <Grid item xs={12}>
         <Typography variant="h6">Current Address</Typography>
@@ -309,8 +339,8 @@ const Application = () => {
       <Grid item xs={12}>
         <Typography variant="h6">Additional Information</Typography>
         <TextField
-          label='Email'
-          name='email'
+          label="Email"
+          name="email"
           value={formData.email}
           fullWidth
           disabled
@@ -344,11 +374,15 @@ const Application = () => {
           >
             <MenuItem value="Male">Male</MenuItem>
             <MenuItem value="Female">Female</MenuItem>
-            <MenuItem value="I do not wish to answer">I do not wish to answer</MenuItem>
+            <MenuItem value="I do not wish to answer">
+              I do not wish to answer
+            </MenuItem>
           </Select>
         </FormControl>
         <FormControl fullWidth>
-          <InputLabel>Are you a citizen or permanent resident of the U.S?</InputLabel>
+          <InputLabel>
+            Are you a citizen or permanent resident of the U.S?
+          </InputLabel>
           <Select
             name="visaType"
             value={formData.visaType}
@@ -362,11 +396,8 @@ const Application = () => {
             <MenuItem value="Other">Other</MenuItem>
           </Select>
         </FormControl>
-        {formData.visaType === 'F1 Category' && (
-          <Button
-            variant="contained"
-            component="label"
-          >
+        {formData.visaType === "F1 Category" && (
+          <Button variant="contained" component="label">
             Upload OPT Receipt
             <input
               type="file"
@@ -376,9 +407,11 @@ const Application = () => {
             />
           </Button>
         )}
-        {uploadedWorkAuth && <Typography variant="body2">{uploadedWorkAuth}</Typography>}
+        {uploadedWorkAuth && (
+          <Typography variant="body2">{uploadedWorkAuth}</Typography>
+        )}
 
-        {formData.visaType === 'Other' && (
+        {formData.visaType === "Other" && (
           <TextField
             label="Specify Visa Title"
             name="visaTitle"
@@ -420,10 +453,7 @@ const Application = () => {
               }}
               required
             />
-            <Button
-              variant="contained"
-              component="label"
-            >
+            <Button variant="contained" component="label">
               Upload Driver's License
               <input
                 type="file"
@@ -432,7 +462,9 @@ const Application = () => {
                 hidden
               />
             </Button>
-            {uploadedDriverLicense && <Typography variant="body2">{uploadedDriverLicense}</Typography>}
+            {uploadedDriverLicense && (
+              <Typography variant="body2">{uploadedDriverLicense}</Typography>
+            )}
           </>
         )}
       </Grid>
@@ -442,7 +474,9 @@ const Application = () => {
   const renderFormPage3 = () => (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Typography variant="h6">Reference (who referred you to this company? There can only be 1)</Typography>
+        <Typography variant="h6">
+          Reference (who referred you to this company? There can only be 1)
+        </Typography>
         <TextField
           label="First Name"
           name="reference.firstName"
@@ -560,10 +594,22 @@ const Application = () => {
         ))}
         <Button
           variant="contained"
-          onClick={() => setFormData({
-            ...formData,
-            emergencyContacts: [...formData.emergencyContacts, { firstName: '', lastName: '', middleName: '', phone: '', email: '', relationship: '' }]
-          })}
+          onClick={() =>
+            setFormData({
+              ...formData,
+              emergencyContacts: [
+                ...formData.emergencyContacts,
+                {
+                  firstName: "",
+                  lastName: "",
+                  middleName: "",
+                  phone: "",
+                  email: "",
+                  relationship: "",
+                },
+              ],
+            })
+          }
         >
           Add Emergency Contact
         </Button>
@@ -574,54 +620,100 @@ const Application = () => {
           {userDocuments.profilePicture && (
             <li>
               <span>Profile Picture: </span>
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.profilePicture);
-                setProfileUrl(url)
-                window.open(url, '_blank');
-              }}>Preview</a>
-              {' | '}
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const theprofileUrl = await getPresignedUrl(userDocuments.profilePicture);
-                window.location.href = theprofileUrl;
-              }} download>Download</a>
-            </li>)}
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const url = await getPresignedUrl(
+                    userDocuments.profilePicture
+                  );
+                  setProfileUrl(url);
+                  window.open(url, "_blank");
+                }}
+              >
+                Preview
+              </a>
+              {" | "}
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const theprofileUrl = await getPresignedUrl(
+                    userDocuments.profilePicture
+                  );
+                  window.location.href = theprofileUrl;
+                }}
+                download
+              >
+                Download
+              </a>
+            </li>
+          )}
           {userDocuments.driversLicenseFile && (
             <li>
               <span>Driver's License: </span>
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
-                window.open(url, '_blank');
-              }}>Preview</a>
-              {' | '}
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
-                window.location.href = url;
-              }} download>Download</a>
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const url = await getPresignedUrl(
+                    userDocuments.driversLicenseFile
+                  );
+                  window.open(url, "_blank");
+                }}
+              >
+                Preview
+              </a>
+              {" | "}
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const url = await getPresignedUrl(
+                    userDocuments.driversLicenseFile
+                  );
+                  window.location.href = url;
+                }}
+                download
+              >
+                Download
+              </a>
             </li>
           )}
           {userDocuments.workAuthorizationFile && (
             <li>
               <span>Work Authorization: </span>
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.workAuthorization);
-                window.open(url, '_blank');
-              }}>Preview</a>
-              {' | '}
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.workAuthorization);
-                window.location.href = url;
-              }} download>Download</a>
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const url = await getPresignedUrl(
+                    userDocuments.workAuthorization
+                  );
+                  window.open(url, "_blank");
+                }}
+              >
+                Preview
+              </a>
+              {" | "}
+              <a
+                href="#"
+                onClick={async (e) => {
+                  e.preventDefault();
+                  const url = await getPresignedUrl(
+                    userDocuments.workAuthorization
+                  );
+                  window.location.href = url;
+                }}
+                download
+              >
+                Download
+              </a>
             </li>
           )}
         </ul>
       </Grid>
-    </Grid >
+    </Grid>
   );
 
   const renderForm = () => {
@@ -639,91 +731,173 @@ const Application = () => {
 
   const getPresignedUrl = async (fileName) => {
     try {
-      const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
-        params: { fileName }
-      });
+      const response = await axios.get(
+        `http://${localHost}/api/upload/presigned-url`,
+        {
+          params: { fileName },
+        }
+      );
       return response.data.url;
     } catch (error) {
-      console.error('Error fetching pre-signed URL:', error);
+      console.error("Error fetching pre-signed URL:", error);
     }
   };
 
   const renderPendingMessage = () => (
-    <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+    <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
       <Typography variant="body1">
-        Please wait for HR to review your application. Below is your submitted application and uploaded documents:
+        Please wait for HR to review your application. Below is your submitted
+        application and uploaded documents:
       </Typography>
       <Typography variant="h6">Submitted Application</Typography>
-      <Typography variant="body2"><strong>First Name:</strong> {formData.firstName}</Typography>
-      <Typography variant="body2"><strong>Last Name:</strong> {formData.lastName}</Typography>
-      <Typography variant="body2"><strong>Middle Name:</strong> {formData.middleName}</Typography>
-      <Typography variant="body2"><strong>Preferred Name:</strong> {formData.preferredName}</Typography>
-      <Typography variant="body2"><strong>Email:</strong> {formData.email}</Typography>
-      <Typography variant="body2"><strong>Cell Phone:</strong> {formData.cellPhone}</Typography>
-      <Typography variant="body2"><strong>Work Phone:</strong> {formData.workPhone}</Typography>
-      <Typography variant="body2"><strong>Current Address:</strong> {`${formData.currentAddress.building}, ${formData.currentAddress.street}, ${formData.currentAddress.city}, ${formData.currentAddress.state}, ${formData.currentAddress.zip}`}</Typography>
-      <Typography variant="body2"><strong>Car Information:</strong> {`${formData.carInfo.make}, ${formData.carInfo.model}, ${formData.carInfo.color}`}</Typography>
-      <Typography variant="body2"><strong>SSN:</strong> {formData.ssn}</Typography>
-      <Typography variant="body2"><strong>Date of Birth:</strong> {formData.dob}</Typography>
-      <Typography variant="body2"><strong>Gender:</strong> {formData.gender}</Typography>
-      <Typography variant="body2"><strong>Visa Type:</strong> {formData.visaType}</Typography>
-      {formData.visaType === 'Other' && <Typography variant="body2"><strong>Visa Title:</strong> {formData.visaTitle}</Typography>}
+      <Typography variant="body2">
+        <strong>First Name:</strong> {formData.firstName}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Last Name:</strong> {formData.lastName}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Middle Name:</strong> {formData.middleName}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Preferred Name:</strong> {formData.preferredName}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Email:</strong> {formData.email}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Cell Phone:</strong> {formData.cellPhone}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Work Phone:</strong> {formData.workPhone}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Current Address:</strong>{" "}
+        {`${formData.currentAddress.building}, ${formData.currentAddress.street}, ${formData.currentAddress.city}, ${formData.currentAddress.state}, ${formData.currentAddress.zip}`}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Car Information:</strong>{" "}
+        {`${formData.carInfo.make}, ${formData.carInfo.model}, ${formData.carInfo.color}`}
+      </Typography>
+      <Typography variant="body2">
+        <strong>SSN:</strong> {formData.ssn}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Date of Birth:</strong> {formData.dob}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Gender:</strong> {formData.gender}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Visa Type:</strong> {formData.visaType}
+      </Typography>
+      {formData.visaType === "Other" && (
+        <Typography variant="body2">
+          <strong>Visa Title:</strong> {formData.visaTitle}
+        </Typography>
+      )}
       {formData.hasDriverLicense && (
         <>
-          <Typography variant="body2"><strong>Driver's License Number:</strong> {formData.driverLicense.number}</Typography>
-          <Typography variant="body2"><strong>Expiration Date:</strong> {formData.driverLicense.expireDate}</Typography>
+          <Typography variant="body2">
+            <strong>Driver's License Number:</strong>{" "}
+            {formData.driverLicense.number}
+          </Typography>
+          <Typography variant="body2">
+            <strong>Expiration Date:</strong>{" "}
+            {formData.driverLicense.expireDate}
+          </Typography>
         </>
       )}
       <Typography variant="h6">Uploaded Documents</Typography>
       <ul>
         {documentKeys.profilePicture && (
           <li>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              try {
-                const url = await getPresignedUrl(documentKeys.profilePicture);
-                if (url) {
-                  window.open(url, '_blank');
-                } else {
-                  console.error('Failed to retrieve URL');
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                try {
+                  const url = await getPresignedUrl(
+                    documentKeys.profilePicture
+                  );
+                  if (url) {
+                    window.open(url, "_blank");
+                  } else {
+                    console.error("Failed to retrieve URL");
+                  }
+                } catch (error) {
+                  console.error("Error fetching profile picture URL:", error);
                 }
-              } catch (error) {
-                console.error('Error fetching profile picture URL:', error);
-              }
-            }}>Profile Picture</a>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.profilePicture);
-              window.location.href = url;
-            }}>Download</a>
+              }}
+            >
+              Profile Picture
+            </a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(documentKeys.profilePicture);
+                window.location.href = url;
+              }}
+            >
+              Download
+            </a>
           </li>
         )}
         {documentKeys.driverLicense && (
           <li>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
-              window.open(url, '_blank');
-            }}>Driver's License</a>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
-              window.location.href = url;
-            }}>Download</a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(
+                  documentKeys.driversLicenseFile
+                );
+                window.open(url, "_blank");
+              }}
+            >
+              Driver's License
+            </a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(
+                  documentKeys.driversLicenseFile
+                );
+                window.location.href = url;
+              }}
+            >
+              Download
+            </a>
           </li>
         )}
         {documentKeys.workAuthorization && (
           <li>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.workAuthorizationFile);
-              window.open(url, '_blank');
-            }}>Work Authorization</a>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.workAuthorization);
-              window.location.href = url;
-            }}>Download</a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(
+                  documentKeys.workAuthorizationFile
+                );
+                window.open(url, "_blank");
+              }}
+            >
+              Work Authorization
+            </a>
+            <a
+              href="#"
+              onClick={async (e) => {
+                e.preventDefault();
+                const url = await getPresignedUrl(
+                  documentKeys.workAuthorization
+                );
+                window.location.href = url;
+              }}
+            >
+              Download
+            </a>
           </li>
         )}
       </ul>
@@ -731,15 +905,17 @@ const Application = () => {
   );
 
   const renderRejectedMessage = () => (
-    <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
-      <Typography variant="body1">Your application was rejected. Feedback: {feedback}</Typography>
+    <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
+      <Typography variant="body1">
+        Your application was rejected. Feedback: {feedback}
+      </Typography>
       {renderForm()}
     </Paper>
   );
 
   const renderContent = () => {
     switch (status) {
-      case 'Not Started':
+      case "Not Started":
         return (
           <form onSubmit={handleSubmit}>
             {renderForm()}
@@ -760,12 +936,12 @@ const Application = () => {
             </Grid>
           </form>
         );
-      case 'Pending':
+      case "Pending":
         return renderPendingMessage();
-      case 'Rejected':
+      case "Rejected":
         return renderRejectedMessage();
-      case 'Approved':
-        window.location.href = '/index.html';
+      case "Approved":
+        window.location.href = "/index.html";
         return null;
       default:
         return null;
@@ -774,14 +950,16 @@ const Application = () => {
 
   return (
     <Container>
-      <Typography variant="h4" gutterBottom>Onboarding Application</Typography>
+      <Typography variant="h4" gutterBottom>
+        Onboarding Application
+      </Typography>
       {renderContent()}
       <Pagination
         count={totalPages}
         page={page}
         onChange={(event, value) => setPage(value)}
         color="primary"
-        style={{ marginTop: '20px' }}
+        style={{ marginTop: "20px" }}
       />
     </Container>
   );
