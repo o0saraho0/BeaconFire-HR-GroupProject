@@ -1,4 +1,5 @@
 import Application from "../models/Application.js";
+import User from "../models/User.js";
 
 const getApplicationStatus = async (req, res) => {
   try {
@@ -111,4 +112,34 @@ const postOnboarding = async (req, res) => {
   }
 };
 
+
+export const getAllOnboardingApplications = async (req, res) => {
+  try {
+    const applications = await Application.find({}).select('first_name last_name user_id')
+      .lean()    // Returns plain JavaScript objects instead of Mongoose documents
+      .exec();
+
+    const userIds = applications.map(app => app.user_id);
+    const users = await User.find({ _id: { $in: userIds } })
+      .select('email')
+      .lean();
+
+    // Create a map of userId to email for quick lookup
+    const userEmailMap = {};
+    users.forEach(user => {
+      userEmailMap[user._id] = user.email;
+    });
+
+    // Add email to each application
+    const applicationsWithEmail = applications.map(app => ({
+      ...app,
+      email: userEmailMap[app.user_id]
+    }));
+
+    res.json({ applications: applicationsWithEmail });
+  } catch (error) {
+    console.error("Error in getAllOnboardingApplications:", error);
+    res.status(500).json({ message: `Internal server error: ${error}` });
+  }
+}
 export { getApplicationStatus, postOnboarding };

@@ -399,6 +399,100 @@ const seed_database = async () => {
     ]);
     console.log("Facility Reports created:", facility_reports);
 
+    //create onboarding applications
+    // Create Applications
+    const applications = await Application.insertMany([
+      {
+        user_id: users[0]._id,
+        status: "Approved",
+        first_name: "John",
+        last_name: "Doe",
+        middle_name: "J",
+        preferred_name: "JD",
+        current_address: {
+          building: "101",
+          street: "Main St",
+          city: "San Francisco",
+          state: "CA",
+          zip: "94105",
+        },
+        cell_phone: "1234567890",
+        work_phone: "1234567890",
+        car_make: "Toyota",
+        car_model: "Corolla",
+        car_color: "Blue",
+        ssn: new Date("1990-01-01"), // Using date for SSN as per schema
+        dob: new Date("1990-01-01"),
+        gender: "Male",
+        visa_type: "H1B Category",
+        visa_start_date: new Date("2025-01-01"),
+        visa_end_date: new Date("2028-01-01"),
+        driver_licence_number: "DL123456",
+        driver_license_expire_date: new Date("2025-12-31"),
+        reference: {
+          first_name: "Alice",
+          last_name: "Reference",
+          middle_name: "M",
+          phone: "9876543210",
+          email: "alice.smith@example.com",
+          relationship: "Manager",
+        },
+        emergency_contacts: [
+          {
+            first_name: "Alice",
+            last_name: "Emergency",
+            middle_name: "M",
+            phone: "9876543210",
+            email: "alice.emergency@example.com",
+            relationship: "Mother",
+          }
+        ],
+        profile_picture_url: "profile1.jpg",
+        driver_licence_url: "license1.pdf",
+        work_auth_url: "workauth1.pdf"
+      },
+      {
+        user_id: users[1]._id,
+        status: "Pending",
+        first_name: "Jane",
+        last_name: "Smith",
+        current_address: {
+          building: "202",
+          street: "Market St",
+          city: "San Francisco",
+          state: "CA",
+          zip: "94107",
+        },
+        cell_phone: "9876543210",
+        ssn: new Date("1988-05-10"),
+        dob: new Date("1988-05-10"),
+        gender: "Female",
+        visa_type: "F1 Category",
+        driver_licence_number: "DL789012",
+        driver_license_expire_date: new Date("2024-06-30"),
+        reference: {
+          first_name: "Bob",
+          last_name: "Johnson",
+          phone: "1234567890",
+          email: "bob.johnson@example.com",
+          relationship: "Supervisor",
+        },
+        emergency_contacts: [
+          {
+            first_name: "Bob",
+            last_name: "Johnson",
+            phone: "1234567890",
+            email: "bob.johnson@example.com",
+            relationship: "Supervisor",
+          }
+        ],
+        profile_picture_url: "profile2.jpg",
+        driver_licence_url: "license2.pdf",
+        work_auth_url: "workauth2.pdf"
+      }
+    ]);
+    console.log("Applications created:", applications);
+
     console.log("Database seeded successfully!");
   } catch (error) {
     console.error("Error seeding database:", error);
