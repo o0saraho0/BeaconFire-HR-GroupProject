@@ -159,8 +159,35 @@ previewDocument(visa: any): void {
   }
 }
 
-downloadDocument(url: string): void {
+previewDocuments(url: string): void {
   window.open(url, '_blank');
+}
+
+forceDownload(link: any): void {
+  const url = link;
+  const fileName = "i983.png";
+
+  fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.blob(); 
+    })
+    .then((blob) => {
+      const blobUrl = window.URL.createObjectURL(blob); 
+
+      const anchor = document.createElement("a");
+      anchor.href = blobUrl;
+      anchor.download = fileName;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(blobUrl);
+    })
+    .catch((error) => {
+      console.error("File download failed:", error);
+    });
 }
 
 getNextStep(visa: any): string {

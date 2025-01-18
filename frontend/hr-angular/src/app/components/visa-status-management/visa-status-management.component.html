@@ -163,10 +163,10 @@
                 <ng-container matColumnDef="i983">
                     <th mat-header-cell *matHeaderCellDef>i983 Document</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button   mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.i983_url" (click)="downloadDocument(visa.i983_url)">
+                        <button   mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.i983_url" (click)="previewDocuments(visa.i983_url)">
                             Preview
                         </button>
-                        <button   mat-raised-button color="primary"  class="previewbuttons" *ngIf="visa.i983_url" (click)="downloadDocument(visa.i983_url)">
+                        <button   mat-raised-button color="primary"  class="previewbuttons" *ngIf="visa.i983_url" (click)="forceDownload(visa.i983_url)">
                             Download
                         </button>
                         <div *ngIf="!visa.i983_url" class="no-upload">
@@ -179,10 +179,10 @@
                 <ng-container matColumnDef="optReceipt">
                     <th mat-header-cell *matHeaderCellDef>OPT Receipt</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button  mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_receipt_url" (click)="downloadDocument(visa.opt_receipt_url)">
+                        <button  mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_receipt_url" (click)="previewDocuments(visa.opt_receipt_url)">
                             Preview
                         </button>
-                        <button  mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_receipt_url" (click)="downloadDocument(visa.opt_receipt_url)">
+                        <button  mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_receipt_url" (click)="forceDownload(visa.opt_receipt_url)">
                             Download
                         </button>
                         <div *ngIf="!visa.opt_receipt_url" class="no-upload">
@@ -195,10 +195,10 @@
                 <ng-container matColumnDef="i20">
                     <th mat-header-cell *matHeaderCellDef>I-20 Document</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button  mat-raised-button color="primary" class="previewbuttons"  *ngIf="visa.i20_url" (click)="downloadDocument(visa.i20_url)">
+                        <button  mat-raised-button color="primary" class="previewbuttons"  *ngIf="visa.i20_url" (click)="previewDocuments(visa.i20_url)">
                             Preview
                         </button>
-                        <button  mat-raised-button color="primary"  class="previewbuttons" *ngIf="visa.i20_url" (click)="downloadDocument(visa.i20_url)">
+                        <button  mat-raised-button color="primary"  class="previewbuttons" *ngIf="visa.i20_url" (click)="forceDownload(visa.i20_url)">
                             Download
                         </button>
                         <div *ngIf="!visa.i20_url" class="no-upload">
@@ -211,10 +211,10 @@
                 <ng-container matColumnDef="optEad">
                     <th mat-header-cell *matHeaderCellDef>OPT EAD</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button   mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_ead_url" (click)="downloadDocument(visa.opt_ead_url)">
+                        <button   mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_ead_url" (click)="previewDocuments(visa.opt_ead_url)">
                             Preview
                         </button>
-                        <button   mat-raised-button color="primary"   class="previewbuttons" *ngIf="visa.opt_ead_url" (click)="downloadDocument(visa.opt_ead_url)">
+                        <button   mat-raised-button color="primary"   class="previewbuttons" *ngIf="visa.opt_ead_url" (click)="forceDownload(visa.opt_ead_url)">
                             Download
                         </button>
                         <div *ngIf="!visa.opt_ead_url" class="no-upload">
@@ -231,10 +231,10 @@
                     'endDate', 
                     'daysRemaining', 
                     'nextStep', 
-                    'i983', 
                     'optReceipt', 
-                    'i20', 
-                    'optEad'
+                    'optEad',
+                    'i983', 
+                    'i20',
                 ]"></tr>
                 <tr mat-row *matRowDef="let row; columns: [
                     'name', 
@@ -243,10 +243,10 @@
                     'endDate', 
                     'daysRemaining', 
                     'nextStep', 
-                    'i983', 
                     'optReceipt', 
+                    'optEad',
+                    'i983', 
                     'i20', 
-                    'optEad'
                 ]"></tr>
             </table>
         </div>

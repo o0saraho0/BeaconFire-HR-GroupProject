@@ -189,15 +189,22 @@ import {
                 <Grid item xs={12}>
                 {visaData.stage=="I983"&&visaData.status=="Not Started"&& <Box display="flex" alignItems="center" gap={2}>
                 <Button
-                    component="label"
                     variant="contained"
                     color="primary"
-                >
+                    component="a"
+                    href="https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/I983/i983_empty.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    >
                     Empty Template
                 </Button>
                 <Button
                     variant="contained"
-                    color="secondary"
+                    color="primary"
+                    component="a"
+                    href="https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/I983/i983_sample.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
                 >
                     Sample Template
                 </Button>
