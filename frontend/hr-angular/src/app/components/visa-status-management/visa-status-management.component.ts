@@ -57,6 +57,7 @@ export class VisaStatusManagementComponent implements OnInit {
       next: (response) => {
         this.searchResults = response; // Bind search results
         this.isSearchLoading = false;
+        console.log(this.searchResults)
       },
       error: (error) => {
         console.error('Error performing search:', error);
@@ -112,8 +113,24 @@ export class VisaStatusManagementComponent implements OnInit {
   }
 
   sendNotification(visa: any): void {
-    console.log('Notification sent to:', visa.employee_name);
+    const payload = {
+      email: visa.email, // Email address to send the notification
+      stage: visa.stage, // Document type to include in the email
+    };
+  
+    const url = `${this.BASE_URL}/api/visa/sendNotification`; // Backend endpoint for sending email
+  
+    this.http.post(url, payload).subscribe({
+      next: (response: any) => {
+        alert(`Notification sent successfully to: ${visa.email}`);
+      },
+      error: (error) => {
+        console.error('Error sending notification:', error);
+        alert('Failed to send notification. Please try again.');
+      }
+    });
   }
+  
 
   // Get the document URL based on the stage
 getDocumentUrl(visa: any): string | null {
@@ -144,6 +161,26 @@ previewDocument(visa: any): void {
 
 downloadDocument(url: string): void {
   window.open(url, '_blank');
+}
+
+getNextStep(visa: any): string {
+  // Dynamically determine what to display based on visa data
+  if(visa.status=="Pending"){
+    return `${visa.stage} document is waiting for HR approval`
+  }
+
+  if(visa.status=="Not Started"){
+    return `${visa.stage} document has not been uploaded yet`
+  }
+
+  if(visa.status=="Reject"){
+    return `${visa.stage} document is rejected and should be uploaded again`
+  }
+
+  if(visa.status=="Complete"){
+    return "All documents has been uploaded"
+  }
+  return "Status is not recognized or missing";
 }
 
 }

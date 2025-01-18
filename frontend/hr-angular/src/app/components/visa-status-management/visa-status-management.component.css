@@ -1,22 +1,29 @@
 
-    .visa-management-container th,
-    .visa-management-container td {
-        text-align: center;
-        padding: 10px; /* Add padding inside cells */
-        margin: 5px; /* Add margin around cells */
-        border: 1px solid #cccccc4f; /* Add border for visibility */
-    }
+.visa-management-container th,
+.visa-management-container td {
+    text-align: center;
+    padding: 10px; /* Add padding inside cells */
+    margin: 5px; /* Add margin around cells */
+    border: 1px solid #cccccc4f; /* Add border for visibility */
+}
     
-    .visa-management-container th {
-        background-color: #f5f5f5; /* Light gray background for headers */
-        font-weight: bold;
-    }
+.visa-management-container th {
+    background-color: #f5f5f5; /* Light gray background for headers */
+    font-weight: bold;
+}
     
-    .visa-management-container td {
-        background-color: #fff; /* White background for data cells */
-    }
+.visa-management-container td {
+    background-color: #fff; /* White background for data cells */
+}
     
-    .visa-management-container button {
-        margin-right: 5px; /* Add spacing between buttons */
-    }
+.visa-management-container button {
+     margin-right: 5px; /* Add spacing between buttons */
+}
+
+.previewbuttons{
+    width: 20px;
+    text-align: center;
+    font-size: small;
+    padding: 0;
+}
     

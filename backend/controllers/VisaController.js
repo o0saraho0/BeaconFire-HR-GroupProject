@@ -4,7 +4,8 @@ import EmployeeProfile from "../models/EmployeeProfile.js";
 import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js"; // Import the file upload function
 import { generatePresignedUrl } from "../middlewares/AwsS3Middleware.js";
 import mongoose from "mongoose";
-
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
 //Document Uploading API
 export const uploadVisaDocument = async (req, res) => {
@@ -117,6 +118,10 @@ export const getInProgressVisas = async (req, res) => {
                 if (!profile) {
                     return null; // Skip if no profile is found
                 }
+                const user= await User.findOne({_id:visa.user_id})
+                if (!user){
+                    return null
+                }
                 // Calculate remaining visa days
                 const today = new Date();
                 const visaRemainingDays = profile.visa_end_date
@@ -151,6 +156,7 @@ export const getInProgressVisas = async (req, res) => {
                     visa_end_date: formattedVisaEndDate,
                     visa_remaining_days: visaRemainingDays,
                     employee_name: `${profile.first_name} ${profile.last_name}`,
+                    email:user.email,
                 };
             })
         );
@@ -251,4 +257,43 @@ export const handleAws3=async(req,res)=>{
     } catch (error) {
         res.status(500).json({ message: `Failed to generate URL: ${error.message}` });
     }
+}
+
+//send notification
+export const sendNotification=async (req, res) => {
+        const { email, stage } = req.body;
+    
+        if (!email || !stage) {
+        return res.status(400).json({ error: 'Email and document stage are required.' });
+        }
+    
+        try {
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+            },
+        });
+    
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Document Upload Notification',
+            text: `Dear User,
+    
+    You are required to upload the following document: ${stage}.
+    
+    Best regards,
+    Visa Processing Team`,
+        };
+    
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
+    
+        res.status(200).json({ message: 'Email sent successfully.' });
+        } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ error: 'Failed to send email.' });
+        }
 }

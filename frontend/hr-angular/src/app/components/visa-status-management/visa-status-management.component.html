@@ -22,13 +22,13 @@
         <!-- Start Date Column -->
         <ng-container matColumnDef="startDate">
             <th mat-header-cell *matHeaderCellDef>Start Date</th>
-            <td mat-cell *matCellDef="let visa">{{ visa.visa_start_date }}</td>
+            <td mat-cell *matCellDef="let visa">{{ visa.visa_start_date | date }}</td>
         </ng-container>
     
         <!-- End Date Column -->
         <ng-container matColumnDef="endDate">
             <th mat-header-cell *matHeaderCellDef>End Date</th>
-            <td mat-cell *matCellDef="let visa">{{ visa.visa_end_date }}</td>
+            <td mat-cell *matCellDef="let visa">{{ visa.visa_end_date | date}}</td>
         </ng-container>
     
         <!-- Days Remaining Column -->
@@ -40,7 +40,7 @@
         <!-- Next Step Column -->
         <ng-container matColumnDef="nextStep">
             <th mat-header-cell *matHeaderCellDef>Next Step</th>
-            <td mat-cell *matCellDef="let visa">{{ visa.stage }}</td>
+            <td mat-cell *matCellDef="let visa">{{getNextStep(visa) }}</td>
         </ng-container>
     
         <!-- Preview Column -->
@@ -87,6 +87,7 @@
                     matInput
                     [(ngModel)]="searchQuery.first_name"
                     placeholder="Search by first name"
+                    (keyup)="searchVisas()"
                 />
                 </mat-form-field>
             
@@ -97,6 +98,7 @@
                     matInput
                     [(ngModel)]="searchQuery.last_name"
                     placeholder="Search by last name"
+                    (keyup)="searchVisas()"
                 />
                 </mat-form-field>
             
@@ -107,6 +109,7 @@
                     matInput
                     [(ngModel)]="searchQuery.preferred_name"
                     placeholder="Search by preferred name"
+                    (keyup)="searchVisas()"
                 />
                 </mat-form-field>
             
@@ -153,16 +156,22 @@
                 <!-- Next Step Column -->
                 <ng-container matColumnDef="nextStep">
                     <th mat-header-cell *matHeaderCellDef>Next Step</th>
-                    <td mat-cell *matCellDef="let visa">{{ visa.stage }}</td>
+                    <td mat-cell *matCellDef="let visa">{{getNextStep(visa) }}</td>
                 </ng-container>
         
                 <!-- i983 Document Column -->
                 <ng-container matColumnDef="i983">
                     <th mat-header-cell *matHeaderCellDef>i983 Document</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button   mat-raised-button color="primary" *ngIf="visa.i983_url" (click)="downloadDocument(visa.i983_url)">
+                        <button   mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.i983_url" (click)="downloadDocument(visa.i983_url)">
+                            Preview
+                        </button>
+                        <button   mat-raised-button color="primary"  class="previewbuttons" *ngIf="visa.i983_url" (click)="downloadDocument(visa.i983_url)">
                             Download
                         </button>
+                        <div *ngIf="!visa.i983_url" class="no-upload">
+                            Not Uploaded
+                        </div>
                     </td>
                 </ng-container>
         
@@ -170,9 +179,15 @@
                 <ng-container matColumnDef="optReceipt">
                     <th mat-header-cell *matHeaderCellDef>OPT Receipt</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button  mat-raised-button color="primary"  *ngIf="visa.opt_receipt_url" (click)="downloadDocument(visa.opt_receipt_url)">
+                        <button  mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_receipt_url" (click)="downloadDocument(visa.opt_receipt_url)">
+                            Preview
+                        </button>
+                        <button  mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_receipt_url" (click)="downloadDocument(visa.opt_receipt_url)">
                             Download
                         </button>
+                        <div *ngIf="!visa.opt_receipt_url" class="no-upload">
+                            Not Uploaded
+                        </div>
                     </td>
                 </ng-container>
         
@@ -180,9 +195,15 @@
                 <ng-container matColumnDef="i20">
                     <th mat-header-cell *matHeaderCellDef>I-20 Document</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button  mat-raised-button color="primary" *ngIf="visa.i20_url" (click)="downloadDocument(visa.i20_url)">
+                        <button  mat-raised-button color="primary" class="previewbuttons"  *ngIf="visa.i20_url" (click)="downloadDocument(visa.i20_url)">
+                            Preview
+                        </button>
+                        <button  mat-raised-button color="primary"  class="previewbuttons" *ngIf="visa.i20_url" (click)="downloadDocument(visa.i20_url)">
                             Download
                         </button>
+                        <div *ngIf="!visa.i20_url" class="no-upload">
+                            Not Uploaded
+                        </div>
                     </td>
                 </ng-container>
         
@@ -190,9 +211,15 @@
                 <ng-container matColumnDef="optEad">
                     <th mat-header-cell *matHeaderCellDef>OPT EAD</th>
                     <td mat-cell *matCellDef="let visa">
-                        <button   mat-raised-button color="primary"   *ngIf="visa.opt_ead_url" (click)="downloadDocument(visa.opt_ead_url)">
+                        <button   mat-raised-button color="primary"  class="previewbuttons"  *ngIf="visa.opt_ead_url" (click)="downloadDocument(visa.opt_ead_url)">
+                            Preview
+                        </button>
+                        <button   mat-raised-button color="primary"   class="previewbuttons" *ngIf="visa.opt_ead_url" (click)="downloadDocument(visa.opt_ead_url)">
                             Download
                         </button>
+                        <div *ngIf="!visa.opt_ead_url" class="no-upload">
+                            Not Uploaded
+                        </div>
                     </td>
                 </ng-container>
         

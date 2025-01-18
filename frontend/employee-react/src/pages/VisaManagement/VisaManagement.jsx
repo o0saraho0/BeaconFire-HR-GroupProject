@@ -84,10 +84,28 @@ import {
     const getNextStepMessage = (status, stage, message) => {
         if (status === "Reject") return message;
         if (stage === "Complete") return "All documents have been approved.";
-        if (status === "Not Started")
-        return `Please upload your ${stage} document!`;
-        if (status === "Pending")
-        return `Please wait for HR to approve your ${stage} document.`;
+        if (status === "Not Started"){
+            if(stage=="OPT Receipt"){
+                return "Please uploaded your OPT Receipt"
+            }else if(stage=="EAD"){
+                return "Please upload a copy of your OPT EAD"
+            }else if(stage=="I983"){
+                return "Please download and fill out the I-983 form"
+            }else if(stage=="I20"){
+                return "Please send the I-983 along with all necessary documents to your school and upload the new I-20"
+            }
+        }
+        if (status === "Pending"){
+            if(stage=="OPT Receipt"){
+                return "Waiting for HR to approve your OPT Receipt"
+            }else if(stage=="EAD"){
+                return "Waiting for HR to approve your OPT EAD"
+            }else if(stage=="I983"){
+                return "Waiting for HR to approve and sign your I-983"
+            }else if(stage=="I20"){
+                return "Waiting for HR to approve your I-20"
+            }
+        }
         return "No further action required.";
     };
 
@@ -146,11 +164,11 @@ import {
                     <strong>Status:</strong> {visaData.status}
                 </Typography>
                 </Grid>
-                <Grid item xs={12}>
+                {/* <Grid item xs={12}>
                 <Typography variant="body1">
                     <strong>Message:</strong> {visaData.message}
                 </Typography>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12}>
                 <Typography variant="body1">
                     <strong>Next Step:</strong>{" "}
@@ -167,6 +185,23 @@ import {
                     )}
                     </span>
                 </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                {visaData.stage=="I983"&&visaData.status=="Not Started"&& <Box display="flex" alignItems="center" gap={2}>
+                <Button
+                    component="label"
+                    variant="contained"
+                    color="primary"
+                >
+                    Empty Template
+                </Button>
+                <Button
+                    variant="contained"
+                    color="secondary"
+                >
+                    Sample Template
+                </Button>
+                </Box>}
                 </Grid>
             </Grid>
 

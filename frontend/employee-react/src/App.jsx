@@ -77,6 +77,7 @@ function App() {
           <Route path="application" element={<Application />} />
           <Route path="personalprofile" element={<PersonalProfile />} />
           <Route path="housing" element={<HousesPage />} />
+          
         </Route>
 
         {/* Public Routes */}
@@ -84,6 +85,7 @@ function App() {
         <Route path="/register/:token" element={<RegisterPage />} />
         <Route path="/logout" element={<LogoutPage />} />
         <Route path="/visa-status" element={<VisaManagement />} />
+
       </Routes>
     </BrowserRouter>
   );
