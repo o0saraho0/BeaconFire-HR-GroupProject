@@ -77,7 +77,9 @@ const PersonalProfile = () => {
   const dispatch = useDispatch();
   const { profile, status, error } = useSelector((state) => state.employee);
   const { userId } = useSelector((state) => state.auth);
-  console.log("data in personal profile component", profile);
+  const userDocuments = useSelector((state) =>
+    selectUserDocuments(state, userId)
+  );
 
   useEffect(() => {
     if (userId) {
@@ -100,18 +102,12 @@ const PersonalProfile = () => {
     if (name.includes(".")) {
       const keys = name.split(".");
       setFormData((prevState) => {
-        // Create a deep copy of the previous state
-        const newFormData = JSON.parse(JSON.stringify(prevState));
-
-        // Traverse to the nested field
+        const newFormData = { ...prevState };
         let nestedField = newFormData;
         for (let i = 0; i < keys.length - 1; i++) {
           nestedField = nestedField[keys[i]];
         }
-
-        // Update the value
         nestedField[keys[keys.length - 1]] = value;
-
         return newFormData;
       });
     } else {
@@ -130,22 +126,17 @@ const PersonalProfile = () => {
     const file = e.target.files[0];
     const fieldName = e.target.name;
 
-    let endpoint = "";
-    switch (fieldName) {
-      case "profile_picture_url":
-        endpoint = "http://localhost:3000/api/upload/profile-picture";
-        break;
-      case "driver_licence_url":
-        endpoint = "http://localhost:3000/api/upload/driver-license";
-        break;
-      case "work_auth_url":
-        endpoint = "http://localhost:3000/api/upload/work-authorization";
-        break;
-      case "additional_url":
-        endpoint = "http://localhost:3000/api/upload/additional-documents";
-        break;
-      default:
-        return;
+    const endpoints = {
+      profile_picture_url: "http://localhost:3000/api/upload/profile-picture",
+      driver_licence_url: "http://localhost:3000/api/upload/driver-license",
+      work_auth_url: "http://localhost:3000/api/upload/opt-receipt",
+      additional_url: "http://localhost:3000/api/upload/opt-receipt",
+    };
+
+    const endpoint = endpoints[fieldName];
+    if (!endpoint) {
+      console.error("Invalid field name:", fieldName);
+      return;
     }
 
     const formData = new FormData();
@@ -153,19 +144,14 @@ const PersonalProfile = () => {
 
     try {
       const response = await axios.post(endpoint, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
-      console.log("Response from upload:", response.data);
 
-      // Use `fileUrl` from response
       setFormData((prevState) => ({
         ...prevState,
         [fieldName]: response.data.fileUrl,
       }));
 
-      // Optional: Update Redux state
       dispatch(
         setDocumentKey({
           userId,
@@ -173,10 +159,8 @@ const PersonalProfile = () => {
           key: response.data.key,
         })
       );
-      console.log(
-        "Updated Redux documents:",
-        selectUserDocuments(state, userId)
-      );
+
+      console.log("File uploaded successfully:", response.data.fileUrl);
     } catch (error) {
       console.error("Error uploading file:", error);
     }
@@ -185,7 +169,7 @@ const PersonalProfile = () => {
   const getPresignedUrl = async (fileName) => {
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/upload/presigned-url`,
+        "http://localhost:3000/api/upload/presigned-url",
         {
           params: { fileName },
         }
@@ -210,7 +194,6 @@ const PersonalProfile = () => {
     setEditingSection(null);
   };
 
-  // Dropdown management
   const visaTypes = [
     "Green Card",
     "Citizen",
@@ -220,7 +203,6 @@ const PersonalProfile = () => {
   ];
   const genders = ["Male", "Female", "I do not wish to answer"];
 
-  // Date management
   const formatDate = (isoDate) => {
     if (!isoDate) return "";
     const date = new Date(isoDate);
@@ -264,25 +246,23 @@ const PersonalProfile = () => {
                   ) : (
                     <Box>
                       <Typography>
-                        <strong>First Name*:</strong> {contact.first_name || ""}
+                        <strong>First Name:</strong>{" "}
+                        {contact.first_name || "N/A"}
                       </Typography>
                       <Typography>
-                        <strong>Last Name*:</strong> {contact.last_name || ""}
+                        <strong>Last Name:</strong> {contact.last_name || "N/A"}
                       </Typography>
                       <Typography>
-                        <strong>Phone*:</strong> {contact.phone || ""}
+                        <strong>Phone:</strong> {contact.phone || "N/A"}
                       </Typography>
                       <Typography>
-                        <strong>Email*:</strong> {contact.email || ""}
+                        <strong>Email:</strong> {contact.email || "N/A"}
                       </Typography>
                       <Typography>
-                        <strong>Relationship*:</strong>{" "}
-                        {contact.relationship || ""}
+                        <strong>Relationship:</strong>{" "}
+                        {contact.relationship || "N/A"}
                       </Typography>
                     </Box>
-                  )}
-                  {index < formData[fields].length - 1 && (
-                    <hr style={{ margin: "16px 0" }} />
                   )}
                 </Box>
               ))
@@ -304,26 +284,12 @@ const PersonalProfile = () => {
                             onChange={handleFileUpload}
                           />
                         </Button>
-                        {formData[name] && (
-                          <Typography variant="body2">
-                            Uploaded File: {formData[name]}
-                          </Typography>
-                        )}
                       </Box>
                     ) : type === "select" ? (
                       <Select
                         fullWidth
                         name={name}
-                        value={
-                          name.includes(".")
-                            ? name
-                                .split(".")
-                                .reduce(
-                                  (acc, key) => acc?.[key] || "",
-                                  formData
-                                )
-                            : formData[name] || ""
-                        }
+                        value={formData[name] || ""}
                         onChange={handleChange}
                         displayEmpty
                       >
@@ -342,18 +308,7 @@ const PersonalProfile = () => {
                         label={label}
                         name={name}
                         type="date"
-                        value={
-                          name.includes(".")
-                            ? formatDate(
-                                name
-                                  .split(".")
-                                  .reduce(
-                                    (acc, key) => acc?.[key] || "",
-                                    formData
-                                  )
-                              )
-                            : formatDate(formData[name])
-                        }
+                        value={formatDate(formData[name])}
                         onChange={handleChange}
                         InputLabelProps={{
                           shrink: true,
@@ -364,29 +319,22 @@ const PersonalProfile = () => {
                         fullWidth
                         label={label}
                         name={name}
-                        value={
-                          name.includes(".")
-                            ? name
-                                .split(".")
-                                .reduce(
-                                  (acc, key) => acc?.[key] || "",
-                                  formData
-                                )
-                            : formData[name] || ""
-                        }
+                        value={formData[name] || ""}
                         onChange={handleChange}
                       />
                     )
                   ) : (
                     <Typography>
                       <strong>{label}:</strong>{" "}
-                      {isFile && formData[name] ? (
+                      {isFile ? (
                         <>
                           <a
                             href="#"
                             onClick={async (e) => {
                               e.preventDefault();
-                              const url = await getPresignedUrl(formData[name]);
+                              const url = await getPresignedUrl(
+                                userDocuments[name]
+                              );
                               if (url) window.open(url, "_blank");
                             }}
                           >
@@ -397,10 +345,11 @@ const PersonalProfile = () => {
                             href="#"
                             onClick={async (e) => {
                               e.preventDefault();
-                              const url = await getPresignedUrl(formData[name]);
+                              const url = await getPresignedUrl(
+                                userDocuments[name]
+                              );
                               if (url) window.location.href = url;
                             }}
-                            download
                           >
                             Download
                           </a>
@@ -412,9 +361,35 @@ const PersonalProfile = () => {
                   )}
                 </Box>
               ))}
+          {sectionName === "Address" && (
+            <>
+              {Object.keys(formData.current_address).map((key) => (
+                <Box key={key} sx={{ marginBottom: 2 }}>
+                  {isEditing ? (
+                    <TextField
+                      fullWidth
+                      label={key.charAt(0).toUpperCase() + key.slice(1)}
+                      name={`current_address.${key}`}
+                      value={formData.current_address[key] || ""}
+                      onChange={handleChange}
+                    />
+                  ) : (
+                    <Typography>
+                      <strong>
+                        {key.charAt(0).toUpperCase() +
+                          key.slice(1).replace(/_/g, " ")}
+                        :
+                      </strong>{" "}
+                      {formData.current_address[key] || "N/A"}
+                    </Typography>
+                  )}
+                </Box>
+              ))}
+            </>
+          )}
           <Box className="button-box">
             {isEditing ? (
-              <div>
+              <>
                 <Button
                   variant="contained"
                   onClick={handleSaveClick}
@@ -425,7 +400,7 @@ const PersonalProfile = () => {
                 <Button variant="outlined" onClick={handleCancelClick}>
                   Cancel
                 </Button>
-              </div>
+              </>
             ) : (
               <Button
                 variant="outlined"
@@ -450,24 +425,18 @@ const PersonalProfile = () => {
         Personal Profile
       </Typography>
       {renderSection("Name", [
-        { label: "First Name*", name: "first_name" },
-        { label: "Last Name*", name: "last_name" },
+        { label: "First Name", name: "first_name" },
+        { label: "Last Name", name: "last_name" },
         { label: "Middle Name", name: "middle_name" },
         { label: "Preferred Name", name: "preferred_name" },
         { label: "Profile Pic", name: "profile_picture_url", isFile: true },
-        { label: "SSN*", name: "ssn" },
-        { label: "Date of Birth*", name: "dob", type: "date" },
+        { label: "SSN", name: "ssn" },
+        { label: "Date of Birth", name: "dob", type: "date" },
         { label: "Gender", name: "gender", type: "select", options: genders },
       ])}
-      {renderSection("Address*", [
-        { label: "Building", name: "current_address.building" },
-        { label: "Street", name: "current_address.street" },
-        { label: "City", name: "current_address.city" },
-        { label: "State", name: "current_address.state" },
-        { label: "Zipcode", name: "current_address.zip" },
-      ])}
+      {renderSection("Address", [])}
       {renderSection("Contact Information", [
-        { label: "Cell Phone*", name: "cell_phone" },
+        { label: "Cell Phone", name: "cell_phone" },
         { label: "Work Phone", name: "work_phone" },
       ])}
       {renderSection("Employment", [
@@ -482,7 +451,7 @@ const PersonalProfile = () => {
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
       {renderSection("Documents", [
-        { label: "Driver License*", name: "driver_licence_url", isFile: true },
+        { label: "Driver License", name: "driver_licence_url", isFile: true },
         { label: "Work Authorization", name: "work_auth_url", isFile: true },
         { label: "Additional Documents", name: "additional_url", isFile: true },
       ])}
