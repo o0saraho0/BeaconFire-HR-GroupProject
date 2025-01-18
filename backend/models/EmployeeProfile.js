@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const employee_profile_schema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "User",
     required: true,
   },
   first_name: { type: String, required: true },
