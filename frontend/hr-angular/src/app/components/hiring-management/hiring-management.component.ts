@@ -81,17 +81,19 @@ export class HiringManagementComponent implements OnInit {
 
   loadApplications(): void {
     this.http
-      .get<Application[]>('http://localhost:3000/api/onboarding/applications')
+      .get<{ applications: Application[] }>(
+        'http://localhost:3000/api/onboarding/applications'
+      )
       .subscribe({
-        next: (applications) => {
-          this.pendingApplications = applications.filter(
-            (app) => app.status === 'PENDING'
+        next: (res) => {
+          this.pendingApplications = res.applications.filter(
+            (app) => app.status === 'Pending'
           );
-          this.rejectedApplications = applications.filter(
-            (app) => app.status === 'REJECTED'
+          this.rejectedApplications = res.applications.filter(
+            (app) => app.status === 'Rejected'
           );
-          this.approvedApplications = applications.filter(
-            (app) => app.status === 'APPROVED'
+          this.approvedApplications = res.applications.filter(
+            (app) => app.status === 'Approved'
           );
         },
         error: (error) => this.handleError(error),

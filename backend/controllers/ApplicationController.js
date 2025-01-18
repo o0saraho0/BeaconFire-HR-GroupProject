@@ -115,7 +115,7 @@ const postOnboarding = async (req, res) => {
 
 export const getAllOnboardingApplications = async (req, res) => {
   try {
-    const applications = await Application.find({}).select('first_name last_name user_id')
+    const applications = await Application.find({}).select('first_name last_name user_id status')
       .lean()    // Returns plain JavaScript objects instead of Mongoose documents
       .exec();
 
