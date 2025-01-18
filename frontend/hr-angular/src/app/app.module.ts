@@ -65,7 +65,6 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
       logOnly: environment.production,
     }),
     BrowserAnimationsModule,
-    HttpClientModule,
     MatInputModule,
     MatButtonModule,
     MatCardModule,

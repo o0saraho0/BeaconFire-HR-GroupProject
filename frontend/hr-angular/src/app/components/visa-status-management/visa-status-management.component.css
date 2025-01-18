@@ -1,29 +1,29 @@
-h2 {
-  text-align: center;
-  padding-top: 50px;
-  margin-bottom: 0px;
-  background-color: #424242;
-  color: white;
+
+.visa-management-container th,
+.visa-management-container td {
+    text-align: center;
+    padding: 10px; /* Add padding inside cells */
+    margin: 5px; /* Add margin around cells */
+    border: 1px solid #cccccc4f; /* Add border for visibility */
+}
+    
+.visa-management-container th {
+    background-color: #f5f5f5; /* Light gray background for headers */
+    font-weight: bold;
+}
+    
+.visa-management-container td {
+    background-color: #fff; /* White background for data cells */
+}
+    
+.visa-management-container button {
+     margin-right: 5px; /* Add spacing between buttons */
 }
 
-h3 {
-  text-align: center;
-  margin-bottom: 0px;
-  background-color: #424242;
-  color: white;
+.previewbuttons{
+    width: 20px;
+    text-align: center;
+    font-size: small;
+    padding: 0;
 }
-
-table {
-  padding: 0px 50px 50px;
-  width: 100%;
-}
-
-.search-bar {
-  background-color: #424242;
-  color: white;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-}
+    
