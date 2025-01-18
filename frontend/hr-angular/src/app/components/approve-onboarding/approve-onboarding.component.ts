@@ -103,10 +103,10 @@ export class ApproveOnboardingComponent implements OnInit {
 
   approveApplication(): void {
     if (!this.application) return;
-
+    ///api/onboarding/application/approve/678bd91941237c1ad3491345
     this.http
       .post(
-        `http://localhost:3000/api/onboarding/applications/${this.application._id}/approve`,
+        `http://localhost:3000/api/onboarding/application/approve/${this.application._id}`,
         {}
       )
       .subscribe({
@@ -133,9 +133,9 @@ export class ApproveOnboardingComponent implements OnInit {
       if (result) {
         this.http
           .post(
-            `http://localhost:3000/api/onboarding/applications/${
+            `http://localhost:3000/api/onboarding/application/reject/${
               this.application!._id
-            }/reject`,
+            }`,
             { feedback: result.feedback }
           )
           .subscribe({

@@ -1,6 +1,8 @@
 import Application from "../models/Application.js";
 import User from "../models/User.js";
-
+import EmployeeProfile from "../models/EmployeeProfile.js";
+import Visa from "../models/Visa.js"
+import mongoose from "mongoose";
 const getApplicationStatus = async (req, res) => {
   try {
     const userId = req.body.user_id;
@@ -146,7 +148,9 @@ export const getAllOnboardingApplications = async (req, res) => {
 export const getApplicationDetailUsingApplicationId = async (req, res) => {
   try {
     const application_id = req.params.applicationId
-    if (!application_id) {
+
+    if (!application_id || application_id === 'undefined') {
+      console.log(application_id)
       return res.status(401).json({ message: `Not Found` })
     }
 
@@ -159,4 +163,156 @@ export const getApplicationDetailUsingApplicationId = async (req, res) => {
     res.status(500).json({ message: `Internal server error: ${error}` });
   }
 }
+
+export const approveApplicationUsingApplicationId = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const application_id = req.params.applicationId;
+
+    console.log(application_id)
+    if (!application_id) {
+      return res.status(400).json({ message: "Application ID is required" });
+    }
+
+    const application = await Application.findByIdAndUpdate(
+      application_id,
+      { status: 'Approved' }
+    );
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    // Check if employee profile already exists
+    const existingEmployee = await EmployeeProfile.findOne({ user_id: application.user_id });
+    if (existingEmployee) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "A document for EmployeeProfile collection for user_id already exists" });
+    }
+
+    // Check if visa document already exists
+    const existingVisa = await Visa.findOne({ user_id: application.user_id });
+    if (existingVisa) {
+      await session.abortTransaction();
+      return res.status(400).json({ message: "A document in Visa Collection for user_id already exists" });
+    }
+
+    // Create a new employee profile from the application data
+    const employeeProfileData = {
+      user_id: application.user_id,
+      first_name: application.first_name,
+      last_name: application.last_name,
+      middle_name: application.middle_name,
+      preferred_name: application.preferred_name,
+      current_address: {
+        building: application.current_address?.building,
+        street: application.current_address?.street,
+        city: application.current_address?.city,
+        state: application.current_address?.state,
+        zip: application.current_address?.zip,
+      },
+      cell_phone: application.cell_phone,
+      work_phone: application.work_phone,
+      car_make: application.car_make,
+      car_model: application.car_model,
+      car_color: application.car_color,
+      ssn: application.ssn,
+      dob: application.dob,
+      gender: application.gender,
+      visa_type: application.visa_type,
+      visa_start_date: application.visa_start_date,
+      visa_end_date: application.visa_end_date,
+      driver_licence_number: application.driver_licence_number,
+      driver_license_expire_date: application.driver_license_expire_date,
+      reference: {
+        first_name: application.reference?.first_name,
+        last_name: application.reference?.last_name,
+        middle_name: application.reference?.middle_name,
+        phone: application.reference?.phone,
+        email: application.reference?.email,
+        relationship: application.reference?.relationship,
+      },
+      emergency_contacts: application.emergency_contacts?.map(contact => ({
+        first_name: contact.first_name,
+        last_name: contact.last_name,
+        middle_name: contact.middle_name,
+        phone: contact.phone,
+        email: contact.email,
+        relationship: contact.relationship,
+      })),
+      profile_picture_url: application.profile_picture_url,
+      driver_licence_url: application.driver_licence_url,
+      work_auth_url: application.work_auth_url,
+    };
+
+    // Create or update Visa document
+    const visaData = {
+      user_id: application.user_id,
+      is_opt: application.visa_type === 'F1 Category',
+      stage: 'OPT Receipt', // Initial stage for new visa documents
+      status: 'Pending',
+      opt_receipt_url: application.work_auth_url,
+      opt_ead_url: null,
+      i983_url: null,
+      i20_url: null,
+      message: null
+    };
+
+    // Create both documents within the transaction
+    const [employeeProfile, visa] = await Promise.all([
+      EmployeeProfile.create([employeeProfileData], { session }),
+      Visa.create([visaData], { session })
+    ]);
+
+    // Update application status
+    await Application.findByIdAndUpdate(
+      application_id,
+      { status: 'Approved' },
+      { session }
+    );
+
+    // Commit the transaction
+    await session.commitTransaction();
+
+
+    res.json({ message: "Application approved successfully", application });
+  } catch (error) {
+    console.error("Error in approveApplicationUsingApplicationId:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+export const rejectApplicationUsingApplicationId = async (req, res) => {
+  try {
+    const application_id = req.params.applicationId;
+    const feedback = req.body.feedback;
+
+    if (!application_id) {
+      return res.status(400).json({ message: "Application ID is required" });
+    }
+
+    if (!feedback) {
+      return res.status(400).json({ message: "Feedback is required for rejection" });
+    }
+
+    const application = await Application.findByIdAndUpdate(
+      application_id,
+      {
+        status: 'Rejected',
+        feedback: feedback
+      }
+    );
+
+    if (!application) {
+      return res.status(404).json({ message: "Application not found" });
+    }
+
+    res.json({ message: "Application rejected successfully", application });
+  } catch (error) {
+    console.error("Error in rejectApplicationUsingApplicationId:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export { getApplicationStatus, postOnboarding };
