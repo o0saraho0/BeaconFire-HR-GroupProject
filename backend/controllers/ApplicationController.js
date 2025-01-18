@@ -47,7 +47,7 @@ const postOnboarding = async (req, res) => {
       last_name: lastName,
       middle_name: middleName,
       preferred_name: preferredName,
-      profile_picture_url: profilePicture || 'default-placeholder-url',
+      profile_picture_url: profilePicture,
       current_address: {
         building: currentAddress?.building,
         street: currentAddress?.street,

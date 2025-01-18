@@ -18,7 +18,56 @@ const Application = () => {
   const [uploadedDriverLicense, setDriverLicense] = useState('');
   const [uploadedWorkAuth, setWorkAuth] = useState('');
   const [profileUrl, setProfileUrl] = useState('')
-
+  const mapBackendToFrontend = (backendData) => {
+    return {
+      firstName: backendData.first_name || '',
+      lastName: backendData.last_name || '',
+      middleName: backendData.middle_name || '',
+      preferredName: backendData.preferred_name || '',
+      profilePicture: backendData.profile_picture_url || '',
+      currentAddress: {
+        building: backendData.current_address.building || '',
+        street: backendData.current_address.street || '',
+        city: backendData.current_address.city || '',
+        state: backendData.current_address.state || '',
+        zip: backendData.current_address.zip || '',
+      },
+      cellPhone: backendData.cell_phone || '',
+      workPhone: backendData.work_phone || '',
+      carInfo: {
+        make: backendData.car_make || '',
+        model: backendData.car_model || '',
+        color: backendData.car_color || '',
+      },
+      email: backendData.email || '',
+      ssn: backendData.ssn || '',
+      dob: backendData.dob || '',
+      gender: backendData.gender || '',
+      citizenOrResident: backendData.citizen_or_resident || '',
+      visaType: backendData.visa_type || '',
+      visaStartDate: backendData.visa_start_date || '',
+      visaEndDate: backendData.visa_end_date || '',
+      driverLicense: {
+        number: backendData.driver_license_number || '',
+        expireDate: backendData.driver_license_expire_date || '',
+      },
+      reference: {
+        firstName: backendData.reference.first_name || '',
+        lastName: backendData.reference.last_name || '',
+        middleName: backendData.reference.middle_name || '',
+        phone: backendData.reference.phone || '',
+        email: backendData.reference.email || '',
+        relationship: backendData.reference.relationship || '',
+      },
+      emergencyContacts: backendData.emergency_contacts || [],
+      uploadedFiles: {
+        driverLicense: backendData.driver_license_url || '',
+        workAuthorization: backendData.work_auth_url || '',
+      },
+      hasDriverLicense: backendData.has_driver_license || false,
+      visaTitle: backendData.visa_title || '',
+    };
+  };
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -63,7 +112,6 @@ const Application = () => {
     uploadedFiles: {
       driverLicense: '',
       workAuthorization: '',
-      optReceipt: '',
     },
     hasDriverLicense: false,
     visaTitle: '',
@@ -80,9 +128,11 @@ const Application = () => {
         if (response.data.status == 'Not Started') {
           setStatus(response.data.status);
         } else {
+          const mappedData = mapBackendToFrontend(response.data.application);
           setStatus(response.data.application.status);
           setFeedback(response.data.application.feedback);
-          setFormData(response.data.application);
+          setFormData(mappedData);
+          console.log('formdata after getting respone from onboarding', formData)
         }
         console.log(response.data.email)
         setFormData((prevData) => ({
@@ -129,12 +179,30 @@ const Application = () => {
     switch (e.target.name) {
       case 'profilePicture':
         setProfilePicture(fileName);
+        setFormData((prevData) => ({
+          ...prevData,
+          profilePicture: fileName
+        }));
         break;
       case 'driversLicenseFile':
         setDriverLicense(fileName);
+        setFormData((prevData) => ({
+          ...prevData,
+          uploadedFiles: {
+            ...prevData.uploadedFiles,
+            driverLicense: fileName
+          }
+        }));
         break;
       case 'workAuthorizationFile':
         setWorkAuth(fileName);
+        setFormData((prevData) => ({
+          ...prevData,
+          uploadedFiles: {
+            ...prevData.uploadedFiles,
+            workAuthorization: fileName
+          }
+        }));
         break;
       default:
         return;
@@ -163,7 +231,6 @@ const Application = () => {
         },
       });
       dispatch(setDocumentKey({ userId, documentType: e.target.name, key: response.data.key }));
-      console.log('userDocuments', userDocuments)
     } catch (error) {
       console.error('Error uploading file:', error);
     }
@@ -172,7 +239,6 @@ const Application = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('formdata', formData)
       const response = await axios.post(`http://${localHost}/api/onboarding`, formData);
       // if (response)
       setStatus('Pending');
@@ -800,7 +866,7 @@ const Application = () => {
 
   const renderPendingMessage = () => (
     <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
-      <Typography variant="body1">
+      <Typography variant="h4">
         Please wait for HR to review your application. Below is your submitted application and uploaded documents:
       </Typography>
       <Typography variant="h6">Submitted Application</Typography>
@@ -826,12 +892,12 @@ const Application = () => {
       )}
       <Typography variant="h6">Uploaded Documents</Typography>
       <ul>
-        {userDocuments.profilePicture && (
+        {formData.profilePicture && (
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
               try {
-                const url = await getPresignedUrl(documentKeys.profilePicture);
+                const url = await getPresignedUrl(formData.profilePicture);
                 if (url) {
                   window.open(url, '_blank');
                 } else {
@@ -848,30 +914,30 @@ const Application = () => {
             }}>Download</a>
           </li>
         )}
-        {userDocuments.driverLicense && (
+        {formData.uploadedFiles.driverLicense && (
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
+              const url = await getPresignedUrl(formData.uploadedFiles.driverLicense);
               window.open(url, '_blank');
             }}>Driver's License</a>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.driversLicenseFile);
+              const url = await getPresignedUrl(formData.uploadedFiles.driverLicense);
               window.location.href = url;
             }}>Download</a>
           </li>
         )}
-        {userDocuments.workAuthorization && (
+        {formData.uploadedFiles.workAuthorization && (
           <li>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.workAuthorizationFile);
+              const url = await getPresignedUrl(formData.uploadedFiles.workAuthorization);
               window.open(url, '_blank');
             }}>Work Authorization</a>
             <a href="#" onClick={async (e) => {
               e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.workAuthorization);
+              const url = await getPresignedUrl(formData.uploadedFiles.workAuthorization);
               window.location.href = url;
             }}>Download</a>
           </li>
@@ -926,15 +992,17 @@ const Application = () => {
     <Container>
       <Typography variant="h4" gutterBottom>Onboarding Application</Typography>
       {renderContent()}
-      <Pagination
-        count={totalPages}
-        page={page}
-        onChange={(event, value) => setPage(value)}
-        color="primary"
-        style={{ marginTop: '20px' }}
-      />
+      {status === 'Not Started' && (
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={(event, value) => setPage(value)}
+          color="primary"
+          style={{ marginTop: '20px' }}
+        />
+      )}
     </Container>
   );
-};
+}
 
 export default Application;
