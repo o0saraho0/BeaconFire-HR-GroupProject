@@ -142,4 +142,21 @@ export const getAllOnboardingApplications = async (req, res) => {
     res.status(500).json({ message: `Internal server error: ${error}` });
   }
 }
+
+export const getApplicationDetailUsingApplicationId = async (req, res) => {
+  try {
+    const application_id = req.params.applicationId
+    if (!application_id) {
+      return res.status(401).json({ message: `Not Found` })
+    }
+
+    const application = await Application.findOne({ _id: application_id }).lean().exec()
+
+    res.json({ application })
+  }
+  catch (error) {
+    console.error(error)
+    res.status(500).json({ message: `Internal server error: ${error}` });
+  }
+}
 export { getApplicationStatus, postOnboarding };

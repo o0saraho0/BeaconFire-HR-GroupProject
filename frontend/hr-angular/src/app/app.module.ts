@@ -37,13 +37,14 @@ import { HomeComponent } from './components/home/home.component';
 import { LoginComponent } from './components/login/login.component';
 import { EmployeeProfilesComponent } from './components/employee-profiles/employee-profiles.component';
 import { VisaStatusManagementComponent } from './components/visa-status-management/visa-status-management.component';
-import {
-  HiringManagementComponent,
-  RejectDialogComponent,
-} from './components/hiring-management/hiring-management.component';
+import { HiringManagementComponent } from './components/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './components/housing-management/housing-management.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { EmployeeDetailComponent } from './components/employee-detail/employee-detail.component';
+import {
+  ApproveOnboardingComponent,
+  RejectDialogComponent,
+} from './components/approve-onboarding/approve-onboarding.component';
 
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
@@ -61,6 +62,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     NavbarComponent,
     LoginComponent,
     EmployeeDetailComponent,
+    ApproveOnboardingComponent,
   ],
   imports: [
     BrowserModule,
