@@ -1,8 +1,14 @@
 import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Tabs, Tab, AppBar, Box, Button } from "@mui/material";
+import { logout } from "../../store/AuthSlice/auth.slice";
 
 const Navbar = () => {
   const [value, setValue] = useState(0);
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Synchronize the `value` with the current URL path
   useEffect(() => {
@@ -25,16 +31,25 @@ const Navbar = () => {
     setValue(newValue);
     switch (newValue) {
       case 0:
-        window.location.href = "/personalprofile";
+        navigate("/personalprofile");
         break;
       case 1:
-        window.location.href = "/visa-status";
+        navigate("/visa-status");
         break;
       case 2:
-        window.location.href = "/housing";
+        navigate("/housing");
         break;
       default:
         break;
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout()).unwrap(); // Dispatch the logout action
+      navigate("/login"); // Redirect to the login page after logout
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 
@@ -57,13 +72,24 @@ const Navbar = () => {
           <Tab label="Visa Status Management" />
           <Tab label="Housing" />
         </Tabs>
-        <Button
-          color="inherit"
-          href="/login"
-          sx={{ textDecoration: "none", color: "inherit" }}
-        >
-          Login
-        </Button>
+        {!loading &&
+          (isAuthenticated ? (
+            <Button
+              color="inherit"
+              onClick={() => navigate("/logout")}
+              sx={{ textDecoration: "none", color: "inherit" }}
+            >
+              Logout
+            </Button>
+          ) : (
+            <Button
+              color="inherit"
+              onClick={() => navigate("/login")}
+              sx={{ textDecoration: "none", color: "inherit" }}
+            >
+              Login
+            </Button>
+          ))}
       </Box>
     </AppBar>
   );

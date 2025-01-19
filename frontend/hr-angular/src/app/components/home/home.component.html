@@ -1,8 +1,15 @@
-<ul>
-  <li><a routerLink="/employee-profiles">Employee Profiles</a></li>
-  <li><a routerLink="/visa-status">Visa Status Management</a></li>
-  <li><a routerLink="/hiring">Hiring Management</a></li>
-  <li><a routerLink="/housing">Housing Management</a></li>
-</ul>
+<mat-toolbar color="primary" >
+  <span class="title">Welcome Back :)</span>
+</mat-toolbar>
 
-<p>home works!</p>
+<div class="home-container">
+  <div class="card-container">
+    <mat-card
+      class="card-content"
+      *ngFor="let card of cards"
+      (click)="navigateTo(card.link)"
+    >
+      <mat-card-title>{{ card.title }}</mat-card-title>
+    </mat-card>
+  </div>
+</div>

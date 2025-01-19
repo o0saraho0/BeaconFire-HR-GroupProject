@@ -10,7 +10,7 @@ import JWTRevocationList from '../models/JWTRevocationList.js';
 // check if it's logged in, for protecting endpoints that requires JWT.
 export const jwtValidation = async (req, res, next) => {
 
-
+    console.log("tring to validate jwt")
     // get token from header
     if (!req.headers.authorization)
         return res.status(401).json({
@@ -23,7 +23,7 @@ export const jwtValidation = async (req, res, next) => {
             message: 'No token provided',
         });
     }
-
+    console.log('token', token)
     const isRevoked = await JWTRevocationList.findOne({ token });
     if (isRevoked) {
         return res.status(401).json({
@@ -50,9 +50,6 @@ export const jwtValidation = async (req, res, next) => {
         req.body.user_id = decoded.user_id
         req.body.username = decoded.username
         req.body.email = decoded.email
-
-        console.log("Decoded User ID:", decoded.user_id);
-
         // later handelers would have access to JWT content...
         return next();
     }
@@ -92,7 +89,7 @@ export const authenticatedEmployee = async (req, res, next) => {
     const user_id = req.body.user_id
 
     const employee = await EmployeeProfile.findOne({ user_id })
-
+    console.log('employee', employee)
     if (employee) {
         req.body.employee_id = employee._id
         return next()
