@@ -26,6 +26,11 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatDialogModule } from '@angular/material/dialog';
+
+import { CommonModule } from '@angular/common';
+
+import { MatExpansionModule } from '@angular/material/expansion';
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -36,6 +41,10 @@ import { HiringManagementComponent } from './components/hiring-management/hiring
 import { HousingManagementComponent } from './components/housing-management/housing-management.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { EmployeeDetailComponent } from './components/employee-detail/employee-detail.component';
+import {
+  ApproveOnboardingComponent,
+  RejectDialogComponent,
+} from './components/approve-onboarding/approve-onboarding.component';
 
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
@@ -48,10 +57,12 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     EmployeeProfilesComponent,
     VisaStatusManagementComponent,
     HiringManagementComponent,
+    RejectDialogComponent,
     HousingManagementComponent,
     NavbarComponent,
     LoginComponent,
     EmployeeDetailComponent,
+    ApproveOnboardingComponent,
   ],
   imports: [
     BrowserModule,
@@ -77,6 +88,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     MatIconModule,
     MatDividerModule,
     MatGridListModule,
+    MatDialogModule,
+    CommonModule,
+    MatExpansionModule,
   ],
   providers: [
     {
