@@ -85,6 +85,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register/:token" element={<RegisterPage />} />
         <Route path="/logout" element={<LogoutPage />} />
+        
       </Routes>
     </BrowserRouter>
   );

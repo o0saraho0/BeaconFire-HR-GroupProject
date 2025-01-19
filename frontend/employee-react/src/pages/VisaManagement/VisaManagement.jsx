@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import {
+    import React, { useEffect, useState } from "react";
+    import { useSelector } from 'react-redux';
+    import {
     Container,
     Typography,
     Card,
@@ -11,6 +12,7 @@ import {
     Grid,
     } from "@mui/material";
     import axios from "axios";
+    import "./VisaManagement.css"
 
     const VisaManagement = () => {
     const [visaData, setVisaData] = useState(null); // For visa data
@@ -20,12 +22,18 @@ import {
     const [uploading, setUploading] = useState(false); // For uploading state
     const [uploadMessage, setUploadMessage] = useState(null); // For upload success/error message
     const [refresh,setFrefresh]=useState(0)
+    const localHost = "localhost:3000";
+    const userId = useSelector((state)=>state.auth.userId);
 
     useEffect(() => {
+        
         const fetchVisaData = async () => {
         try {
+            if (!userId) {
+                throw new Error("User is not authenticated");  
+            }
             const response = await axios.get(
-            "http://localhost:3000/api/visa/678a955831d59dfd3708aeb4"
+            `http://${localHost}/api/visa/${userId}`
             );
             setVisaData(response.data.visa); // Set the fetched data
             setLoading(false);
@@ -33,7 +41,7 @@ import {
             setError("Failed to fetch visa data. Please try again.");
             setLoading(false);
         }
-        };
+    };
 
         fetchVisaData();
     }, [refresh]);
@@ -61,7 +69,7 @@ import {
         formData.append("file", selectedFile);
 
         const response = await axios.post(
-            "http://localhost:3000/api/visa/upload",
+            `http://${localHost}/api/visa/upload`,
             formData,
             {
             headers: {
@@ -126,8 +134,8 @@ import {
     }
 
     return (
-        <Container sx={{ mt: 4 }}>
-        <Card variant="outlined">
+        <Container sx={{ mt: 4 }} >
+        <Card  className="container"variant="outlined">
             <CardContent>
             <Typography variant="h5" gutterBottom>
                 Visa Details

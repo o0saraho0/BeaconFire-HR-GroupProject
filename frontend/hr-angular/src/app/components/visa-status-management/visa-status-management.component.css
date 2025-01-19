@@ -26,4 +26,16 @@
     font-size: small;
     padding: 0;
 }
-    
+
+.custom-mat-field{
+    margin: 10px;
+}
+
+.Title{
+    margin: 20px;
+}
+
+table{
+    margin-left: 20px;
+    margin-bottom: 40px;
+}
