@@ -35,6 +35,135 @@ const Application = () => {
   const [uploadedWorkAuth, setWorkAuth] = useState("");
   const [profileUrl, setProfileUrl] = useState("");
 
+  const validations = {
+    name: {
+      pattern: /^[A-Za-z\s-']+$/,
+      message: "Only letters, spaces, hyphens, and apostrophes allowed",
+    },
+    phone: {
+      pattern: /^\d{10}$/,
+      message: "Must be exactly 10 digits",
+    },
+    ssn: {
+      pattern: /^\d{9}$/,
+      message: "Must be exactly 9 digits",
+    },
+    email: {
+      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: "Must be a valid email address",
+    },
+    address: {
+      pattern: /^[A-Za-z0-9\s,.-]+$/,
+      message: "Letters, numbers, and basic punctuation only",
+    },
+    zip: {
+      pattern: /^\d{5}$/,
+      message: "Must be exactly 5 digits",
+    },
+    relationship: {
+      pattern: /^[A-Za-z\s-]+$/,
+      message: "Letters, spaces, and hyphens only",
+    },
+  };
+
+  const getValidationProps = (fieldName, value) => {
+    let validation = null;
+
+    if (
+      fieldName.includes("firstName") ||
+      fieldName.includes("lastName") ||
+      fieldName.includes("middleName") ||
+      fieldName.includes("preferredName")
+    ) {
+      validation = validations.name;
+    } else if (fieldName.includes("phone")) {
+      validation = validations.phone;
+    } else if (fieldName === "ssn") {
+      validation = validations.ssn;
+    } else if (fieldName.includes("email")) {
+      validation = validations.email;
+    } else if (
+      fieldName.includes("building") ||
+      fieldName.includes("street") ||
+      fieldName.includes("city") ||
+      fieldName.includes("state")
+    ) {
+      validation = validations.address;
+    } else if (fieldName.includes("zip")) {
+      validation = validations.zip;
+    } else if (fieldName.includes("relationship")) {
+      validation = validations.relationship;
+    }
+    if (!validation || !value) return {};
+
+    const isValid = validation.pattern.test(value);
+    return {
+      error: value !== "" && !isValid,
+      helperText: value !== "" && !isValid ? validation.message : "",
+    };
+  };
+
+  const mapBackendToFrontend = (backendData) => {
+    return {
+      firstName: backendData.first_name || "",
+      lastName: backendData.last_name || "",
+      middleName: backendData.middle_name || "",
+      preferredName: backendData.preferred_name || "",
+      profilePicture: backendData.profile_picture_url || "",
+      currentAddress: {
+        building: backendData.current_address.building || "",
+        street: backendData.current_address.street || "",
+        city: backendData.current_address.city || "",
+        state: backendData.current_address.state || "",
+        zip: backendData.current_address.zip || "",
+      },
+      cellPhone: backendData.cell_phone || "",
+      workPhone: backendData.work_phone || "",
+      carInfo: {
+        make: backendData.car_make || "",
+        model: backendData.car_model || "",
+        color: backendData.car_color || "",
+      },
+      email: backendData.email || "",
+      ssn: backendData.ssn || "",
+      dob: backendData.dob || "",
+      gender: backendData.gender || "",
+      citizenOrResident:
+        backendData.visa_type === "Green Card" ||
+        backendData.visa_type === "Citizen"
+          ? "Yes"
+          : "No",
+      visaType: backendData.visa_type || "",
+      visaStartDate: backendData.visa_start_date || "",
+      visaEndDate: backendData.visa_end_date || "",
+      driverLicense: {
+        number: backendData.driver_licence_number || "",
+        expireDate: backendData.driver_license_expire_date || "",
+      },
+      reference: {
+        firstName: backendData.reference.first_name || "",
+        lastName: backendData.reference.last_name || "",
+        middleName: backendData.reference.middle_name || "",
+        phone: backendData.reference.phone || "",
+        email: backendData.reference.email || "",
+        relationship: backendData.reference.relationship || "",
+      },
+      emergencyContacts:
+        backendData.emergency_contacts.map((contact) => ({
+          firstName: contact.first_name || "",
+          lastName: contact.last_name || "",
+          phone: contact.phone || "",
+          email: contact.email || "",
+          relationship: contact.relationship || "",
+        })) || [],
+      uploadedFiles: {
+        driverLicense: backendData.driver_license_url || "",
+        workAuthorization: backendData.work_auth_url || "",
+      },
+      hasDriverLicense: !!backendData.driver_licence_number || false,
+      visaTitle: backendData.visa_title || "",
+    };
+  };
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -59,6 +188,7 @@ const Application = () => {
     ssn: "",
     dob: "",
     gender: "",
+    citizenOrResident: "",
     visaType: "",
     visaStartDate: "",
     visaEndDate: "",
@@ -79,6 +209,8 @@ const Application = () => {
       driverLicense: "",
       workAuthorization: "",
     },
+    hasDriverLicense: false,
+    visaTitle: "",
   });
 
   const [page, setPage] = useState(1);
@@ -94,9 +226,14 @@ const Application = () => {
         if (response.data.status == "Not Started") {
           setStatus(response.data.status);
         } else {
+          const mappedData = mapBackendToFrontend(response.data.application);
           setStatus(response.data.application.status);
           setFeedback(response.data.application.feedback);
-          setFormData(response.data.application);
+          setFormData(mappedData);
+          console.log(
+            "formdata after getting respone from onboarding",
+            formData
+          );
         }
         console.log(response.data.email);
         setFormData((prevData) => ({
@@ -127,16 +264,22 @@ const Application = () => {
         }
       }
 
+      const finalKey = keys[keys.length - 1];
       if (Array.isArray(current)) {
-        current[parseInt(keys[keys.length - 1], 10)] = value;
+        current[parseInt(finalKey, 10)] = value;
       } else {
-        current[keys[keys.length - 1]] = value;
+        if (finalKey.includes("Date")) {
+          current[finalKey] = new Date(value).toISOString().split("T")[0];
+        } else {
+          current[finalKey] = value;
+        }
       }
 
       return newState;
     });
   };
-
+  console.log("has driver license", formData.hasDriverLicense);
+  console.log("ssn number", formData.ssn);
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     const fileName = file.name;
@@ -195,23 +338,48 @@ const Application = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //   // Check if all required fields are filled
+    const requiredFields = [
+      "firstName",
+      "lastName",
+      "cellPhone",
+      "ssn",
+      "dob",
+      "visaType",
+      "hasDriverLicense",
+      "emergencyContacts",
+    ];
+
+    for (const field of requiredFields) {
+      let value = formData;
+
+      value = value[field];
+      if (value === undefined || value === "") {
+        alert("Missing required field", field);
+        return;
+      }
+    }
+
     try {
-      console.log("formdata", formData);
       const response = await axios.post(
         `http://${localHost}/api/onboarding`,
         formData
       );
-      // if (response)
-      setStatus("Pending");
+      alert(
+        "Application successfully submitted. Please wait for approval from HR."
+      );
     } catch (error) {
       console.error("Error submitting application:", error);
     }
   };
 
   const renderFormPage1 = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h6">Personal Information</Typography>
+        <Typography variant="h6" gutterBottom>
+          Personal Information
+        </Typography>
         <TextField
           label="First Name"
           name="firstName"
@@ -219,6 +387,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Last Name"
@@ -227,6 +396,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Middle Name"
@@ -234,6 +404,7 @@ const Application = () => {
           value={formData.middleName}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Preferred Name"
@@ -241,8 +412,32 @@ const Application = () => {
           value={formData.preferredName}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
-        <Button variant="contained" component="label">
+        <TextField
+          label="Cell Phone"
+          name="cellPhone"
+          placeholder="Cell Phone"
+          value={formData.cellPhone}
+          onChange={handleInputChange}
+          fullWidth
+          required
+          margin="normal"
+        />
+        <TextField
+          label="Work Phone"
+          name="workPhone"
+          placeholder="Work Phone"
+          value={formData.workPhone}
+          onChange={handleInputChange}
+          fullWidth
+          margin="normal"
+        />
+        <Button
+          variant="contained"
+          component="label"
+          style={{ marginTop: "16px", marginBottom: "16px" }}
+        >
           Upload Profile Picture
           <input
             type="file"
@@ -253,11 +448,15 @@ const Application = () => {
           />
         </Button>
         {uploadedProfilePicture && (
-          <Typography variant="body2">{uploadedProfilePicture}</Typography>
+          <Typography variant="body2" style={{ marginTop: "8px" }}>
+            {uploadedProfilePicture}
+          </Typography>
         )}
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Current Address</Typography>
+        <Typography variant="h6" gutterBottom>
+          Current Address
+        </Typography>
         <TextField
           label="Building/Apt #"
           name="currentAddress.building"
@@ -266,6 +465,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Street Name"
@@ -275,6 +475,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="City"
@@ -284,6 +485,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="State"
@@ -293,6 +495,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Zip"
@@ -302,15 +505,18 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
       </Grid>
     </Grid>
   );
 
   const renderFormPage2 = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h6">Car Information</Typography>
+        <Typography variant="h6" gutterBottom>
+          Car Information
+        </Typography>
         <TextField
           label="Make"
           name="carInfo.make"
@@ -318,6 +524,7 @@ const Application = () => {
           value={formData.carInfo.make}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Model"
@@ -326,6 +533,7 @@ const Application = () => {
           value={formData.carInfo.model}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Color"
@@ -334,16 +542,20 @@ const Application = () => {
           value={formData.carInfo.color}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Additional Information</Typography>
+        <Typography variant="h6" gutterBottom>
+          Additional Information
+        </Typography>
         <TextField
           label="Email"
           name="email"
           value={formData.email}
           fullWidth
           disabled
+          margin="normal"
         />
         <TextField
           label="SSN"
@@ -352,6 +564,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Date of Birth"
@@ -360,12 +573,15 @@ const Application = () => {
           value={formData.dob}
           onChange={handleInputChange}
           fullWidth
-          InputLabelProps={{
-            shrink: true,
-          }}
           required
+          margin="normal"
+          sx={{
+            "& .MuiInputLabel-root": {
+              transform: "translate(14px, -9px) scale(0.75)",
+            },
+          }}
         />
-        <FormControl fullWidth>
+        <FormControl fullWidth margin="normal">
           <InputLabel>Gender</InputLabel>
           <Select
             name="gender"
@@ -379,57 +595,151 @@ const Application = () => {
             </MenuItem>
           </Select>
         </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>
+        <FormControl fullWidth margin="normal">
+          <InputLabel required>
             Are you a citizen or permanent resident of the U.S?
           </InputLabel>
           <Select
-            name="visaType"
-            value={formData.visaType}
+            name="citizenOrResident"
+            value={formData.citizenOrResident}
             onChange={handleInputChange}
             required
           >
-            <MenuItem value="Green Card">Green Card</MenuItem>
-            <MenuItem value="Citizen">Citizen</MenuItem>
-            <MenuItem value="H1B Category">H1B Category</MenuItem>
-            <MenuItem value="F1 Category">F1 Category</MenuItem>
-            <MenuItem value="Other">Other</MenuItem>
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
           </Select>
         </FormControl>
-        {formData.visaType === "F1 Category" && (
-          <Button variant="contained" component="label">
-            Upload OPT Receipt
-            <input
-              type="file"
-              name="workAuthorizationFile"
-              onChange={handleFileUpload}
-              hidden
-            />
-          </Button>
-        )}
-        {uploadedWorkAuth && (
-          <Typography variant="body2">{uploadedWorkAuth}</Typography>
+
+        {formData.citizenOrResident === "Yes" && (
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Choose your status</InputLabel>
+            <Select
+              name="visaType"
+              value={formData.visaType}
+              onChange={(e) => {
+                // Clear any existing non-citizen visa values when switching to citizen status
+                setFormData((prev) => ({
+                  ...prev,
+                  visaType: e.target.value,
+                  visaTitle: "",
+                  visaStartDate: "",
+                  visaEndDate: "",
+                }));
+              }}
+              required
+            >
+              <MenuItem value="Green Card">Green Card</MenuItem>
+              <MenuItem value="Citizen">Citizen</MenuItem>
+            </Select>
+          </FormControl>
         )}
 
-        {formData.visaType === "Other" && (
-          <TextField
-            label="Specify Visa Title"
-            name="visaTitle"
-            value={formData.visaTitle}
-            onChange={handleInputChange}
-            fullWidth
-          />
+        {formData.citizenOrResident === "No" && (
+          <>
+            <FormControl fullWidth margin="normal">
+              <InputLabel required>What is your work authorization?</InputLabel>
+              <Select
+                name="visaType"
+                value={formData.visaType}
+                onChange={(e) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    visaType: e.target.value,
+                    visaTitle: "",
+                    visaStartDate: "",
+                    visaEndDate: "",
+                  }));
+                }}
+                required
+              >
+                <MenuItem value="H1B">H1-B</MenuItem>
+                <MenuItem value="L2">L2</MenuItem>
+                <MenuItem value="F1">F1 (CPT/OPT)</MenuItem>
+                <MenuItem value="H4">H4</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
+
+            {formData.visaType === "F1" && (
+              <Button
+                variant="contained"
+                component="label"
+                style={{ marginTop: "16px", marginBottom: "16px" }}
+              >
+                Upload OPT Receipt
+                <input
+                  type="file"
+                  name="workAuthorizationFile"
+                  onChange={handleFileUpload}
+                  hidden
+                />
+              </Button>
+            )}
+
+            {formData.visaType === "Other" && (
+              <TextField
+                label="Specify Visa Title"
+                name="visaTitle"
+                value={formData.visaTitle}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+              />
+            )}
+
+            <TextField
+              label="Visa Start Date"
+              name="visaStartDate"
+              type="date"
+              value={formData.visaStartDate}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              margin="normal"
+              sx={{
+                "& .MuiInputLabel-root": {
+                  transform: "translate(14px, -9px) scale(0.75)",
+                },
+              }}
+            />
+
+            <TextField
+              label="Visa End Date"
+              name="visaEndDate"
+              type="date"
+              value={formData.visaEndDate}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              margin="normal"
+              sx={{
+                "& .MuiInputLabel-root": {
+                  transform: "translate(14px, -9px) scale(0.75)",
+                },
+              }}
+            />
+          </>
+        )}
+        {uploadedWorkAuth && (
+          <Typography variant="body2" style={{ marginTop: "8px" }}>
+            {uploadedWorkAuth}
+          </Typography>
         )}
         <FormControlLabel
           control={
             <Checkbox
               name="hasDriverLicense"
               checked={formData.hasDriverLicense}
-              onChange={handleInputChange}
+              onChange={(e) =>
+                handleInputChange({
+                  target: { name: "hasDriverLicense", value: e.target.checked },
+                })
+              }
               required
             />
           }
           label="Do you have a driver's license?"
+          style={{ marginTop: "16px", marginBottom: "16px" }}
         />
         {formData.hasDriverLicense && (
           <>
@@ -440,6 +750,7 @@ const Application = () => {
               onChange={handleInputChange}
               fullWidth
               required
+              margin="normal"
             />
             <TextField
               label="Expiration Date"
@@ -448,12 +759,19 @@ const Application = () => {
               value={formData.driverLicense.expireDate}
               onChange={handleInputChange}
               fullWidth
-              InputLabelProps={{
-                shrink: true,
+              sx={{
+                "& .MuiInputLabel-root": {
+                  transform: "translate(14px, -9px) scale(0.75)",
+                },
               }}
               required
+              margin="normal"
             />
-            <Button variant="contained" component="label">
+            <Button
+              variant="contained"
+              component="label"
+              style={{ marginTop: "16px", marginBottom: "16px" }}
+            >
               Upload Driver's License
               <input
                 type="file"
@@ -463,7 +781,9 @@ const Application = () => {
               />
             </Button>
             {uploadedDriverLicense && (
-              <Typography variant="body2">{uploadedDriverLicense}</Typography>
+              <Typography variant="body2" style={{ marginTop: "8px" }}>
+                {uploadedDriverLicense}
+              </Typography>
             )}
           </>
         )}
@@ -472,9 +792,9 @@ const Application = () => {
   );
 
   const renderFormPage3 = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={3}>
       <Grid item xs={12}>
-        <Typography variant="h6">
+        <Typography variant="h6" gutterBottom>
           Reference (who referred you to this company? There can only be 1)
         </Typography>
         <TextField
@@ -485,6 +805,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Last Name"
@@ -494,6 +815,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Middle Name"
@@ -502,6 +824,7 @@ const Application = () => {
           value={formData.reference.middleName}
           onChange={handleInputChange}
           fullWidth
+          margin="normal"
         />
         <TextField
           label="Phone"
@@ -511,6 +834,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Email"
@@ -520,6 +844,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
         <TextField
           label="Relationship"
@@ -529,12 +854,29 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           required
+          margin="normal"
         />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Emergency Contacts</Typography>
+        <Typography variant="h6" gutterBottom>
+          Emergency Contacts
+        </Typography>
+        {formData.emergencyContacts.length === 0 &&
+          setFormData({
+            ...formData,
+            emergencyContacts: [
+              {
+                firstName: "",
+                lastName: "",
+                middleName: "",
+                phone: "",
+                email: "",
+                relationship: "",
+              },
+            ],
+          })}
         {formData.emergencyContacts.map((contact, index) => (
-          <Grid container spacing={2} key={index}>
+          <Grid container spacing={3} key={index}>
             <Grid item xs={12}>
               <TextField
                 label="First Name"
@@ -544,6 +886,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Last Name"
@@ -553,6 +896,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Middle Name"
@@ -561,6 +905,7 @@ const Application = () => {
                 value={contact.middleName}
                 onChange={handleInputChange}
                 fullWidth
+                margin="normal"
               />
               <TextField
                 label="Phone"
@@ -570,6 +915,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Email"
@@ -579,6 +925,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
               <TextField
                 label="Relationship"
@@ -588,6 +935,7 @@ const Application = () => {
                 onChange={handleInputChange}
                 fullWidth
                 required
+                margin="normal"
               />
             </Grid>
           </Grid>
@@ -610,105 +958,81 @@ const Application = () => {
               ],
             })
           }
+          style={{ marginTop: "16px", marginBottom: "16px" }}
         >
           Add Emergency Contact
         </Button>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h6">Summary of Uploaded Files</Typography>
+        <Typography variant="h6" gutterBottom>
+          Summary of Uploaded Files
+        </Typography>
         <ul>
-          {userDocuments.profilePicture && (
+          {formData.profilePicture && (
             <li>
-              <span>Profile Picture: </span>
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const url = await getPresignedUrl(
-                    userDocuments.profilePicture
-                  );
-                  setProfileUrl(url);
-                  window.open(url, "_blank");
-                }}
-              >
-                Preview
-              </a>
-              {" | "}
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const theprofileUrl = await getPresignedUrl(
-                    userDocuments.profilePicture
-                  );
-                  window.location.href = theprofileUrl;
-                }}
-                download
-              >
-                Download
-              </a>
+              <div>
+                <a
+                  href={formData.profilePicture}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Preview Profile Picture
+                </a>
+              </div>
+              <div>
+                <a
+                  href="#"
+                  onClick={() => forceDownload(formData.profilePicture)}
+                >
+                  Download Profile Picture
+                </a>
+              </div>
             </li>
           )}
-          {userDocuments.driversLicenseFile && (
+          {formData.uploadedFiles.driverLicense && (
             <li>
-              <span>Driver's License: </span>
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const url = await getPresignedUrl(
-                    userDocuments.driversLicenseFile
-                  );
-                  window.open(url, "_blank");
-                }}
-              >
-                Preview
-              </a>
-              {" | "}
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const url = await getPresignedUrl(
-                    userDocuments.driversLicenseFile
-                  );
-                  window.location.href = url;
-                }}
-                download
-              >
-                Download
-              </a>
+              <div>
+                <a
+                  href={formData.uploadedFiles.driverLicense}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Preview Driver's License
+                </a>
+              </div>
+              <div>
+                <a
+                  href="#"
+                  onClick={() =>
+                    forceDownload(formData.uploadedFiles.driverLicense)
+                  }
+                >
+                  Download Driver's License
+                </a>
+              </div>
             </li>
           )}
-          {userDocuments.workAuthorizationFile && (
+          {formData.uploadedFiles.workAuthorization && (
             <li>
-              <span>Work Authorization: </span>
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const url = await getPresignedUrl(
-                    userDocuments.workAuthorization
-                  );
-                  window.open(url, "_blank");
-                }}
-              >
-                Preview
-              </a>
-              {" | "}
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const url = await getPresignedUrl(
-                    userDocuments.workAuthorization
-                  );
-                  window.location.href = url;
-                }}
-                download
-              >
-                Download
-              </a>
+              <div>
+                <a
+                  href={formData.uploadedFiles.workAuthorization}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Preview Work Authorization
+                </a>
+              </div>
+              <div>
+                <a
+                  href="#"
+                  onClick={() =>
+                    forceDownload(formData.uploadedFiles.workAuthorization)
+                  }
+                >
+                  Download Work Authorization
+                </a>
+              </div>
             </li>
           )}
         </ul>
@@ -728,24 +1052,36 @@ const Application = () => {
         return null;
     }
   };
+  const forceDownload = (link) => {
+    const url = link;
+    const fileName = link.split("/").pop() || "download";
 
-  const getPresignedUrl = async (fileName) => {
-    try {
-      const response = await axios.get(
-        `http://${localHost}/api/upload/presigned-url`,
-        {
-          params: { fileName },
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
         }
-      );
-      return response.data.url;
-    } catch (error) {
-      console.error("Error fetching pre-signed URL:", error);
-    }
+        return response.blob();
+      })
+      .then((blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch((error) => {
+        console.error("File download failed:", error);
+      });
   };
 
   const renderPendingMessage = () => (
     <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
-      <Typography variant="body1">
+      <Typography variant="h4">
         Please wait for HR to review your application. Below is your submitted
         application and uploaded documents:
       </Typography>
@@ -789,7 +1125,16 @@ const Application = () => {
         <strong>Gender:</strong> {formData.gender}
       </Typography>
       <Typography variant="body2">
+        <strong>Citizen or Resident:</strong> {formData.citizenOrResident}
+      </Typography>
+      <Typography variant="body2">
         <strong>Visa Type:</strong> {formData.visaType}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Visa Start Date:</strong> {formData.visaStartDate}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Visa End Date:</strong> {formData.visaEndDate}
       </Typography>
       {formData.visaType === "Other" && (
         <Typography variant="body2">
@@ -808,116 +1153,105 @@ const Application = () => {
           </Typography>
         </>
       )}
+      <Typography variant="body2">
+        <strong>Reference:</strong>{" "}
+        {`${formData.reference.firstName} ${formData.reference.middleName} ${formData.reference.lastName}, ${formData.reference.phone}, ${formData.reference.email}, ${formData.reference.relationship}`}
+      </Typography>
+      <Typography variant="body2">
+        <strong>Emergency Contacts:</strong>{" "}
+        {formData.emergencyContacts.map((contact, index) => (
+          <div
+            key={index}
+          >{`${contact.firstName} ${contact.lastName}, ${contact.phone}, ${contact.email}, ${contact.relationship}`}</div>
+        ))}
+      </Typography>
+
       <Typography variant="h6">Uploaded Documents</Typography>
       <ul>
-        {documentKeys.profilePicture && (
+        {formData.profilePicture && (
           <li>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                try {
-                  const url = await getPresignedUrl(
-                    documentKeys.profilePicture
-                  );
-                  if (url) {
-                    window.open(url, "_blank");
-                  } else {
-                    console.error("Failed to retrieve URL");
-                  }
-                } catch (error) {
-                  console.error("Error fetching profile picture URL:", error);
+            <div>
+              <a
+                href={formData.profilePicture}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Preview Profile Picture
+              </a>
+            </div>
+            <div>
+              <a
+                href="#"
+                onClick={() => forceDownload(formData.profilePicture)}
+              >
+                Download Profile Picture
+              </a>
+            </div>
+          </li>
+        )}
+        {formData.uploadedFiles.driverLicense && (
+          <li>
+            <div>
+              <a
+                href={formData.uploadedFiles.driverLicense}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Preview Driver's License
+              </a>
+            </div>
+            <div>
+              <a
+                href="#"
+                onClick={() =>
+                  forceDownload(formData.uploadedFiles.driverLicense)
                 }
-              }}
-            >
-              Profile Picture
-            </a>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(documentKeys.profilePicture);
-                window.location.href = url;
-              }}
-            >
-              Download
-            </a>
+              >
+                Download Driver's License
+              </a>
+            </div>
           </li>
         )}
-        {documentKeys.driverLicense && (
+        {formData.uploadedFiles.workAuthorization && (
           <li>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(
-                  documentKeys.driversLicenseFile
-                );
-                window.open(url, "_blank");
-              }}
-            >
-              Driver's License
-            </a>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(
-                  documentKeys.driversLicenseFile
-                );
-                window.location.href = url;
-              }}
-            >
-              Download
-            </a>
-          </li>
-        )}
-        {documentKeys.workAuthorization && (
-          <li>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(
-                  documentKeys.workAuthorizationFile
-                );
-                window.open(url, "_blank");
-              }}
-            >
-              Work Authorization
-            </a>
-            <a
-              href="#"
-              onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(
-                  documentKeys.workAuthorization
-                );
-                window.location.href = url;
-              }}
-            >
-              Download
-            </a>
+            <div>
+              <a
+                href={formData.uploadedFiles.workAuthorization}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Preview Work Authorization
+              </a>
+            </div>
+            <div>
+              <a
+                href="#"
+                onClick={() =>
+                  forceDownload(formData.uploadedFiles.workAuthorization)
+                }
+              >
+                Download Work Authorization
+              </a>
+            </div>
           </li>
         )}
       </ul>
     </Paper>
   );
 
-  const renderRejectedMessage = () => (
-    <Paper elevation={3} style={{ padding: "20px", marginTop: "20px" }}>
-      <Typography variant="body1">
-        Your application was rejected. Feedback: {feedback}
-      </Typography>
-      {renderForm()}
-    </Paper>
-  );
-
   const renderContent = () => {
     switch (status) {
       case "Not Started":
+      case "Rejected":
         return (
           <form onSubmit={handleSubmit}>
+            {status === "Rejected" && (
+              <Typography variant="body1">
+                Your application was rejected. Feedback: {feedback} Please make
+                changes on the application and resubmit it for review. Thank
+                you.
+              </Typography>
+            )}
             {renderForm()}
             <Grid item xs={12}>
               {page < totalPages ? (
@@ -930,7 +1264,7 @@ const Application = () => {
                 </Button>
               ) : (
                 <Button type="submit" variant="contained" color="primary">
-                  Submit
+                  {status === "Rejected" ? "Resubmit" : "Submit"}
                 </Button>
               )}
             </Grid>
@@ -938,8 +1272,6 @@ const Application = () => {
         );
       case "Pending":
         return renderPendingMessage();
-      case "Rejected":
-        return renderRejectedMessage();
       case "Approved":
         window.location.href = "/index.html";
         return null;
@@ -954,13 +1286,15 @@ const Application = () => {
         Onboarding Application
       </Typography>
       {renderContent()}
-      <Pagination
-        count={totalPages}
-        page={page}
-        onChange={(event, value) => setPage(value)}
-        color="primary"
-        style={{ marginTop: "20px" }}
-      />
+      {status !== "Pending" && (
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={(event, value) => setPage(value)}
+          color="primary"
+          style={{ marginTop: "20px" }}
+        />
+      )}
     </Container>
   );
 };

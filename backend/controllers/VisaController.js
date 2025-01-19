@@ -2,8 +2,10 @@ import Visa from "../models/Visa.js";
 import User from "../models/User.js";
 import EmployeeProfile from "../models/EmployeeProfile.js";
 import { uploadFileToS3 } from "../middlewares/AwsS3Middleware.js"; // Import the file upload function
+import { generatePresignedUrl } from "../middlewares/AwsS3Middleware.js";
 import mongoose from "mongoose";
-
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
 //Document Uploading API
 export const uploadVisaDocument = async (req, res) => {
@@ -53,7 +55,7 @@ export const uploadVisaDocument = async (req, res) => {
         // Handle errors and send appropriate response
         res.status(500).json({ message: `Error uploading file: ${error.message}` });
     }
-    };
+};
 
 
 // Get visa details for a user
@@ -89,6 +91,7 @@ export const reviewDocument = async (req, res) => {
         if (currentStageIndex !== -1 && currentStageIndex < stages.length - 1) {
             visa.stage = stages[currentStageIndex + 1];
             visa.status = "Not Started"; // Reset status for the next stage
+            visa.message=visa.stage=="Complete"?"All documents have been approved":`${visa.stage} stage`
         }
         } else if (action === "reject") {
         visa.status = "Reject";
@@ -115,6 +118,10 @@ export const getInProgressVisas = async (req, res) => {
                 if (!profile) {
                     return null; // Skip if no profile is found
                 }
+                const user= await User.findOne({_id:visa.user_id})
+                if (!user){
+                    return null
+                }
                 // Calculate remaining visa days
                 const today = new Date();
                 const visaRemainingDays = profile.visa_end_date
@@ -124,6 +131,14 @@ export const getInProgressVisas = async (req, res) => {
                     )
                     : null;
                 // Combine visa and employee profile data
+
+                // Format visa_start_date and visa_end_date to concise format
+                const formattedVisaStartDate = profile.visa_start_date
+                ? new Date(profile.visa_start_date).toISOString().split('T')[0]
+                : null;
+                const formattedVisaEndDate = profile.visa_end_date
+                    ? new Date(profile.visa_end_date).toISOString().split('T')[0]
+                    : null;
                 return {
                     // Visa fields
                     user_id: visa.user_id,
@@ -137,10 +152,11 @@ export const getInProgressVisas = async (req, res) => {
                     message: visa.message,
                     // EmployeeProfile fields
                     visa_type: profile.visa_type,
-                    visa_start_date: profile.visa_start_date,
-                    visa_end_date: profile.visa_end_date,
+                    visa_start_date: formattedVisaStartDate,
+                    visa_end_date: formattedVisaEndDate,
                     visa_remaining_days: visaRemainingDays,
                     employee_name: `${profile.first_name} ${profile.last_name}`,
+                    email:user.email,
                 };
             })
         );
@@ -226,3 +242,58 @@ export const searchEmployees = async (req, res) => {
         res.status(500).json({ message: "Server error", error });
     }
 };
+
+//preview or download aws3 files
+export const handleAws3=async(req,res)=>{
+    const { key, type } = req.query;
+
+    if (!key) {
+        return res.status(400).json({ message: "Key is required" });
+    }
+
+    try {
+        const url = await generatePresignedUrl(key, type);
+        res.status(200).json({ url });
+    } catch (error) {
+        res.status(500).json({ message: `Failed to generate URL: ${error.message}` });
+    }
+}
+
+//send notification
+export const sendNotification=async (req, res) => {
+        const { email, stage } = req.body;
+    
+        if (!email || !stage) {
+        return res.status(400).json({ error: 'Email and document stage are required.' });
+        }
+    
+        try {
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
+            },
+        });
+    
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Document Upload Notification',
+            text: `Dear User,
+    
+    You are required to upload the following document: ${stage}.
+    
+    Best regards,
+    Visa Processing Team`,
+        };
+    
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent:', info.response);
+    
+        res.status(200).json({ message: 'Email sent successfully.' });
+        } catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ error: 'Failed to send email.' });
+        }
+}

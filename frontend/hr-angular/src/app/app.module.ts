@@ -25,6 +25,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 // Components
 import { HomeComponent } from './components/home/home.component';
@@ -64,7 +65,6 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
       logOnly: environment.production,
     }),
     BrowserAnimationsModule,
-    HttpClientModule,
     MatInputModule,
     MatButtonModule,
     MatCardModule,
@@ -76,6 +76,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     MatToolbarModule,
     MatIconModule,
     MatDividerModule,
+    MatGridListModule,
   ],
   providers: [
     {
