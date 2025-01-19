@@ -119,6 +119,7 @@ const seed_database = async () => {
             relationship: "Spouse",
           },
         ],
+        profile_picture_url: "/images/default-user.png",
       },
       {
         user_id: users[1]._id,
