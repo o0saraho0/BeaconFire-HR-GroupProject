@@ -66,9 +66,15 @@ const seed_database = async () => {
         email: "employee5@example.com",
         password: hashedPassword,
       },
+      {
+        username: "employee0",
+        email: "employee0@example.com",
+        password: hashedPassword,
+      },
       { username: "hr1", email: "hr1@example.com", password: hashedPassword },
       { username: "hr2", email: "hr2@example.com", password: hashedPassword },
     ]);
+
     console.log("Users created:", users);
 
     // Create Employee Profiles
@@ -271,12 +277,12 @@ const seed_database = async () => {
     // Create HR Profiles
     const hr_profiles = await HRProfile.insertMany([
       {
-        user_id: users[5]._id,
+        user_id: users[6]._id,
         first_name: "Cate",
         last_name: "Zeng",
       },
       {
-        user_id: users[6]._id,
+        user_id: users[7]._id,
         first_name: "Josie",
         last_name: "Yan",
       },
@@ -345,7 +351,7 @@ const seed_database = async () => {
         chairs: 3,
       },
       {
-        tenants: [users[3]._id, users[4]._id],
+        tenants: [users[3]._id],
         address: {
           building: "345",
           street: "Elm St",
@@ -422,14 +428,14 @@ const seed_database = async () => {
         car_make: "Toyota",
         car_model: "Corolla",
         car_color: "Blue",
-        ssn: new Date("1990-01-01"), // Using date for SSN as per schema
-        dob: new Date("1990-01-01"),
+        ssn: "123-45-6789", // Changed from Date to String
+        dob: "1990-01-01", // Changed from Date to String
         gender: "Male",
-        visa_type: "H1B Category",
-        visa_start_date: new Date("2025-01-01"),
-        visa_end_date: new Date("2028-01-01"),
+        visa_type: "H1B",
+        visa_start_date: "2025-01-01", // Changed from Date to String
+        visa_end_date: "2028-01-01", // Changed from Date to String
         driver_licence_number: "DL123456",
-        driver_license_expire_date: new Date("2025-12-31"),
+        driver_license_expire_date: "2025-12-31", // Changed from Date to String
         reference: {
           first_name: "Alice",
           last_name: "Reference",
@@ -454,7 +460,7 @@ const seed_database = async () => {
       },
       {
         user_id: users[1]._id,
-        status: "Pending",
+        status: "Approved",
         first_name: "Jane",
         last_name: "Smith",
         current_address: {
@@ -465,12 +471,12 @@ const seed_database = async () => {
           zip: "94107",
         },
         cell_phone: "9876543210",
-        ssn: new Date("1988-05-10"),
-        dob: new Date("1988-05-10"),
+        ssn: "987-65-4321", // Changed from Date to String
+        dob: "1988-05-10", // Changed from Date to String
         gender: "Female",
-        visa_type: "F1 Category",
+        visa_type: "F1",
         driver_licence_number: "DL789012",
-        driver_license_expire_date: new Date("2024-06-30"),
+        driver_license_expire_date: "2024-06-30", // Changed from Date to String
         reference: {
           first_name: "Bob",
           last_name: "Johnson",
