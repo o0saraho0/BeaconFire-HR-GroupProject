@@ -5,6 +5,13 @@ import {
   updateEmployeeProfile,
 } from "../../store/employeeSlice/employee.slice";
 
+// docoments
+import axios from "../../interceptors/auth.interceptor";
+import {
+  setDocumentKey,
+  selectUserDocuments,
+} from "../../store/documentSlice/documentSlice";
+
 import {
   Button,
   TextField,
@@ -71,6 +78,14 @@ const PersonalProfile = () => {
   const { profile, status, error } = useSelector((state) => state.employee);
   const { userId } = useSelector((state) => state.auth);
 
+  // documents
+  const userDocuments = useSelector((state) =>
+    selectUserDocuments(state, userId)
+  );
+  const [uploadedProfilePicture, setProfilePicture] = useState("");
+  const [uploadedDriverLicense, setDriverLicense] = useState("");
+  const [uploadedWorkAuth, setWorkAuth] = useState("");
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchEmployeeProfile(userId));
@@ -83,7 +98,7 @@ const PersonalProfile = () => {
     }
   }, [profile]);
 
-  // console.log(profile);
+  console.log(profile);
 
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
@@ -115,6 +130,81 @@ const PersonalProfile = () => {
       }));
     }
   };
+
+  // docoments
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const fileName = file.name;
+    switch (e.target.name) {
+      case "profile_picture_url":
+        setProfilePicture(fileName);
+        break;
+      case "driver_licence_url":
+        setDriverLicense(fileName);
+        break;
+      case "work_auth_url":
+        setWorkAuth(fileName);
+        break;
+      default:
+        return;
+    }
+    const formData = new FormData();
+    formData.append("file", e.target.files[0]);
+    let endpoint = "";
+    switch (e.target.name) {
+      case "profile_picture_url":
+        endpoint = "/api/upload/profile-picture";
+        break;
+      case "driver_licence_url":
+        endpoint = "/api/upload/driver-license";
+        break;
+      case "work_auth_url":
+        endpoint = "/api/upload/opt-receipt";
+        break;
+      default:
+        return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000${endpoint}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("upload response", response);
+      dispatch(
+        setDocumentKey({
+          userId,
+          documentType: e.target.name,
+          key: response.data.key,
+        })
+      );
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.name]: response.data.fileUrl,
+      }));
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  // const getPresignedUrl = async (fileName) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:3000/api/upload/presigned-url`,
+  //       {
+  //         params: { fileName },
+  //       }
+  //     );
+  //     return response.data.url;
+  //   } catch (error) {
+  //     console.error("Error fetching pre-signed URL:", error);
+  //   }
+  // };
 
   const handleEditClick = (section) => {
     setEditingSection(section);
@@ -213,7 +303,43 @@ const PersonalProfile = () => {
             : fields.map(({ label, name, type, options }) => (
                 <Box key={name} sx={{ marginBottom: 2 }}>
                   {isEditing ? (
-                    type === "select" ? (
+                    type === "file" ? (
+                      <Box>
+                        <Typography variant="body2" sx={{ marginBottom: 1 }}>
+                          Upload {label}:
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          component="label"
+                          sx={{ marginBottom: 1 }}
+                        >
+                          Choose File
+                          <input
+                            type="file"
+                            name={name}
+                            hidden
+                            onChange={handleFileUpload}
+                          />
+                        </Button>
+                        {uploadedProfilePicture &&
+                          name === "profile_picture_url" && (
+                            <Typography variant="body2">
+                              Selected File: {uploadedProfilePicture}
+                            </Typography>
+                          )}
+                        {uploadedDriverLicense &&
+                          name === "driver_licence_url" && (
+                            <Typography variant="body2">
+                              Selected File: {uploadedDriverLicense}
+                            </Typography>
+                          )}
+                        {uploadedWorkAuth && name === "work_auth_url" && (
+                          <Typography variant="body2">
+                            Selected File: {uploadedWorkAuth}
+                          </Typography>
+                        )}
+                      </Box>
+                    ) : type === "select" ? (
                       <Select
                         fullWidth
                         name={name}
@@ -280,6 +406,26 @@ const PersonalProfile = () => {
                         onChange={handleChange}
                       />
                     )
+                  ) : type === "file" && formData[name] ? (
+                    <Typography>
+                      <strong>{label}:</strong> {/* {formData[name]} */}
+                      <a
+                        href={formData[name]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Preview
+                      </a>
+                      {" | "}
+                      <a
+                        href={formData[name]}
+                        download={true}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download
+                      </a>
+                    </Typography>
                   ) : (
                     <Typography>
                       <strong>{label}:</strong>{" "}
@@ -334,7 +480,7 @@ const PersonalProfile = () => {
         { label: "Last Name*", name: "last_name" },
         { label: "Middle Name", name: "middle_name" },
         { label: "Preferred Name", name: "preferred_name" },
-        { label: "Profile Pic", name: "profile_picture_url" },
+        { label: "Profile Pic", name: "profile_picture_url", type: "file" },
         { label: "SSN*", name: "ssn" },
         { label: "Date of Birth*", name: "dob", type: "date" },
         { label: "Gender", name: "gender", type: "select", options: genders },
@@ -362,9 +508,9 @@ const PersonalProfile = () => {
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
       {renderSection("Documents", [
-        { label: "Driver License*", name: "driver_licence_url" },
-        { label: "Work Authorization", name: "work_auth_url" },
-        { label: "Additional Documents", name: "additional_url" },
+        { label: "Driver License*", name: "driver_licence_url", type: "file" },
+        { label: "Work Authorization", name: "work_auth_url", type: "file" },
+        // { label: "Additional Documents", name: "additional_url", type: "file" },
       ])}
     </Box>
   );
