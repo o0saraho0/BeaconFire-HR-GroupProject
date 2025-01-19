@@ -5,7 +5,6 @@ import {
     reviewDocument,
     getInProgressVisas,
     searchEmployees,
-    handleAws3,
     sendNotification
 } from "../controllers/VisaController.js";
 import { singleUpload } from "../middlewares/AwsS3Middleware.js";
