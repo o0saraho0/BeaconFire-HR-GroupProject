@@ -268,9 +268,7 @@ const PersonalProfile = () => {
       if (Array.isArray(value)) {
         value.forEach((contactErrors, index) => {
           for (const [field, message] of Object.entries(contactErrors)) {
-            errorMessages.push(
-              `Emergency Contact ${index + 1} - ${field}: ${message}`
-            );
+            errorMessages.push(`Emergency Contact ${index + 1}: ${message}`);
           }
         });
       } else {
@@ -286,7 +284,7 @@ const PersonalProfile = () => {
       console.error("Validation errors:", validationErrors);
 
       alert(
-        `Please fix the following errors:\n\n${formatErrors(validationErrors)}`
+        `Please fix the following errors:\n${formatErrors(validationErrors)}`
       );
       return;
     }
@@ -363,23 +361,23 @@ const PersonalProfile = () => {
                   ) : (
                     <Box>
                       <Typography>
-                        <strong>First Name*:</strong> {contact.first_name || ""}
+                        <strong>First Name:</strong> {contact.first_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Last Name*:</strong> {contact.last_name || ""}
+                        <strong>Last Name:</strong> {contact.last_name || ""}
                       </Typography>
                       <Typography>
                         <strong>Middle Name:</strong>{" "}
                         {contact.middle_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Phone*:</strong> {contact.phone || ""}
+                        <strong>Phone:</strong> {contact.phone || ""}
                       </Typography>
                       <Typography>
-                        <strong>Email*:</strong> {contact.email || ""}
+                        <strong>Email:</strong> {contact.email || ""}
                       </Typography>
                       <Typography>
-                        <strong>Relationship*:</strong>{" "}
+                        <strong>Relationship:</strong>{" "}
                         {contact.relationship || ""}
                       </Typography>
                     </Box>
@@ -518,7 +516,18 @@ const PersonalProfile = () => {
                   ) : (
                     <Typography>
                       <strong>{label}:</strong>{" "}
-                      {name.includes(".")
+                      {type === "date"
+                        ? formatDate(
+                            name.includes(".")
+                              ? name
+                                  .split(".")
+                                  .reduce(
+                                    (acc, key) => acc?.[key] || "",
+                                    formData
+                                  )
+                              : formData[name]
+                          )
+                        : name.includes(".")
                         ? name
                             .split(".")
                             .reduce((acc, key) => acc?.[key] || "", formData)
@@ -565,16 +574,16 @@ const PersonalProfile = () => {
         Personal Profile
       </Typography>
       {renderSection("Name", [
-        { label: "First Name*", name: "first_name" },
-        { label: "Last Name*", name: "last_name" },
+        { label: "First Name", name: "first_name" },
+        { label: "Last Name", name: "last_name" },
         { label: "Middle Name", name: "middle_name" },
         { label: "Preferred Name", name: "preferred_name" },
         { label: "Profile Pic", name: "profile_picture_url", type: "file" },
-        { label: "SSN*", name: "ssn" },
+        { label: "SSN", name: "ssn" },
         { label: "Date of Birth*", name: "dob", type: "date" },
         { label: "Gender", name: "gender", type: "select", options: genders },
       ])}
-      {renderSection("Address*", [
+      {renderSection("Address", [
         { label: "Building", name: "current_address.building" },
         { label: "Street", name: "current_address.street" },
         { label: "City", name: "current_address.city" },
@@ -582,7 +591,7 @@ const PersonalProfile = () => {
         { label: "Zipcode", name: "current_address.zip" },
       ])}
       {renderSection("Contact Information", [
-        { label: "Cell Phone*", name: "cell_phone" },
+        { label: "Cell Phone", name: "cell_phone" },
         { label: "Work Phone", name: "work_phone" },
       ])}
       {renderSection("Employment", [
@@ -597,7 +606,7 @@ const PersonalProfile = () => {
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
       {renderSection("Documents", [
-        { label: "Driver License*", name: "driver_licence_url", type: "file" },
+        { label: "Driver License", name: "driver_licence_url", type: "file" },
         { label: "Work Authorization", name: "work_auth_url", type: "file" },
         // { label: "Additional Documents", name: "additional_url", type: "file" },
       ])}
