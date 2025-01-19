@@ -1,6 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import axios, { AxiosError } from 'axios';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+
+interface Application {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  status: string;
+  feedback?: string;
+}
 
 @Component({
   selector: 'app-hiring-management',
@@ -9,9 +19,16 @@ import axios, { AxiosError } from 'axios';
 })
 export class HiringManagementComponent implements OnInit {
   hiringForm!: FormGroup;
-  registrations: Array<any> = []; // Declare the `registrations` property as an empty array
+  registrations: Array<any> = [];
+  pendingApplications: Application[] = [];
+  rejectedApplications: Application[] = [];
+  approvedApplications: Application[] = [];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.hiringForm = this.fb.group({
@@ -20,51 +37,76 @@ export class HiringManagementComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
     });
 
-    // Fetch registration data when the component initializes
+    // Fetch initial data
     this.fetchRegistrations();
+    this.loadApplications();
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.hiringForm.valid) {
       const formData = this.hiringForm.value;
 
-      try {
-        const response = await axios.post(
-          'http://localhost:3000/api/registration/register',
+      this.http
+        .post(
+          'http://localhost:3000/api/registration/generate-and-send-email',
           {
             first_name: formData.firstname,
             last_name: formData.lastname,
             email: formData.email,
           }
-        );
-        console.log('Success:', response.data);
-        alert('Registration successful!');
-        this.fetchRegistrations(); // Refresh the data after successful registration
-      } catch (error) {
-        this.handleError(error);
-      }
+        )
+        .subscribe({
+          next: (response) => {
+            console.log('Success:', response);
+            alert('Registration successful!');
+            this.fetchRegistrations();
+          },
+          error: (error) => this.handleError(error),
+        });
     } else {
       alert('Please fill out all fields correctly.');
     }
   }
 
-  async fetchRegistrations(): Promise<void> {
-    try {
-      const response = await axios.get(
-        'http://localhost:3000/api/registration/all'
-      );
-      this.registrations = response.data; // Store the fetched data
-      console.log(this.registrations)
-    } catch (error) {
-      this.handleError(error);
-    }
+  fetchRegistrations(): void {
+    this.http.get('http://localhost:3000/api/registration/all').subscribe({
+      next: (response: any) => {
+        this.registrations = response;
+        console.log(this.registrations);
+      },
+      error: (error) => this.handleError(error),
+    });
   }
 
-  // Centralized error handling
+  loadApplications(): void {
+    this.http
+      .get<{ applications: Application[] }>(
+        'http://localhost:3000/api/onboarding/applications'
+      )
+      .subscribe({
+        next: (res) => {
+          this.pendingApplications = res.applications.filter(
+            (app) => app.status === 'Pending'
+          );
+          this.rejectedApplications = res.applications.filter(
+            (app) => app.status === 'Rejected'
+          );
+          this.approvedApplications = res.applications.filter(
+            (app) => app.status === 'Approved'
+          );
+        },
+        error: (error) => this.handleError(error),
+      });
+  }
+
+  viewApplication(applicationId: number): void {
+    window.open(`/onboarding/application/${applicationId}`, '_blank');
+  }
+
   private handleError(error: unknown): void {
-    if (axios.isAxiosError(error)) {
-      console.error('Error:', error.response?.data || error.message);
-      alert(`Error: ${error.response?.data?.error || error.message}`);
+    if (error instanceof HttpErrorResponse) {
+      console.error('Error:', error.error || error.message);
+      alert(`Error: ${error.error?.error || error.message}`);
     } else {
       console.error('Unexpected error:', error);
       alert('An unexpected error occurred.');

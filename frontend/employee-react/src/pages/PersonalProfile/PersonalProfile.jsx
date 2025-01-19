@@ -5,6 +5,13 @@ import {
   updateEmployeeProfile,
 } from "../../store/employeeSlice/employee.slice";
 
+// docoments
+import axios from "../../interceptors/auth.interceptor";
+import {
+  setDocumentKey,
+  selectUserDocuments,
+} from "../../store/documentSlice/documentSlice";
+
 import {
   Button,
   TextField,
@@ -13,11 +20,13 @@ import {
   Paper,
   Select,
   MenuItem,
+  Grid,
 } from "@mui/material";
 import "./PersonalProfile.css";
 
 const PersonalProfile = () => {
   const [editingSection, setEditingSection] = useState(null);
+
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -71,6 +80,14 @@ const PersonalProfile = () => {
   const { profile, status, error } = useSelector((state) => state.employee);
   const { userId } = useSelector((state) => state.auth);
 
+  // documents
+  const userDocuments = useSelector((state) =>
+    selectUserDocuments(state, userId)
+  );
+  const [uploadedProfilePicture, setProfilePicture] = useState("");
+  const [uploadedDriverLicense, setDriverLicense] = useState("");
+  const [uploadedWorkAuth, setWorkAuth] = useState("");
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchEmployeeProfile(userId));
@@ -83,7 +100,7 @@ const PersonalProfile = () => {
     }
   }, [profile]);
 
-  // console.log(profile);
+  console.log(profile);
 
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
@@ -116,11 +133,162 @@ const PersonalProfile = () => {
     }
   };
 
+  // docoments
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const fileName = file.name;
+    switch (e.target.name) {
+      case "profile_picture_url":
+        setProfilePicture(fileName);
+        break;
+      case "driver_licence_url":
+        setDriverLicense(fileName);
+        break;
+      case "work_auth_url":
+        setWorkAuth(fileName);
+        break;
+      default:
+        return;
+    }
+    const formData = new FormData();
+    formData.append("file", e.target.files[0]);
+    let endpoint = "";
+    switch (e.target.name) {
+      case "profile_picture_url":
+        endpoint = "/api/upload/profile-picture";
+        break;
+      case "driver_licence_url":
+        endpoint = "/api/upload/driver-license";
+        break;
+      case "work_auth_url":
+        endpoint = "/api/upload/opt-receipt";
+        break;
+      default:
+        return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000${endpoint}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("upload response", response);
+      dispatch(
+        setDocumentKey({
+          userId,
+          documentType: e.target.name,
+          key: response.data.key,
+        })
+      );
+      setFormData((prevState) => ({
+        ...prevState,
+        [e.target.name]: response.data.fileUrl,
+      }));
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  // const getPresignedUrl = async (fileName) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:3000/api/upload/presigned-url`,
+  //       {
+  //         params: { fileName },
+  //       }
+  //     );
+  //     return response.data.url;
+  //   } catch (error) {
+  //     console.error("Error fetching pre-signed URL:", error);
+  //   }
+  // };
+
   const handleEditClick = (section) => {
     setEditingSection(section);
   };
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.first_name.trim()) {
+      errors.first_name = "First name is required.";
+    }
+    if (!formData.last_name.trim()) {
+      errors.last_name = "Last name is required.";
+    }
+    if (!formData.ssn.trim()) {
+      errors.last_name = "SSN is required.";
+    }
+    if (!formData.cell_phone.trim()) {
+      errors.cell_phone = "Cell phone is required.";
+    }
+    if (formData.cell_phone && !/^\d+$/.test(formData.cell_phone)) {
+      errors.cell_phone = "Cell phone must be numeric.";
+    }
+    if (formData.dob && new Date(formData.dob) > new Date()) {
+      errors.dob = "Date of birth cannot be in the future.";
+    }
+    if (formData.emergency_contacts?.length > 0) {
+      const emergencyErrors = [];
+      formData.emergency_contacts.forEach((contact, index) => {
+        const contactErrors = {};
+        if (!contact.first_name?.trim()) {
+          contactErrors.first_name = "First name is required.";
+        }
+        if (!contact.last_name?.trim()) {
+          contactErrors.last_name = "Last name is required.";
+        }
+        if (
+          contact.email &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)
+        ) {
+          contactErrors.email = "Invalid email format.";
+        }
+
+        if (Object.keys(contactErrors).length > 0) {
+          emergencyErrors[index] = contactErrors;
+        }
+      });
+
+      if (emergencyErrors.length > 0) {
+        errors.emergency_contacts = emergencyErrors;
+      }
+    }
+    return errors;
+  };
+
+  const formatErrors = (errors) => {
+    let errorMessages = [];
+
+    for (const [key, value] of Object.entries(errors)) {
+      if (Array.isArray(value)) {
+        value.forEach((contactErrors, index) => {
+          for (const [field, message] of Object.entries(contactErrors)) {
+            errorMessages.push(`Emergency Contact ${index + 1}: ${message}`);
+          }
+        });
+      } else {
+        errorMessages.push(`${value}`);
+      }
+    }
+    return errorMessages.join("\n");
+  };
+
   const handleSaveClick = () => {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      console.error("Validation errors:", validationErrors);
+
+      alert(
+        `Please fix the following errors:\n${formatErrors(validationErrors)}`
+      );
+      return;
+    }
     try {
       dispatch(updateEmployeeProfile(formData));
       setEditingSection(null);
@@ -130,8 +298,13 @@ const PersonalProfile = () => {
   };
 
   const handleCancelClick = () => {
-    setFormData(profile);
-    setEditingSection(null);
+    const confirmDiscard = window.confirm(
+      "Are you sure you want to discard all changes?"
+    );
+    if (confirmDiscard) {
+      setFormData(profile);
+      setEditingSection(null);
+    }
   };
 
   // Dropdown management
@@ -164,6 +337,7 @@ const PersonalProfile = () => {
           >
             {sectionName}
           </Typography>
+
           {isArray
             ? formData[fields]?.map((contact, index) => (
                 <Box key={index} sx={{ marginBottom: 2 }}>
@@ -171,6 +345,7 @@ const PersonalProfile = () => {
                     [
                       { label: "First Name", key: "first_name" },
                       { label: "Last Name", key: "last_name" },
+                      { label: "Middle Name", key: "middle_name" },
                       { label: "Phone", key: "phone" },
                       { label: "Email", key: "email" },
                       { label: "Relationship", key: "relationship" },
@@ -188,19 +363,23 @@ const PersonalProfile = () => {
                   ) : (
                     <Box>
                       <Typography>
-                        <strong>First Name*:</strong> {contact.first_name || ""}
+                        <strong>First Name:</strong> {contact.first_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Last Name*:</strong> {contact.last_name || ""}
+                        <strong>Last Name:</strong> {contact.last_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Phone*:</strong> {contact.phone || ""}
+                        <strong>Middle Name:</strong>{" "}
+                        {contact.middle_name || ""}
                       </Typography>
                       <Typography>
-                        <strong>Email*:</strong> {contact.email || ""}
+                        <strong>Phone:</strong> {contact.phone || ""}
                       </Typography>
                       <Typography>
-                        <strong>Relationship*:</strong>{" "}
+                        <strong>Email:</strong> {contact.email || ""}
+                      </Typography>
+                      <Typography>
+                        <strong>Relationship:</strong>{" "}
                         {contact.relationship || ""}
                       </Typography>
                     </Box>
@@ -213,7 +392,43 @@ const PersonalProfile = () => {
             : fields.map(({ label, name, type, options }) => (
                 <Box key={name} sx={{ marginBottom: 2 }}>
                   {isEditing ? (
-                    type === "select" ? (
+                    type === "file" ? (
+                      <Box>
+                        <Typography variant="body2" sx={{ marginBottom: 1 }}>
+                          Upload {label}:
+                        </Typography>
+                        <Button
+                          variant="contained"
+                          component="label"
+                          sx={{ marginBottom: 1 }}
+                        >
+                          Choose File
+                          <input
+                            type="file"
+                            name={name}
+                            hidden
+                            onChange={handleFileUpload}
+                          />
+                        </Button>
+                        {uploadedProfilePicture &&
+                          name === "profile_picture_url" && (
+                            <Typography variant="body2">
+                              Selected File: {uploadedProfilePicture}
+                            </Typography>
+                          )}
+                        {uploadedDriverLicense &&
+                          name === "driver_licence_url" && (
+                            <Typography variant="body2">
+                              Selected File: {uploadedDriverLicense}
+                            </Typography>
+                          )}
+                        {uploadedWorkAuth && name === "work_auth_url" && (
+                          <Typography variant="body2">
+                            Selected File: {uploadedWorkAuth}
+                          </Typography>
+                        )}
+                      </Box>
+                    ) : type === "select" ? (
                       <Select
                         fullWidth
                         name={name}
@@ -280,10 +495,41 @@ const PersonalProfile = () => {
                         onChange={handleChange}
                       />
                     )
+                  ) : type === "file" && formData[name] ? (
+                    <Typography>
+                      <strong>{label}:</strong> {/* {formData[name]} */}
+                      <a
+                        href={formData[name]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Preview
+                      </a>
+                      {" | "}
+                      <a
+                        href={formData[name]}
+                        download={true}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Download
+                      </a>
+                    </Typography>
                   ) : (
                     <Typography>
                       <strong>{label}:</strong>{" "}
-                      {name.includes(".")
+                      {type === "date"
+                        ? formatDate(
+                            name.includes(".")
+                              ? name
+                                  .split(".")
+                                  .reduce(
+                                    (acc, key) => acc?.[key] || "",
+                                    formData
+                                  )
+                              : formData[name]
+                          )
+                        : name.includes(".")
                         ? name
                             .split(".")
                             .reduce((acc, key) => acc?.[key] || "", formData)
@@ -330,16 +576,16 @@ const PersonalProfile = () => {
         Personal Profile
       </Typography>
       {renderSection("Name", [
-        { label: "First Name*", name: "first_name" },
-        { label: "Last Name*", name: "last_name" },
+        { label: "First Name", name: "first_name" },
+        { label: "Last Name", name: "last_name" },
         { label: "Middle Name", name: "middle_name" },
         { label: "Preferred Name", name: "preferred_name" },
-        { label: "Profile Pic", name: "profile_picture_url" },
-        { label: "SSN*", name: "ssn" },
+        { label: "Profile Pic", name: "profile_picture_url", type: "file" },
+        { label: "SSN", name: "ssn" },
         { label: "Date of Birth*", name: "dob", type: "date" },
         { label: "Gender", name: "gender", type: "select", options: genders },
       ])}
-      {renderSection("Address*", [
+      {renderSection("Address", [
         { label: "Building", name: "current_address.building" },
         { label: "Street", name: "current_address.street" },
         { label: "City", name: "current_address.city" },
@@ -347,7 +593,7 @@ const PersonalProfile = () => {
         { label: "Zipcode", name: "current_address.zip" },
       ])}
       {renderSection("Contact Information", [
-        { label: "Cell Phone*", name: "cell_phone" },
+        { label: "Cell Phone", name: "cell_phone" },
         { label: "Work Phone", name: "work_phone" },
       ])}
       {renderSection("Employment", [
@@ -362,9 +608,9 @@ const PersonalProfile = () => {
       ])}
       {renderSection("Emergency Contacts", "emergency_contacts", true)}
       {renderSection("Documents", [
-        { label: "Driver License*", name: "driver_licence_url" },
-        { label: "Work Authorization", name: "work_auth_url" },
-        { label: "Additional Documents", name: "additional_url" },
+        { label: "Driver License", name: "driver_licence_url", type: "file" },
+        { label: "Work Authorization", name: "work_auth_url", type: "file" },
+        // { label: "Additional Documents", name: "additional_url", type: "file" },
       ])}
     </Box>
   );

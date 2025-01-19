@@ -8,6 +8,7 @@ import { EmployeeDetailComponent } from './components/employee-detail/employee-d
 import { VisaStatusManagementComponent } from './components/visa-status-management/visa-status-management.component';
 import { HiringManagementComponent } from './components/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './components/housing-management/housing-management.component';
+import { ApproveOnboardingComponent } from './components/approve-onboarding/approve-onboarding.component';
 
 import { AuthGuard } from './guards/auth.guard';
 
@@ -39,6 +40,11 @@ const routes: Routes = [
   {
     path: 'housing',
     component: HousingManagementComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'onboarding/application/:applicationId',
+    component: ApproveOnboardingComponent,
     canActivate: [AuthGuard],
   },
 ];
