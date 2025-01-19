@@ -243,22 +243,6 @@ export const searchEmployees = async (req, res) => {
     }
 };
 
-//preview or download aws3 files
-export const handleAws3=async(req,res)=>{
-    const { key, type } = req.query;
-
-    if (!key) {
-        return res.status(400).json({ message: "Key is required" });
-    }
-
-    try {
-        const url = await generatePresignedUrl(key, type);
-        res.status(200).json({ url });
-    } catch (error) {
-        res.status(500).json({ message: `Failed to generate URL: ${error.message}` });
-    }
-}
-
 //send notification
 export const sendNotification=async (req, res) => {
         const { email, stage } = req.body;

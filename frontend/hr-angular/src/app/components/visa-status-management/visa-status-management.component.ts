@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-in-progress',
@@ -14,8 +15,7 @@ export class VisaStatusManagementComponent implements OnInit {
   searchQuery = { first_name: '', last_name: '', preferred_name: '' }; // Query object for search
 
   // Shared base URL for the backend
-  private readonly BASE_URL = 'http://localhost:3000';
-
+  private readonly BASE_URL = environment.apiUrl;
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {

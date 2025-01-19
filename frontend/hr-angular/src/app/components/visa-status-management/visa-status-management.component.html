@@ -1,6 +1,6 @@
 <div class="visa-management-container">
   <!-- In-Progress Visa Applications Section -->
-  <h2>In Progress Visa Applications</h2>
+  <h2 class="Title">In Progress Visa Applications</h2>
 
   <!-- In-Progress Loading Spinner
         <mat-spinner *ngIf="isLoading"></mat-spinner> -->
@@ -77,7 +77,7 @@
         <p *ngIf="!isLoading && inProgressVisas.length === 0">No in-progress visa applications found.</p>
     
         <!-- Search and Display Section -->
-        <h2>Search Visa Applications</h2>
+        <h2 class="Title">Search Visa Applications</h2>
     
         <div class="search-bar">
                 <!-- First Name Field -->
@@ -118,7 +118,7 @@
         </div>
     
         <div *ngIf="!isSearchLoading && searchResults.length > 0">
-            <h3>Search Results</h3>
+            <h2 class="Title">Search Results</h2>
             <table mat-table [dataSource]="searchResults" class="mat-elevation-z8">
         
                 <!-- Name Column -->
