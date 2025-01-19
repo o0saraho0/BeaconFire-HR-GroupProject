@@ -29,11 +29,11 @@
         
         const fetchVisaData = async () => {
         try {
-            if (!userId) {
-                throw new Error("User is not authenticated");  
-            }
+            // if (!userId) {
+            //     throw new Error("User is not authenticated");  
+            // }
             const response = await axios.get(
-            `http://${localHost}/api/visa/${userId}`
+            `http://${localHost}/api/visa/678a955831d59dfd3708aeb4`
             );
             setVisaData(response.data.visa); // Set the fetched data
             setLoading(false);
