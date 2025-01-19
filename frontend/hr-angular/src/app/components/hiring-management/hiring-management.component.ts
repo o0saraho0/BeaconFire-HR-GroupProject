@@ -47,11 +47,14 @@ export class HiringManagementComponent implements OnInit {
       const formData = this.hiringForm.value;
 
       this.http
-        .post('http://localhost:3000/api/registration/register', {
-          first_name: formData.firstname,
-          last_name: formData.lastname,
-          email: formData.email,
-        })
+        .post(
+          'http://localhost:3000/api/registration/generate-and-send-email',
+          {
+            first_name: formData.firstname,
+            last_name: formData.lastname,
+            email: formData.email,
+          }
+        )
         .subscribe({
           next: (response) => {
             console.log('Success:', response);

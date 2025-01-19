@@ -63,7 +63,7 @@ const Register = () => {
       const result = await dispatch(registerUser(formData)).unwrap();
       navigate("/login"); // Redirect to login on success
     } catch (err) {
-      setError(err.message || "Registration failed");
+      setError(err || "Registration failed");
     }
   };
 
