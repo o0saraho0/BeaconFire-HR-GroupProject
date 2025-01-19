@@ -8,7 +8,7 @@ import LoginPage from "./pages/LoginPage/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
 import LogoutPage from "./pages/LogoutPage/LogoutPage.jsx";
 import HousesPage from "./pages/HousesPage/HousePage.jsx";
-//import FacilityReportsPage from "./pages/FacilityReportsPage/FacilityReportsPage.jsx";
+import FacilityReportsPage from "./pages/FacilityReportsPage/FacilityReportsPage.jsx";
 
 import Navbar from "./components/Navbar/Navbar.jsx";
 
@@ -44,6 +44,10 @@ const router = createBrowserRouter([
   {
     path: "/housing",
     element: <HousesPage />,
+  },
+  {
+    path: "/facility-reports/:houseId",
+    element: <FacilityReportsPage />,
   }
 ]);
 

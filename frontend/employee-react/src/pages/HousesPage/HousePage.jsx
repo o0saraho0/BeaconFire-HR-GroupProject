@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import {
     Container,
     Typography,
@@ -15,6 +16,7 @@ import axios from "../../interceptors/auth.interceptor";
 
 const HousePage = () => {
     const token = useSelector((state) => state.auth.token); // Retrieve token from auth slice
+    const navigate = useNavigate();
     const [houseDetails, setHouseDetails] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -47,7 +49,7 @@ const HousePage = () => {
 
     if (loading) {
         return (
-            <Container style={{ marginTop: "80px" }}>
+            <Container style={{ marginTop: "10vh" }}>
                 <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
                     <CircularProgress />
                 </Box>
@@ -57,14 +59,14 @@ const HousePage = () => {
 
     if (error) {
         return (
-            <Container style={{ marginTop: "80px" }}>
+            <Container style={{ marginTop: "10vh" }}>
                 <Alert severity="error">{error}</Alert>
             </Container>
         );
     }
 
     return (
-        <Container style={{ marginTop: "80px" }}>
+        <Container style={{ marginTop: "10vh" }}>
             <Typography variant="h4" gutterBottom>
                 House Details
             </Typography>
@@ -105,6 +107,25 @@ const HousePage = () => {
                                 <Typography>No tenants assigned.</Typography>
                             )}
                         </List>
+
+                        <Box style={{ marginTop: "16px" }}>
+                            <button
+                                style={{
+                                    backgroundColor: "#1976d2",
+                                    color: "white",
+                                    padding: "8px 16px",
+                                    border: "none",
+                                    borderRadius: "4px",
+                                    cursor: "pointer",
+                                }}
+                                onClick={() => {
+                                    console.log(`Navigating to /facility-reports/${houseDetails._id}`);
+                                    navigate(`/facility-reports/${houseDetails._id}`);
+                                }}
+                            >
+                                View Reports
+                            </button>
+                        </Box>
                     </CardContent>
                 </Card>
             ) : (
