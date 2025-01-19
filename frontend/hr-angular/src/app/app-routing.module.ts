@@ -29,7 +29,7 @@ const routes: Routes = [
   {
     path: 'visa-status',
     component: VisaStatusManagementComponent,
-    // canActivate: [AuthGuard],
+    canActivate: [AuthGuard],
   },
   {
     path: 'hiring',
