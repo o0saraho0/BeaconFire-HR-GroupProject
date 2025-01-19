@@ -62,7 +62,8 @@ const application_schema = new mongoose.Schema({
   ],
   profile_picture_url: {
     type: String,
-    default: "/images/default-user.png",
+    default:
+      "https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/profile-pictures/1737178657102-default-user.png",
   },
   driver_licence_url: { type: String },
   work_auth_url: { type: String },
