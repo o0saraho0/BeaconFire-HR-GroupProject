@@ -20,6 +20,7 @@ import {
   Paper,
   Select,
   MenuItem,
+  Grid,
 } from "@mui/material";
 import "./PersonalProfile.css";
 
@@ -336,6 +337,7 @@ const PersonalProfile = () => {
           >
             {sectionName}
           </Typography>
+
           {isArray
             ? formData[fields]?.map((contact, index) => (
                 <Box key={index} sx={{ marginBottom: 2 }}>
