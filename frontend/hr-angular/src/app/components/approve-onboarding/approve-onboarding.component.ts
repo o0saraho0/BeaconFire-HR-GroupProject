@@ -115,8 +115,8 @@ export class ApproveOnboardingComponent implements OnInit {
           this.fetchApplication(this.application!._id);
         },
         error: (error) => {
-          console.error('Error approving application:', error);
-          alert('Error approving application');
+          console.error('Error approving application:', error.error.message);
+          alert(`Error approving application: ${error.error.message}`);
         },
       });
   }
@@ -144,8 +144,11 @@ export class ApproveOnboardingComponent implements OnInit {
               this.fetchApplication(this.application!._id);
             },
             error: (error) => {
-              console.error('Error rejecting application:', error);
-              alert('Error rejecting application');
+              console.error(
+                'Error rejecting application:',
+                error.error.message
+              );
+              alert(`Error rejecting application: ${error.error.message}`);
             },
           });
       }

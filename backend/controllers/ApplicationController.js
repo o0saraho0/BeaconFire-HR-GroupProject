@@ -2,7 +2,7 @@ import Application from "../models/Application.js";
 import User from "../models/User.js";
 import EmployeeProfile from "../models/EmployeeProfile.js";
 import Visa from "../models/Visa.js"
-import mongoose from "mongoose";
+
 const getApplicationStatus = async (req, res) => {
   try {
     const userId = req.body.user_id;
@@ -165,8 +165,7 @@ export const getApplicationDetailUsingApplicationId = async (req, res) => {
 }
 
 export const approveApplicationUsingApplicationId = async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
+
   try {
     const application_id = req.params.applicationId;
 
@@ -175,10 +174,7 @@ export const approveApplicationUsingApplicationId = async (req, res) => {
       return res.status(400).json({ message: "Application ID is required" });
     }
 
-    const application = await Application.findByIdAndUpdate(
-      application_id,
-      { status: 'Approved' }
-    );
+    const application = await Application.findById(application_id);
 
     if (!application) {
       return res.status(404).json({ message: "Application not found" });
@@ -187,14 +183,13 @@ export const approveApplicationUsingApplicationId = async (req, res) => {
     // Check if employee profile already exists
     const existingEmployee = await EmployeeProfile.findOne({ user_id: application.user_id });
     if (existingEmployee) {
-      await session.abortTransaction();
+
       return res.status(400).json({ message: "A document for EmployeeProfile collection for user_id already exists" });
     }
 
     // Check if visa document already exists
     const existingVisa = await Visa.findOne({ user_id: application.user_id });
     if (existingVisa) {
-      await session.abortTransaction();
       return res.status(400).json({ message: "A document in Visa Collection for user_id already exists" });
     }
 
@@ -259,25 +254,23 @@ export const approveApplicationUsingApplicationId = async (req, res) => {
       message: null
     };
 
-    // Create both documents within the transaction
-    const [employeeProfile, visa] = await Promise.all([
-      EmployeeProfile.create([employeeProfileData], { session }),
-      Visa.create([visaData], { session })
-    ]);
+    // Create new EmployeeProfile document
+    const newEmployeeProfile = await EmployeeProfile.create(employeeProfileData);
+
+    // Create new Visa document
+    const newVisa = await Visa.create(visaData);
+
 
     // Update application status
     await Application.findByIdAndUpdate(
       application_id,
       { status: 'Approved' },
-      { session }
     );
 
-    // Commit the transaction
-    await session.commitTransaction();
 
-
-    res.json({ message: "Application approved successfully", application });
+    return res.json({ message: "Application approved successfully", application });
   } catch (error) {
+
     console.error("Error in approveApplicationUsingApplicationId:", error);
     res.status(500).json({ message: "Internal server error" });
   }
