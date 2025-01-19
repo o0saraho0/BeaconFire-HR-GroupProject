@@ -99,6 +99,8 @@ const postOnboarding = async (req, res) => {
         ...applicationData,
         status: 'Pending',
       });
+    } else if (application.status === 'Rejected') {
+      await Application.updateOne({ user_id: userId }, { ...applicationData, status: 'Pending' });
     } else {
       await Application.updateOne({ user_id: userId }, applicationData);
     }

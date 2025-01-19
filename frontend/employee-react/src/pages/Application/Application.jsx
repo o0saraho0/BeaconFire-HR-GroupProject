@@ -78,6 +78,7 @@ const Application = () => {
   }
 
   const mapBackendToFrontend = (backendData) => {
+
     return {
       firstName: backendData.first_name || '',
       lastName: backendData.last_name || '',
@@ -102,12 +103,12 @@ const Application = () => {
       ssn: backendData.ssn || '',
       dob: backendData.dob || '',
       gender: backendData.gender || '',
-      citizenOrResident: backendData.citizen_or_resident || '',
+      citizenOrResident: (backendData.visa_type === 'Green Card' || backendData.visa_type === 'Citizen') ? 'Yes' : 'No',
       visaType: backendData.visa_type || '',
       visaStartDate: backendData.visa_start_date || '',
       visaEndDate: backendData.visa_end_date || '',
       driverLicense: {
-        number: backendData.driver_license_number || '',
+        number: backendData.driver_licence_number || '',
         expireDate: backendData.driver_license_expire_date || '',
       },
       reference: {
@@ -118,12 +119,18 @@ const Application = () => {
         email: backendData.reference.email || '',
         relationship: backendData.reference.relationship || '',
       },
-      emergencyContacts: backendData.emergency_contacts || [],
+      emergencyContacts: backendData.emergency_contacts.map(contact => ({
+        firstName: contact.first_name || '',
+        lastName: contact.last_name || '',
+        phone: contact.phone || '',
+        email: contact.email || '',
+        relationship: contact.relationship || '',
+      })) || [],
       uploadedFiles: {
         driverLicense: backendData.driver_license_url || '',
         workAuthorization: backendData.work_auth_url || '',
       },
-      hasDriverLicense: backendData.has_driver_license || false,
+      hasDriverLicense: !!backendData.driver_licence_number || false,
       visaTitle: backendData.visa_title || '',
     };
   };
@@ -206,6 +213,7 @@ const Application = () => {
     fetchApplication();
   }, []);
 
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     const keys = name.split(/[\.\[\]]+/).filter(Boolean);
@@ -222,16 +230,22 @@ const Application = () => {
         }
       }
 
+      const finalKey = keys[keys.length - 1];
       if (Array.isArray(current)) {
-        current[parseInt(keys[keys.length - 1], 10)] = value;
+        current[parseInt(finalKey, 10)] = value;
       } else {
-        current[keys[keys.length - 1]] = value;
+        if (finalKey.includes('Date')) {
+          current[finalKey] = new Date(value).toISOString().split('T')[0];
+        } else {
+          current[finalKey] = value;
+        }
       }
 
       return newState;
     });
   };
-
+  console.log('has driver license', formData.hasDriverLicense)
+  console.log('ssn number', formData.ssn)
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
@@ -314,7 +328,6 @@ const Application = () => {
 
       value = value[field];
       if (value === undefined || value === '') {
-        console.log('missing', field)
         alert('Missing required field', field);
         return;
       }
@@ -960,7 +973,10 @@ const Application = () => {
       <Typography variant="body2"><strong>SSN:</strong> {formData.ssn}</Typography>
       <Typography variant="body2"><strong>Date of Birth:</strong> {formData.dob}</Typography>
       <Typography variant="body2"><strong>Gender:</strong> {formData.gender}</Typography>
+      <Typography variant="body2"><strong>Citizen or Resident:</strong> {formData.citizenOrResident}</Typography>
       <Typography variant="body2"><strong>Visa Type:</strong> {formData.visaType}</Typography>
+      <Typography variant="body2"><strong>Visa Start Date:</strong> {formData.visaStartDate}</Typography>
+      <Typography variant="body2"><strong>Visa End Date:</strong> {formData.visaEndDate}</Typography>
       {formData.visaType === 'Other' && <Typography variant="body2"><strong>Visa Title:</strong> {formData.visaTitle}</Typography>}
       {formData.hasDriverLicense && (
         <>
@@ -968,6 +984,11 @@ const Application = () => {
           <Typography variant="body2"><strong>Expiration Date:</strong> {formData.driverLicense.expireDate}</Typography>
         </>
       )}
+      <Typography variant="body2"><strong>Reference:</strong> {`${formData.reference.firstName} ${formData.reference.middleName} ${formData.reference.lastName}, ${formData.reference.phone}, ${formData.reference.email}, ${formData.reference.relationship}`}</Typography>
+      <Typography variant="body2"><strong>Emergency Contacts:</strong> {formData.emergencyContacts.map((contact, index) => (
+        <div key={index}>{`${contact.firstName} ${contact.lastName}, ${contact.phone}, ${contact.email}, ${contact.relationship}`}</div>
+      ))}</Typography>
+
       <Typography variant="h6">Uploaded Documents</Typography>
       <ul>
         {formData.profilePicture && (
@@ -1001,7 +1022,7 @@ const Application = () => {
           </li>
         )}
       </ul>
-    </Paper>
+    </Paper >
   );
 
   const renderContent = () => {
