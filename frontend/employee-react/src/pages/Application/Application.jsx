@@ -17,7 +17,66 @@ const Application = () => {
   const [uploadedProfilePicture, setProfilePicture] = useState('');
   const [uploadedDriverLicense, setDriverLicense] = useState('');
   const [uploadedWorkAuth, setWorkAuth] = useState('');
-  const [profileUrl, setProfileUrl] = useState('')
+  const validations = {
+    name: {
+      pattern: /^[A-Za-z\s-']+$/,
+      message: 'Only letters, spaces, hyphens, and apostrophes allowed'
+    },
+    phone: {
+      pattern: /^\d{10}$/,
+      message: 'Must be exactly 10 digits'
+    },
+    ssn: {
+      pattern: /^\d{9}$/,
+      message: 'Must be exactly 9 digits'
+    },
+    email: {
+      pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      message: 'Must be a valid email address'
+    },
+    address: {
+      pattern: /^[A-Za-z0-9\s,.-]+$/,
+      message: 'Letters, numbers, and basic punctuation only'
+    },
+    zip: {
+      pattern: /^\d{5}$/,
+      message: 'Must be exactly 5 digits'
+    },
+    relationship: {
+      pattern: /^[A-Za-z\s-]+$/,
+      message: 'Letters, spaces, and hyphens only'
+    }
+  };
+
+  const getValidationProps = (fieldName, value) => {
+    let validation = null;
+
+    if (fieldName.includes('firstName') || fieldName.includes('lastName') ||
+      fieldName.includes('middleName') || fieldName.includes('preferredName')) {
+      validation = validations.name;
+    } else if (fieldName.includes('phone')) {
+      validation = validations.phone;
+    } else if (fieldName === 'ssn') {
+      validation = validations.ssn;
+    } else if (fieldName.includes('email')) {
+      validation = validations.email;
+    } else if (fieldName.includes('building') || fieldName.includes('street') ||
+      fieldName.includes('city') || fieldName.includes('state')) {
+      validation = validations.address;
+    } else if (fieldName.includes('zip')) {
+      validation = validations.zip;
+    } else if (fieldName.includes('relationship')) {
+      validation = validations.relationship;
+    }
+    if (!validation || !value) return {};
+
+    const isValid = validation.pattern.test(value);
+    return {
+      error: value !== '' && !isValid,
+      helperText: value !== '' && !isValid ? validation.message : ''
+    };
+  }
+
   const mapBackendToFrontend = (backendData) => {
     return {
       firstName: backendData.first_name || '',
@@ -175,41 +234,10 @@ const Application = () => {
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    const fileName = file.name;
-    switch (e.target.name) {
-      case 'profilePicture':
-        setProfilePicture(fileName);
-        setFormData((prevData) => ({
-          ...prevData,
-          profilePicture: fileName
-        }));
-        break;
-      case 'driversLicenseFile':
-        setDriverLicense(fileName);
-        setFormData((prevData) => ({
-          ...prevData,
-          uploadedFiles: {
-            ...prevData.uploadedFiles,
-            driverLicense: fileName
-          }
-        }));
-        break;
-      case 'workAuthorizationFile':
-        setWorkAuth(fileName);
-        setFormData((prevData) => ({
-          ...prevData,
-          uploadedFiles: {
-            ...prevData.uploadedFiles,
-            workAuthorization: fileName
-          }
-        }));
-        break;
-      default:
-        return;
-    }
     const formData = new FormData();
-    formData.append('file', e.target.files[0]);
+    formData.append('file', file);
     let endpoint = '';
+
     switch (e.target.name) {
       case 'profilePicture':
         endpoint = '/api/upload/profile-picture';
@@ -230,6 +258,42 @@ const Application = () => {
           'Content-Type': 'multipart/form-data'
         },
       });
+
+      const fileUrl = response.data.fileUrl;
+
+      switch (e.target.name) {
+        case 'profilePicture':
+          setProfilePicture(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            profilePicture: fileUrl
+          }));
+          console.log('profile url', fileUrl)
+          break;
+        case 'driversLicenseFile':
+          setDriverLicense(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            uploadedFiles: {
+              ...prevData.uploadedFiles,
+              driverLicense: fileUrl
+            }
+          }));
+          break;
+        case 'workAuthorizationFile':
+          setWorkAuth(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            uploadedFiles: {
+              ...prevData.uploadedFiles,
+              workAuthorization: fileUrl
+            }
+          }));
+          break;
+        default:
+          return;
+      }
+
       dispatch(setDocumentKey({ userId, documentType: e.target.name, key: response.data.key }));
     } catch (error) {
       console.error('Error uploading file:', error);
@@ -238,10 +302,27 @@ const Application = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //   // Check if all required fields are filled
+    const requiredFields = [
+      'firstName', 'lastName', 'cellPhone', 'ssn', 'dob', 'visaType',
+      'hasDriverLicense', 'emergencyContacts'
+    ];
+
+    for (const field of requiredFields) {
+      let value = formData;
+
+      value = value[field];
+      if (value === undefined || value === '') {
+        console.log('missing', field)
+        alert('Missing required field', field);
+        return;
+      }
+    }
+
     try {
       const response = await axios.post(`http://${localHost}/api/onboarding`, formData);
-      // if (response)
-      setStatus('Pending');
+      alert('Application successfully submitted. Please wait for approval from HR.');
     } catch (error) {
       console.error('Error submitting application:', error);
     }
@@ -787,52 +868,34 @@ const Application = () => {
       <Grid item xs={12}>
         <Typography variant="h6" gutterBottom>Summary of Uploaded Files</Typography>
         <ul>
-          {userDocuments.profilePicture && (
+          {formData.profilePicture && (
             <li>
-              <span>Profile Picture: </span>
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.profilePicture);
-                setProfileUrl(url)
-                window.open(url, '_blank');
-              }}>Preview</a>
-              {' | '}
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const theprofileUrl = await getPresignedUrl(userDocuments.profilePicture);
-                window.location.href = theprofileUrl;
-              }} download>Download</a>
-            </li>)}
-          {userDocuments.driversLicenseFile && (
-            <li>
-              <span>Driver's License: </span>
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
-                window.open(url, '_blank');
-              }}>Preview</a>
-              {' | '}
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.driversLicenseFile);
-                window.location.href = url;
-              }} download>Download</a>
+              <div>
+                <a href={formData.profilePicture} target="_blank" rel="noopener noreferrer">Preview Profile Picture</a>
+              </div>
+              <div>
+                <a href="#" onClick={() => forceDownload(formData.profilePicture)}>Download Profile Picture</a>
+              </div>
             </li>
           )}
-          {userDocuments.workAuthorizationFile && (
+          {formData.uploadedFiles.driverLicense && (
             <li>
-              <span>Work Authorization: </span>
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.workAuthorization);
-                window.open(url, '_blank');
-              }}>Preview</a>
-              {' | '}
-              <a href="#" onClick={async (e) => {
-                e.preventDefault();
-                const url = await getPresignedUrl(userDocuments.workAuthorization);
-                window.location.href = url;
-              }} download>Download</a>
+              <div>
+                <a href={formData.uploadedFiles.driverLicense} target="_blank" rel="noopener noreferrer">Preview Driver's License</a>
+              </div>
+              <div>
+                <a href="#" onClick={() => forceDownload(formData.uploadedFiles.driverLicense)}>Download Driver's License</a>
+              </div>
+            </li>
+          )}
+          {formData.uploadedFiles.workAuthorization && (
+            <li>
+              <div>
+                <a href={formData.uploadedFiles.workAuthorization} target="_blank" rel="noopener noreferrer">Preview Work Authorization</a>
+              </div>
+              <div>
+                <a href="#" onClick={() => forceDownload(formData.uploadedFiles.workAuthorization)}>Download Work Authorization</a>
+              </div>
             </li>
           )}
         </ul>
@@ -852,16 +915,31 @@ const Application = () => {
         return null;
     }
   };
+  const forceDownload = (link) => {
+    const url = link;
+    const fileName = link.split('/').pop() || 'download';
 
-  const getPresignedUrl = async (fileName) => {
-    try {
-      const response = await axios.get(`http://${localHost}/api/upload/presigned-url`, {
-        params: { fileName }
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch((error) => {
+        console.error("File download failed:", error);
       });
-      return response.data.url;
-    } catch (error) {
-      console.error('Error fetching pre-signed URL:', error);
-    }
   };
 
   const renderPendingMessage = () => (
@@ -894,70 +972,49 @@ const Application = () => {
       <ul>
         {formData.profilePicture && (
           <li>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              try {
-                const url = await getPresignedUrl(formData.profilePicture);
-                if (url) {
-                  window.open(url, '_blank');
-                } else {
-                  console.error('Failed to retrieve URL');
-                }
-              } catch (error) {
-                console.error('Error fetching profile picture URL:', error);
-              }
-            }}>Profile Picture</a>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(documentKeys.profilePicture);
-              window.location.href = url;
-            }}>Download</a>
+            <div>
+              <a href={formData.profilePicture} target="_blank" rel="noopener noreferrer">Preview Profile Picture</a>
+            </div>
+            <div>
+              <a href="#" onClick={() => forceDownload(formData.profilePicture)}>Download Profile Picture</a>
+            </div>
           </li>
         )}
         {formData.uploadedFiles.driverLicense && (
           <li>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(formData.uploadedFiles.driverLicense);
-              window.open(url, '_blank');
-            }}>Driver's License</a>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(formData.uploadedFiles.driverLicense);
-              window.location.href = url;
-            }}>Download</a>
+            <div>
+              <a href={formData.uploadedFiles.driverLicense} target="_blank" rel="noopener noreferrer">Preview Driver's License</a>
+            </div>
+            <div>
+              <a href="#" onClick={() => forceDownload(formData.uploadedFiles.driverLicense)}>Download Driver's License</a>
+            </div>
           </li>
         )}
         {formData.uploadedFiles.workAuthorization && (
           <li>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(formData.uploadedFiles.workAuthorization);
-              window.open(url, '_blank');
-            }}>Work Authorization</a>
-            <a href="#" onClick={async (e) => {
-              e.preventDefault();
-              const url = await getPresignedUrl(formData.uploadedFiles.workAuthorization);
-              window.location.href = url;
-            }}>Download</a>
+            <div>
+              <a href={formData.uploadedFiles.workAuthorization} target="_blank" rel="noopener noreferrer">Preview Work Authorization</a>
+            </div>
+            <div>
+              <a href="#" onClick={() => forceDownload(formData.uploadedFiles.workAuthorization)}>Download Work Authorization</a>
+            </div>
           </li>
         )}
       </ul>
     </Paper>
   );
 
-  const renderRejectedMessage = () => (
-    <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
-      <Typography variant="body1">Your application was rejected. Feedback: {feedback}</Typography>
-      {renderForm()}
-    </Paper>
-  );
-
   const renderContent = () => {
     switch (status) {
       case 'Not Started':
+      case 'Rejected':
         return (
           <form onSubmit={handleSubmit}>
+            {status === 'Rejected' && (
+              <Typography variant="body1">
+                Your application was rejected. Feedback: {feedback} Please make changes on the application and resubmit it for review. Thank you.
+              </Typography>
+            )}
             {renderForm()}
             <Grid item xs={12}>
               {page < totalPages ? (
@@ -970,7 +1027,7 @@ const Application = () => {
                 </Button>
               ) : (
                 <Button type="submit" variant="contained" color="primary">
-                  Submit
+                  {status === 'Rejected' ? 'Resubmit' : 'Submit'}
                 </Button>
               )}
             </Grid>
@@ -978,8 +1035,6 @@ const Application = () => {
         );
       case 'Pending':
         return renderPendingMessage();
-      case 'Rejected':
-        return renderRejectedMessage();
       case 'Approved':
         window.location.href = '/index.html';
         return null;
@@ -992,7 +1047,7 @@ const Application = () => {
     <Container>
       <Typography variant="h4" gutterBottom>Onboarding Application</Typography>
       {renderContent()}
-      {status === 'Not Started' && (
+      {status !== 'Pending' && (
         <Pagination
           count={totalPages}
           page={page}
