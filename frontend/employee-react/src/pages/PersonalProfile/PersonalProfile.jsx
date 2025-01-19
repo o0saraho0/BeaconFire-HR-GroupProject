@@ -25,6 +25,7 @@ import "./PersonalProfile.css";
 
 const PersonalProfile = () => {
   const [editingSection, setEditingSection] = useState(null);
+
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -210,7 +211,85 @@ const PersonalProfile = () => {
     setEditingSection(section);
   };
 
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.first_name.trim()) {
+      errors.first_name = "First name is required.";
+    }
+    if (!formData.last_name.trim()) {
+      errors.last_name = "Last name is required.";
+    }
+    if (!formData.ssn.trim()) {
+      errors.last_name = "SSN is required.";
+    }
+    if (!formData.cell_phone.trim()) {
+      errors.cell_phone = "Cell phone is required.";
+    }
+    if (formData.cell_phone && !/^\d+$/.test(formData.cell_phone)) {
+      errors.cell_phone = "Cell phone must be numeric.";
+    }
+    if (formData.dob && new Date(formData.dob) > new Date()) {
+      errors.dob = "Date of birth cannot be in the future.";
+    }
+    if (formData.emergency_contacts?.length > 0) {
+      const emergencyErrors = [];
+      formData.emergency_contacts.forEach((contact, index) => {
+        const contactErrors = {};
+        if (!contact.first_name?.trim()) {
+          contactErrors.first_name = "First name is required.";
+        }
+        if (!contact.last_name?.trim()) {
+          contactErrors.last_name = "Last name is required.";
+        }
+        if (
+          contact.email &&
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)
+        ) {
+          contactErrors.email = "Invalid email format.";
+        }
+
+        if (Object.keys(contactErrors).length > 0) {
+          emergencyErrors[index] = contactErrors;
+        }
+      });
+
+      if (emergencyErrors.length > 0) {
+        errors.emergency_contacts = emergencyErrors;
+      }
+    }
+    return errors;
+  };
+
+  const formatErrors = (errors) => {
+    let errorMessages = [];
+
+    for (const [key, value] of Object.entries(errors)) {
+      if (Array.isArray(value)) {
+        value.forEach((contactErrors, index) => {
+          for (const [field, message] of Object.entries(contactErrors)) {
+            errorMessages.push(
+              `Emergency Contact ${index + 1} - ${field}: ${message}`
+            );
+          }
+        });
+      } else {
+        errorMessages.push(`${value}`);
+      }
+    }
+    return errorMessages.join("\n");
+  };
+
   const handleSaveClick = () => {
+    const validationErrors = validateForm();
+    if (Object.keys(validationErrors).length > 0) {
+      console.error("Validation errors:", validationErrors);
+
+      alert(
+        `Please fix the following errors:\n\n${formatErrors(validationErrors)}`
+      );
+      return;
+    }
     try {
       dispatch(updateEmployeeProfile(formData));
       setEditingSection(null);
@@ -220,8 +299,13 @@ const PersonalProfile = () => {
   };
 
   const handleCancelClick = () => {
-    setFormData(profile);
-    setEditingSection(null);
+    const confirmDiscard = window.confirm(
+      "Are you sure you want to discard all changes?"
+    );
+    if (confirmDiscard) {
+      setFormData(profile);
+      setEditingSection(null);
+    }
   };
 
   // Dropdown management
@@ -261,6 +345,7 @@ const PersonalProfile = () => {
                     [
                       { label: "First Name", key: "first_name" },
                       { label: "Last Name", key: "last_name" },
+                      { label: "Middle Name", key: "middle_name" },
                       { label: "Phone", key: "phone" },
                       { label: "Email", key: "email" },
                       { label: "Relationship", key: "relationship" },
@@ -282,6 +367,10 @@ const PersonalProfile = () => {
                       </Typography>
                       <Typography>
                         <strong>Last Name*:</strong> {contact.last_name || ""}
+                      </Typography>
+                      <Typography>
+                        <strong>Middle Name:</strong>{" "}
+                        {contact.middle_name || ""}
                       </Typography>
                       <Typography>
                         <strong>Phone*:</strong> {contact.phone || ""}
