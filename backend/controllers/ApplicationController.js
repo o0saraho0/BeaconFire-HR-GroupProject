@@ -244,7 +244,7 @@ export const approveApplicationUsingApplicationId = async (req, res) => {
     // Create or update Visa document
     const visaData = {
       user_id: application.user_id,
-      is_opt: application.visa_type === 'F1 Category',
+      is_opt: application.visa_type === 'F1',
       stage: 'OPT Receipt', // Initial stage for new visa documents
       status: 'Pending',
       opt_receipt_url: application.work_auth_url,
