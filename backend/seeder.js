@@ -39,6 +39,7 @@ const seed_database = async () => {
     await Visa.deleteMany({});
     await User.deleteMany({});
     const hashedPassword = await argon2.hash("password1");
+
     // Create Users
     const users = await User.insertMany([
       {
@@ -274,6 +275,21 @@ const seed_database = async () => {
     ]);
     console.log("Employee Profiles created:", employee_profiles);
 
+    // Create Visa documents for each employee
+    const visas = await Visa.insertMany(employee_profiles.map(profile => ({
+      user_id: profile.user_id,
+      is_opt: profile.visa_type === "F1", // Set is_opt based on visa type
+      stage: profile.visa_type === "F1" ? "OPT Receipt" : "Complete", // Set stage based on visa type
+      status: "Pending",
+      status: 'Pending',
+      opt_receipt_url: profile.visa_type === "F1" ? "https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/opt-receipts/1737400614153-2.png" : null,
+      opt_ead_url: null,
+      i983_url: null,
+      i20_url: null,
+      message: null
+    })));
+    console.log("Visa documents created:", visas);
+
     // Create HR Profiles
     const hr_profiles = await HRProfile.insertMany([
       {
@@ -288,25 +304,6 @@ const seed_database = async () => {
       },
     ]);
     console.log("HR Profiles created:", hr_profiles);
-
-    // Create Visa
-    const visas = await Visa.insertMany([
-      {
-        user_id: users[1]._id,
-        is_opt: true,
-        stage: "I983",
-        status: "Pending",
-        message: "Awaiting I983 form approval.",
-      },
-      {
-        user_id: users[4]._id,
-        is_opt: true,
-        stage: "EAD",
-        status: "Not Started",
-        message: "Copy of EAD is required.",
-      },
-    ]);
-    console.log("Visa data created:", visas);
 
     // Create Houses
     const houses = await House.insertMany([
@@ -406,7 +403,6 @@ const seed_database = async () => {
     ]);
     console.log("Facility Reports created:", facility_reports);
 
-    //create onboarding applications
     // Create Applications
     const applications = await Application.insertMany([
       {
