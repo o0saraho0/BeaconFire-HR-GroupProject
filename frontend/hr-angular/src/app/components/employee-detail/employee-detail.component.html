@@ -1,5 +1,6 @@
 <mat-card *ngIf="employee" class="employee-details-card">
-  <mat-card-title>
+  <mat-card-title class="employee-name-section">
+    <img [src]="employee.profile_picture_url" alt="profile_pic" />
     {{ employee.first_name }} {{ employee.middle_name || "" }}
     {{ employee.last_name }}
     <span *ngIf="employee.preferred_name">({{ employee.preferred_name }})</span>

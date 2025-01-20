@@ -40,6 +40,7 @@ export interface Employee {
     email: string;
     relationship: string;
   }>;
+  profile_picture_url: string
 }
   
   export interface EmployeesState {
