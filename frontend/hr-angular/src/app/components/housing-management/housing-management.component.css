@@ -1,0 +1,64 @@
+.housing-container {
+  padding: 20px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.houses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.house-card {
+  margin-bottom: 20px;
+}
+
+.house-details {
+  margin-top: 20px;
+}
+
+.landlord-info {
+  margin: 15px 0;
+}
+
+.facility-info {
+  padding: 15px;
+}
+
+.reports-section {
+  margin-top: 20px;
+}
+
+.comments-section {
+  margin-top: 15px;
+  padding-left: 15px;
+}
+
+mat-toolbar {
+  margin-bottom: 20px;
+}
+
+mat-expansion-panel {
+  margin-bottom: 10px;
+}
+
+.tenant-item {
+  margin-bottom: 16px;
+  height: auto !important;
+}
+
+.tenant-details {
+  padding: 8px 0;
+}
+
+.tenant-details p {
+  margin: 8px 0;
+}
+
+mat-divider {
+  margin: 16px 0;
+}
