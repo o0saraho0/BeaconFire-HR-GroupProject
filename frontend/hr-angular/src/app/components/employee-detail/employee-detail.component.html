@@ -1,5 +1,6 @@
 <mat-card *ngIf="employee" class="employee-details-card">
-  <mat-card-title>
+  <mat-card-title class="employee-name-section">
+    <img [src]="employee.profile_picture_url" alt="profile_pic" />
     {{ employee.first_name }} {{ employee.middle_name || "" }}
     {{ employee.last_name }}
     <span *ngIf="employee.preferred_name">({{ employee.preferred_name }})</span>
@@ -64,15 +65,21 @@
           {{ employee.visa_end_date | date : "yyyy-MM-dd" : "UTC" }}
         </div>
       </div>
-      <div></div>
+      <div class="margin-left">
+        <h3>Documents</h3>
+        <div *ngIf="employee.driver_licence_url">
+          <strong>Driver License: </strong>
+          <a href="{{ employee.driver_licence_url }}" target="_blank">View</a>
+        </div>
+        <div *ngIf="employee.work_auth_url">
+          <strong>Work Authorization: </strong>
+          <a href="{{ employee.work_auth_url }}" target="_blank">View</a>
+        </div>
+      </div>
     </div>
 
     <h3>Reference</h3>
-    <table
-      mat-table
-      [dataSource]="[employee.reference]"
-      class="mat-elevation-z8"
-    >
+    <table mat-table [dataSource]="[employee.reference]">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let reference">
@@ -111,11 +118,7 @@
     </table>
 
     <h3>Emergency Contacts</h3>
-    <table
-      mat-table
-      [dataSource]="employee.emergency_contacts"
-      class="mat-elevation-z8"
-    >
+    <table mat-table [dataSource]="employee.emergency_contacts">
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Name</th>
         <td mat-cell *matCellDef="let contact">

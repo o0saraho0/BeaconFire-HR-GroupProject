@@ -5,21 +5,29 @@
 
 <div class="table-container" *ngIf="employees$ | async as employees">
   <mat-toolbar class="tool-bar-title">
-    <span>Employee Profiles</span>
+    <span><h2>Employee Profiles</h2></span>
   </mat-toolbar>
 
   <mat-form-field appearance="outline" class="search-bar">
     <mat-label>Search by Name</mat-label>
     <input
       matInput
-      placeholder="Type a first or last name"
+      placeholder="You can search by first name, last name or preferred name"
       (keyup)="applyFilter($event)"
     />
   </mat-form-field>
 
   <p class="summary">Total Employees: {{ totalEmployees }}</p>
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <p *ngIf="dataSource.filteredData.length === 0" class="not-found">
+    No matching employees found.
+  </p>
+
+  <table
+    *ngIf="dataSource.filteredData.length > 0"
+    mat-table
+    [dataSource]="dataSource"
+  >
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Name</th>

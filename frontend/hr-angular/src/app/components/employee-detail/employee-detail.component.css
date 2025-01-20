@@ -1,6 +1,7 @@
 mat-card {
   padding: 50px 100px;
-  height: 90vh;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 h3 {
@@ -13,6 +14,16 @@ table {
   width: 100%;
 }
 
+table th {
+  padding: 10px !important;
+  background-color: #f5f5f5;
+}
+
+table td {
+  padding: 10px !important;
+  border: 1px solid #cccccc4f;
+}
+
 .two-column-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -21,4 +32,17 @@ table {
 
 .margin-left > div {
   margin-left: 30px;
+}
+
+.employee-name-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+img {
+  border-radius: 100%;
+  width: 50px;
+  aspect-ratio: 1 / 1;
+  margin-right: 16px;
 }

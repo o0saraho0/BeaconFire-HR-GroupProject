@@ -20,20 +20,27 @@ import {
   Pagination,
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
+import { useNavigate } from "react-router";
+
+const localHost = "localhost:3000";
 
 const Application = () => {
-  const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const userId = localStorage.getItem("userId");
+
   const [status, setStatus] = useState("Not Started");
   const userDocuments = useSelector((state) =>
     selectUserDocuments(state, userId)
   );
   const [feedback, setFeedback] = useState("");
-  const localHost = "localhost:3000";
   const [uploadedProfilePicture, setProfilePicture] = useState("");
   const [uploadedDriverLicense, setDriverLicense] = useState("");
   const [uploadedWorkAuth, setWorkAuth] = useState("");
-  const [profileUrl, setProfileUrl] = useState("");
+
+  const [page, setPage] = useState(1);
+  const totalPages = 3;
 
   const validations = {
     name: {
@@ -164,6 +171,7 @@ const Application = () => {
       visaTitle: backendData.visa_title || "",
     };
   };
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -212,9 +220,6 @@ const Application = () => {
     hasDriverLicense: false,
     visaTitle: "",
   });
-
-  const [page, setPage] = useState(1);
-  const totalPages = 3;
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -278,24 +283,23 @@ const Application = () => {
       return newState;
     });
   };
-  console.log("has driver license", formData.hasDriverLicense);
-  console.log("ssn number", formData.ssn);
+
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    const fileName = file.name;
-    switch (e.target.name) {
-      case "profilePicture":
-        setProfilePicture(fileName);
-        break;
-      case "driversLicenseFile":
-        setDriverLicense(fileName);
-        break;
-      case "workAuthorizationFile":
-        setWorkAuth(fileName);
-        break;
-      default:
-        return;
-    }
+    // const fileName = file.name;
+    // switch (e.target.name) {
+    //   case "profilePicture":
+    //     setProfilePicture(fileName);
+    //     break;
+    //   case "driversLicenseFile":
+    //     setDriverLicense(fileName);
+    //     break;
+    //   case "workAuthorizationFile":
+    //     setWorkAuth(fileName);
+    //     break;
+    //   default:
+    //     return;
+    // }
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
     let endpoint = "";
@@ -323,6 +327,41 @@ const Application = () => {
           },
         }
       );
+      const fileUrl = response.data.fileUrl;
+
+      switch (e.target.name) {
+        case "profilePicture":
+          setProfilePicture(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            profilePicture: fileUrl,
+          }));
+          console.log("profile url", fileUrl);
+          break;
+        case "driversLicenseFile":
+          setDriverLicense(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            uploadedFiles: {
+              ...prevData.uploadedFiles,
+              driverLicense: fileUrl,
+            },
+          }));
+          break;
+        case "workAuthorizationFile":
+          setWorkAuth(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            uploadedFiles: {
+              ...prevData.uploadedFiles,
+              workAuthorization: fileUrl,
+            },
+          }));
+          break;
+        default:
+          return;
+      }
+
       dispatch(
         setDocumentKey({
           userId,
@@ -1052,6 +1091,7 @@ const Application = () => {
         return null;
     }
   };
+
   const forceDownload = (link) => {
     const url = link;
     const fileName = link.split("/").pop() || "download";
@@ -1273,7 +1313,7 @@ const Application = () => {
       case "Pending":
         return renderPendingMessage();
       case "Approved":
-        window.location.href = "/index.html";
+        navigate("/personalprofile");
         return null;
       default:
         return null;

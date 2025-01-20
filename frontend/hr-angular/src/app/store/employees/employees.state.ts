@@ -40,6 +40,9 @@ export interface Employee {
     email: string;
     relationship: string;
   }>;
+  profile_picture_url: string;
+  driver_licence_url: string;
+  work_auth_url: string;
 }
   
   export interface EmployeesState {

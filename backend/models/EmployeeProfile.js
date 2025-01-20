@@ -30,7 +30,7 @@ const employee_profile_schema = new mongoose.Schema({
   },
   visa_type: {
     type: String,
-    enum: ["Green Card", "Citizen", "H1B Category", "F1 Category", "Other"],
+    enum: ["Green Card", "Citizen", "H1B", "F1", "L2", "H4", "Other"],
     required: true,
   },
   visa_start_date: { type: Date },

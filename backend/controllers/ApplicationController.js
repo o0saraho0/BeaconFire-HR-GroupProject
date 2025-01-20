@@ -43,7 +43,28 @@ const postOnboarding = async (req, res) => {
       emergencyContacts,
       uploadedFiles
     } = req.body;
-
+    console.log('req body', {
+      firstName,
+      lastName,
+      middleName,
+      preferredName,
+      profilePicture,
+      currentAddress,
+      cellPhone,
+      workPhone,
+      carInfo,
+      email, // cannot be edited
+      ssn,
+      dob,
+      gender,
+      visaType,
+      visaStartDate,
+      visaEndDate,
+      driverLicense,
+      reference,
+      emergencyContacts,
+      uploadedFiles
+    });
     const applicationData = {
       user_id: userId,
       first_name: firstName,
@@ -95,9 +116,10 @@ const postOnboarding = async (req, res) => {
     };
 
     let application = await Application.findOne({ user_id: userId });
-    console.log('application not found', application);
+
 
     if (!application) {
+      console.log('application not found');
       application = await Application.create({
         ...applicationData,
         status: 'Pending',

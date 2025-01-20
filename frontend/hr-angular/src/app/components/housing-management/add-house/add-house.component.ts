@@ -58,14 +58,21 @@ export class AddHouseDialogComponent {
         tenants: []
       };
 
-      this.http.post('http://localhost:300/api/houses', houseData)
+      this.http.post(`${environment.apiUrl}/api/houses`, houseData)
         .subscribe({
-          next: (response) => {
-            console.log('House created successfully:', response);
-            this.dialogRef.close(response);
+          next: (response: any) => {
+            if (response && response.house) {
+              console.log('House created successfully:', response);
+              this.dialogRef.close(response.house);
+            } else {
+              console.error('Invalid response format:', response);
+            }
           },
           error: (error) => {
             console.error('Error creating house:', error);
+            if (error.status === 500) {
+              console.error('Server error details:', error.error);
+            }
           }
         });
     }

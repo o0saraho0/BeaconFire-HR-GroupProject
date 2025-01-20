@@ -7,8 +7,11 @@ import { AddHouseDialogComponent } from './add-house/add-house.component';
 
 interface Tenant {
   id: string;
-  user_id: string;
-  first_name: string;
+  user_id: {
+    _id: string;
+    email: string;
+    username: string;
+  }; first_name: string;
   last_name: string;
   middle_name?: string;
   preferred_name?: string;

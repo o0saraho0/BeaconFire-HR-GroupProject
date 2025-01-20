@@ -3,7 +3,9 @@ import EmployeeProfile from "../models/EmployeeProfile.js";
 const getEmployeeProfile = async (req, res) => {
   try {
     const userId = req.body.user_id;
-    const profile = await EmployeeProfile.findOne({ user_id: userId });
+    const profile = await EmployeeProfile.findOne({ user_id: userId }).populate(
+      "user_id"
+    );
     if (!profile) {
       return res.status(404).json({ message: "Employee profile not found." });
     }
@@ -21,7 +23,7 @@ const updateProfile = async (req, res) => {
       { user_id: userId },
       updatedData,
       { new: true }
-    );
+    ).populate("user_id");
     if (!profile) {
       return res.status(404).json({ message: "Employee profile not found." });
     }

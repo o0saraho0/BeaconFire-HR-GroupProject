@@ -20,7 +20,6 @@ import {
   Paper,
   Select,
   MenuItem,
-  Grid,
 } from "@mui/material";
 import "./PersonalProfile.css";
 
@@ -39,6 +38,7 @@ const PersonalProfile = () => {
       state: "",
       zip: "",
     },
+    email: "",
     cell_phone: "",
     work_phone: "",
     car_make: "",
@@ -94,9 +94,20 @@ const PersonalProfile = () => {
     }
   }, [userId, dispatch]);
 
+  // useEffect(() => {
+  //   if (profile) {
+  //     setFormData(profile);
+  //   }
+  // }, [profile]);
+
   useEffect(() => {
     if (profile) {
-      setFormData(profile);
+      const updatedProfile = {
+        ...profile,
+        email: profile.user_id?.email,
+      };
+
+      setFormData(updatedProfile);
     }
   }, [profile]);
 
@@ -107,6 +118,11 @@ const PersonalProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "email") {
+      alert("To update your email, please contact HR.");
+      return;
+    }
 
     if (name.includes(".")) {
       const keys = name.split(".");
@@ -193,6 +209,32 @@ const PersonalProfile = () => {
       console.error("Error uploading file:", error);
     }
   };
+  const forceDownload = (link) => {
+    const url = link;
+    const fileName = link.split("/").pop() || "download";
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch((error) => {
+        console.error("File download failed:", error);
+      });
+  };
 
   // const getPresignedUrl = async (fileName) => {
   //   try {
@@ -221,8 +263,11 @@ const PersonalProfile = () => {
     if (!formData.last_name.trim()) {
       errors.last_name = "Last name is required.";
     }
+
     if (!formData.ssn.trim()) {
-      errors.last_name = "SSN is required.";
+      errors.ssn = "SSN is required.";
+    } else if (!/^\d+$/.test(formData.ssn)) {
+      errors.ssn = "SSN must be numeric.";
     }
     if (!formData.cell_phone.trim()) {
       errors.cell_phone = "Cell phone is required.";
@@ -230,8 +275,19 @@ const PersonalProfile = () => {
     if (formData.cell_phone && !/^\d+$/.test(formData.cell_phone)) {
       errors.cell_phone = "Cell phone must be numeric.";
     }
+    if (formData.work_phone && !/^\d+$/.test(formData.work_phone)) {
+      errors.work_phone = "Work phone must be numeric.";
+    }
     if (formData.dob && new Date(formData.dob) > new Date()) {
       errors.dob = "Date of birth cannot be in the future.";
+    }
+    if (formData.visa_start_date && formData.visa_end_date) {
+      const visaStart = new Date(formData.visa_start_date);
+      const visaEnd = new Date(formData.visa_end_date);
+
+      if (visaStart >= visaEnd) {
+        errors.visa_dates = "Visa start date must be before visa end date.";
+      }
     }
     if (formData.emergency_contacts?.length > 0) {
       const emergencyErrors = [];
@@ -508,7 +564,8 @@ const PersonalProfile = () => {
                       {" | "}
                       <a
                         href={formData[name]}
-                        download={true}
+                        // download={true}
+                        onClick={() => forceDownload(formData[name])}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -581,8 +638,9 @@ const PersonalProfile = () => {
         { label: "Middle Name", name: "middle_name" },
         { label: "Preferred Name", name: "preferred_name" },
         { label: "Profile Pic", name: "profile_picture_url", type: "file" },
+        { label: "Email", name: "email" },
         { label: "SSN", name: "ssn" },
-        { label: "Date of Birth*", name: "dob", type: "date" },
+        { label: "Date of Birth", name: "dob", type: "date" },
         { label: "Gender", name: "gender", type: "select", options: genders },
       ])}
       {renderSection("Address", [
