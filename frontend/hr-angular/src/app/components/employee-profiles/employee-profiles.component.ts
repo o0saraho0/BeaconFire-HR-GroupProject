@@ -64,8 +64,17 @@ export class EmployeeProfilesComponent implements OnInit {
   }
 
   applyFilter(event: Event): void {
-    const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
-    this.dataSource.filter = filterValue; 
+    const input = (event.target as HTMLInputElement).value.trim();
+  
+    const isValid = /^[a-zA-Z\s]*$/.test(input);
+  
+    if (!isValid) {
+      alert('Please input valid letters only.');
+      (event.target as HTMLInputElement).value = '';
+      return;
+    }
+  
+    this.dataSource.filter = input.toLowerCase();
   }
 
   ngOnDestroy(): void {
