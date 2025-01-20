@@ -68,8 +68,21 @@ const postOnboarding = async (req, res) => {
     });
 
     // There exist a case where frontend passes the validation, but backend didn't. Then the application doc is created but with res == 400.
-    if (!firstName || !lastName || !currentAddress || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !driverLicense?.expireDate || !emergencyContacts) {
-      return res.status(400).json({ message: "Missing required fields" });
+    const missingFields = [];
+    if (!firstName) missingFields.push('firstName');
+    if (!lastName) missingFields.push('lastName');
+    if (!currentAddress) missingFields.push('currentAddress');
+    if (!cellPhone) missingFields.push('cellPhone');
+    if (!ssn) missingFields.push('ssn');
+    if (!dob) missingFields.push('dob');
+    if (!visaType) missingFields.push('visaType');
+    if (!driverLicense?.number) missingFields.push('driverLicense.number');
+    if (!driverLicense?.expireDate) missingFields.push('driverLicense.expireDate');
+    if (!emergencyContacts) missingFields.push('emergencyContacts');
+
+    // Return missing fields in the response
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: "Missing required fields", missingFields });
     }
 
     const applicationData = {
