@@ -1,5 +1,7 @@
 mat-card {
   padding: 50px 100px;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 h3 {
