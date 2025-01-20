@@ -716,6 +716,7 @@ const Application = () => {
                 variant="contained"
                 component="label"
                 style={{ marginTop: "16px", marginBottom: "16px" }}
+                required
               >
                 Upload OPT Receipt
                 <input
@@ -723,6 +724,7 @@ const Application = () => {
                   name="workAuthorizationFile"
                   onChange={handleFileUpload}
                   hidden
+                  required
                 />
               </Button>
             )}
