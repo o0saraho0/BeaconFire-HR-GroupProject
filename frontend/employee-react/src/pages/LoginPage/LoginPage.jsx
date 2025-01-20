@@ -38,7 +38,7 @@ const LoginPage = () => {
     try {
       const resultAction = dispatch(login(formData));
       if (login.fulfilled.match(resultAction)) {
-        navigate("/personalprofile"); //TODO : added landing page: employee profile
+        navigate("/application"); //TODO : added landing page: employee profile
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -48,7 +48,7 @@ const LoginPage = () => {
   useEffect(() => {
     dispatch(clearError());
     if (isAuthenticated) {
-      navigate("/personalprofile");
+      navigate("/application");
     }
   }, [isAuthenticated, navigate]);
 

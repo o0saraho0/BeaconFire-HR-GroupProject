@@ -1,61 +1,9 @@
-// import "./App.css";
-// import { createBrowserRouter, RouterProvider } from "react-router";
-// import Guard from "./components/Auth/AuthGuard";
-
-// import Application from "./pages/Application/application.jsx";
-// import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
-// import LoginPage from "./pages/LoginPage/LoginPage.jsx";
-// import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
-// import LogoutPage from "./pages/LogoutPage/LogoutPage.jsx";
-
-// import Navbar from "./components/Navbar/Navbar.jsx";
-
-// const router = createBrowserRouter([
-//   {
-//     path: "/",
-//     element: <Guard />,
-//     children: [],
-//   },
-//   {
-//     path: "/login",
-//     element: <LoginPage />,
-//     children: [],
-//   },
-//   {
-//     path: "/register/:token",
-//     element: <RegisterPage />,
-//     children: [],
-//   },
-//   {
-//     path: "/logout",
-//     element: <LogoutPage />,
-//     children: [],
-//   },
-//   {
-//     path: "/application",
-//     element: <Application />,
-//   },
-//   {
-//     path: "/personalprofile",
-//     element: <PersonalProfile />,
-//   },
-// ]);
-
-// function App() {
-//   return (
-//     <>
-//       <Navbar /> <RouterProvider router={router} />;
-//     </>
-//   );
-// }
-
-// export default App;
-
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import axios from "./interceptors/auth.interceptor.js";
 
 import Guard from "./components/Auth/AuthGuard";
-
 import Application from "./pages/Application/application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
 import LoginPage from "./pages/LoginPage/LoginPage.jsx";
@@ -68,6 +16,17 @@ import Navbar from "./components/Navbar/Navbar.jsx";
 import VisaManagement from "./pages/VisaManagement/VisaManagement.jsx";
 
 function App() {
+  // On application load, send req to server to see valid token.
+  useEffect(() => {
+    if (localStorage.getItem("token"))
+      axios
+        .get("http://localhost:3000/api/user/validate-token")
+        .catch((error) => {
+          // If token validation fails, redirect to logout
+          alert("Your session is invalid... redirecting to logout");
+          window.location.href = "/logout";
+        });
+  }, []);
   return (
     <BrowserRouter>
       <Navbar />
@@ -77,15 +36,17 @@ function App() {
           <Route path="application" element={<Application />} />
           <Route path="personalprofile" element={<PersonalProfile />} />
           <Route path="housing" element={<HousesPage />} />
-          <Route path="/facility-reports/:houseId" element={<FacilityReportsPage />} />
+          <Route path="/visa-status" element={<VisaManagement />} />
+          <Route
+            path="/facility-reports/:houseId"
+            element={<FacilityReportsPage />}
+          />
         </Route>
 
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register/:token" element={<RegisterPage />} />
         <Route path="/logout" element={<LogoutPage />} />
-        <Route path="/visa-status" element={<VisaManagement />} />
-        
       </Routes>
     </BrowserRouter>
   );
