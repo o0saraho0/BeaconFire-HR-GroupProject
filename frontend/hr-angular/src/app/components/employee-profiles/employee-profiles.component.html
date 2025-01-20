@@ -19,7 +19,15 @@
 
   <p class="summary">Total Employees: {{ totalEmployees }}</p>
 
-  <table mat-table [dataSource]="dataSource" >
+  <p *ngIf="dataSource.filteredData.length === 0" class="not-found">
+    No matching employees found.
+  </p>
+
+  <table
+    *ngIf="dataSource.filteredData.length > 0"
+    mat-table
+    [dataSource]="dataSource"
+  >
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef>Name</th>

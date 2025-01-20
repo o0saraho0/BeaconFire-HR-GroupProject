@@ -38,3 +38,7 @@ mat-paginator {
   padding-right: 50px;
   margin-bottom: 0px;
 }
+
+.not-found {
+  margin-left: 50px;
+}
