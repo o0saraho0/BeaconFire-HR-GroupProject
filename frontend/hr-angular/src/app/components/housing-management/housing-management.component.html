@@ -44,7 +44,7 @@
 
               <div class="reports-section">
                 <h4>Facility Reports</h4>
-                <mat-paginator [length]="house.reports?.length || 0"
+                <!-- <mat-paginator [length]="house.reports?.length || 0"
                              [pageSize]="5"
                              [pageSizeOptions]="[3, 5]">
                 </mat-paginator>
@@ -63,6 +63,8 @@
                     <p>{{report.description}}</p>
                     <p>Created by: {{report.createdBy}}</p>
 
+                    
+
                     <div class="comments-section">
                       <h5>Comments</h5>
                       <mat-list>
@@ -73,7 +75,10 @@
                       </mat-list>
                     </div>
                   </mat-expansion-panel>
-                </mat-accordion>
+                </mat-accordion> -->
+                <button mat-raised-button color="primary" [routerLink]="['/facility-reports', house._id]">
+                  View All Facility Reports
+                </button>
               </div>
             </mat-tab>
 

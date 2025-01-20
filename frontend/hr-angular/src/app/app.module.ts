@@ -48,10 +48,14 @@ import {
   ApproveOnboardingComponent,
   RejectDialogComponent,
 } from './components/approve-onboarding/approve-onboarding.component';
+import { FacilityReportsComponent } from './components/facility-reports/facility-reports.component';
 
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
+import { facilityReportsReducer } from './store/facility-reports/facility-reports.reducer';
+import { FacilityReportsEffects } from './store/facility-reports/facility-reports.effects';
 import { AuthInterceptor } from './interceptors/auth.interceptors';
+
 import { AddHouseDialogComponent } from './components/housing-management/add-house/add-house.component';
 
 @NgModule({
@@ -68,14 +72,15 @@ import { AddHouseDialogComponent } from './components/housing-management/add-hou
     EmployeeDetailComponent,
     ApproveOnboardingComponent,
     AddHouseDialogComponent,
+    FacilityReportsComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer }, {}),
-    EffectsModule.forRoot([EmployeesEffects, AuthEffects]),
+    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer, facilityReports: facilityReportsReducer }, {}),
+    EffectsModule.forRoot([EmployeesEffects, AuthEffects, FacilityReportsEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production,
