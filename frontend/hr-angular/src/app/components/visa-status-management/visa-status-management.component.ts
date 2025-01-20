@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
+
 @Component({
   selector: 'app-in-progress',
   templateUrl: './visa-status-management.component.html',
@@ -15,7 +16,8 @@ export class VisaStatusManagementComponent implements OnInit {
   searchQuery = { first_name: '', last_name: '', preferred_name: '' }; // Query object for search
 
   // Shared base URL for the backend
-  private readonly BASE_URL = environment.apiUrl;
+  private readonly BASE_URL = 'http://localhost:3000';
+
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
@@ -24,120 +26,193 @@ export class VisaStatusManagementComponent implements OnInit {
   }
 
   // Fetch in-progress visas
-  fetchInProgressVisas(): void {
-    const url = `${this.BASE_URL}/api/visa/in-progress`;
-    this.http.get<any>(url).subscribe({
-      next: (response) => {
-        this.inProgressVisas = response.Results; // Bind response data
-        this.isLoading = false;
-        console.log(this.inProgressVisas)
-      },
-      error: (error) => {
-        console.error('Error fetching visa applications:', error);
-        this.isLoading = false;
-      }
-    });
+fetchInProgressVisas(): void {
+  const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+
+  if (!token) {
+    alert('No token found. Please log in again.');
+    this.isLoading = false; // Stop loading if no token
+    return;
   }
+
+  const url = `${this.BASE_URL}/api/visa/in-progress`;
+
+  // Include the Authorization token in the headers
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`, // Add token to the Authorization header
+  };
+
+  this.http.get<any>(url, { headers }).subscribe({
+    next: (response) => {
+      this.inProgressVisas = response.Results; // Bind response data
+      this.isLoading = false;
+      console.log(this.inProgressVisas); // Log the response for debugging
+    },
+    error: (error) => {
+      console.error('Error fetching visa applications:', error); // Log error details
+      this.isLoading = false; // Stop loading in case of an error
+    }
+  });
+}
+
 
   // Perform search based on query
-  searchVisas(): void {
-    this.isSearchLoading = true;
+searchVisas(): void {
+  this.isSearchLoading = true;
 
-    // Build query string dynamically
-    const queryParams = Object.entries(this.searchQuery)
-      .filter(([_, value]) => value.trim() !== '') // Exclude empty fields
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join('&');
+  // Retrieve the token from localStorage
+  const token = localStorage.getItem('token');
 
-    const url = queryParams
-      ? `${this.BASE_URL}/api/visa/search?${queryParams}`
-      : `${this.BASE_URL}/api/visa/search`; // Fetch all if no query
-
-    this.http.get<any>(url).subscribe({
-      next: (response) => {
-        this.searchResults = response; // Bind search results
-        this.isSearchLoading = false;
-        console.log(this.searchResults)
-      },
-      error: (error) => {
-        console.error('Error performing search:', error);
-        this.searchResults = [];
-        this.isSearchLoading = false;
-      }
-    });
+  if (!token) {
+    alert('No token found. Please log in again.');
+    this.isSearchLoading = false;
+    return;
   }
 
-  // Action handlers
-  approveDocument(visa: any): void {
-    const payload = {
-      user_id: visa.user_id, // Get user_id from visa
-      documentType: visa.visa_type, // Get document type from visa
-      action: 'approve',
-      feedback: '' // Feedback is optional for approve
-    };
+  // Build query string dynamically
+  const queryParams = Object.entries(this.searchQuery)
+    .filter(([_, value]) => value.trim() !== '') // Exclude empty fields
+    .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+    .join('&');
 
-    this.http.post(`${this.BASE_URL}/api/visa/review`, payload).subscribe({
-      next: (response: any) => {
-        alert(`Approved successfully: ${response.message}`);
-        this.fetchInProgressVisas(); // Refresh the list
-      },
-      error: (error) => {
-        console.error('Error approving document:', error);
-        alert('Failed to approve document. Please try again.');
-      }
-    });
+  const url = queryParams
+    ? `${this.BASE_URL}/api/visa/search?${queryParams}`
+    : `${this.BASE_URL}/api/visa/search`; // Fetch all if no query
+
+  // Include the Authorization token in the headers
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`, // Add token to the Authorization header
+  };
+
+  this.http.get<any>(url, { headers }).subscribe({
+    next: (response) => {
+      this.searchResults = response; // Bind search results
+      this.isSearchLoading = false;
+      console.log(this.searchResults); // Log search results for debugging
+    },
+    error: (error) => {
+      console.error('Error performing search:', error); // Log error details
+      this.searchResults = []; // Reset search results
+      this.isSearchLoading = false; // Stop loading spinner
+    }
+  });
+}
+
+
+ // Action handlers
+approveDocument(visa: any): void {
+  const token = localStorage.getItem('token'); // Retrieve token from localStorage
+  console.log(token)
+
+  if (!token) {
+    alert('Authentication token not found. Please log in again.');
+    return;
   }
 
+  const payload = {
+    user_ide: visa.user_id, // Get user_id from visa
+    documentType: visa.visa_type, // Get document type from visa
+    action: 'approve',
+    feedback: '', // Feedback is optional for approve
+  };
 
-  rejectDocument(visa: any): void {
-    const feedback = prompt('Please provide a reason for rejection:');
-    if (!feedback) return; // Do nothing if no feedback is provided
+  this.http.post(`${this.BASE_URL}/api/visa/review`, payload, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  }).subscribe({
+    next: (response: any) => {
+      alert(`Approved successfully: ${response.message}`);
+      this.fetchInProgressVisas(); // Refresh the list
+    },
+    error: (error) => {
+      console.error('Error approving document:', error);
+      alert('Failed to approve document. Please try again.');
+    },
+  });
+}
 
-    const payload = {
-      user_id: visa.user_id,
-      documentType: visa.visa_type,
-      action: 'reject',
-      feedback: feedback
-    };
+rejectDocument(visa: any): void {
+  const token = localStorage.getItem('token'); // Retrieve token from localStorage
+  console.log(token)
 
-    this.http.post(`${this.BASE_URL}/api/visa/review`, payload).subscribe({
-      next: (response: any) => {
-        alert(`Rejected successfully: ${response.message}`);
-        this.fetchInProgressVisas(); // Refresh the list
-      },
-      error: (error) => {
-        console.error('Error rejecting document:', error);
-        alert('Failed to reject document. Please try again.');
-      }
-    });
+  if (!token) {
+    alert('Authentication token not found. Please log in again.');
+    return;
   }
 
-  sendNotification(visa: any): void {
-    const payload = {
-      email: visa.email, // Email address to send the notification
-      stage: visa.stage, // Document type to include in the email
-    };
-  
-    const url = `${this.BASE_URL}/api/visa/sendNotification`; // Backend endpoint for sending email
-  
-    this.http.post(url, payload).subscribe({
-      next: (response: any) => {
-        alert(`Notification sent successfully to: ${visa.email}`);
-      },
-      error: (error) => {
-        console.error('Error sending notification:', error);
-        alert('Failed to send notification. Please try again.');
-      }
-    });
+  const feedback = prompt('Please provide a reason for rejection:');
+  if (!feedback) {
+    alert('Rejection reason is required.');
+    return;
   }
-  
+
+  const payload = {
+    user_ide: visa.user_id,
+    documentType: visa.visa_type,
+    action: 'reject',
+    feedback: feedback, // Reason for rejection
+  };
+
+  this.http.post(`${this.BASE_URL}/api/visa/review`, payload, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`, // Include the token in the Authorization header
+    },
+  }).subscribe({
+    next: (response: any) => {
+      alert(`Rejected successfully: ${response.message}`);
+      this.fetchInProgressVisas(); // Refresh the list
+    },
+    error: (error) => {
+      console.error('Error rejecting document:', error);
+      alert('Failed to reject document. Please try again.');
+    },
+  });
+}
+
+sendNotification(visa: any): void {
+  const token = localStorage.getItem('token'); // Retrieve the token from localStorage
+
+  if (!token) {
+    alert('No token found. Please log in again.'); // Handle missing token scenario
+    return;
+  }
+
+  const payload = {
+    emaile: visa.email, // Email address to send the notification
+    stage: visa.stage, // Include the stage information in the notification
+  };
+
+  const url = `${this.BASE_URL}/api/visa/sendNotification`; // API endpoint for sending notifications
+
+  // Include the Authorization token in the headers
+  const headers = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`, // Attach token to the Authorization header
+  };
+
+  this.http.post(url, payload, { headers }).subscribe({
+    next: (response: any) => {
+      alert(`Notification sent successfully to: ${visa.email}`); // Success response
+    },
+    error: (error) => {
+      console.error('Error sending notification:', error); // Log error details for debugging
+      alert('Failed to send notification. Please try again.'); // Handle error scenario
+    }
+  });
+}
+
 
   // Get the document URL based on the stage
 getDocumentUrl(visa: any): string | null {
   switch (visa.stage) {
     case 'OPT Receipt':
       return visa.opt_receipt_url || null;
-    case 'EAD':
+    case 'OPT EAD':
       return visa.opt_ead_url || null;
     case 'I983':
       return visa.i983_url || null;
@@ -196,6 +271,10 @@ getNextStep(visa: any): string {
     return `${visa.stage} document is waiting for HR approval`
   }
 
+  if(visa.stage=="Complete"){
+    return "All documents has been uploaded"
+  }
+
   if(visa.status=="Not Started"){
     return `${visa.stage} document has not been uploaded yet`
   }
@@ -203,10 +282,7 @@ getNextStep(visa: any): string {
   if(visa.status=="Reject"){
     return `${visa.stage} document is rejected and should be uploaded again`
   }
-
-  if(visa.status=="Complete"){
-    return "All documents has been uploaded"
-  }
+  
   return "Status is not recognized or missing";
 }
 

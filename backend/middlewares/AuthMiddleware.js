@@ -79,8 +79,6 @@ export const authenticatedHR = async (req, res, next) => {
 
     }
     return res.status(403).json({ message: "You are not a HR" })
-
-
 }
 
 // Check if the logged in user is Employee, for protecting endpoints that only employee can have access to 

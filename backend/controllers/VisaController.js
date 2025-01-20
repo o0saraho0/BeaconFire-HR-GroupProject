@@ -74,17 +74,17 @@ export const getVisaDetails = async (req, res) => {
 
 //Reject or approve from HR
 export const reviewDocument = async (req, res) => {
-    const { user_id, documentType, action, feedback } = req.body;
+    const { user_ide, documentType, action, feedback } = req.body;
 
     try {
-        const visa = await Visa.findOne({ user_id });
+        const visa = await Visa.findOne({ user_id:user_ide });
         if (!visa) return res.status(404).json({ message: "Visa record not found" });
 
         if (action === "approve") {
         visa.status = "Complete";
 
         // Move to the next stage based on the current stage
-        const stages = ["OPT Receipt", "EAD", "I983", "I20", "Complete"];
+        const stages = ["OPT Receipt", "OPT EAD", "I983", "I20", "Complete"];
         const currentStageIndex = stages.indexOf(visa.stage);
 
         // Ensure the next stage exists
@@ -243,11 +243,12 @@ export const searchEmployees = async (req, res) => {
     }
 };
 
+
 //send notification
 export const sendNotification=async (req, res) => {
-        const { email, stage } = req.body;
+        const { emaile, stage } = req.body;
     
-        if (!email || !stage) {
+        if (!emaile || !stage) {
         return res.status(400).json({ error: 'Email and document stage are required.' });
         }
     
@@ -262,7 +263,7 @@ export const sendNotification=async (req, res) => {
     
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: email,
+            to: emaile,
             subject: 'Document Upload Notification',
             text: `Dear User,
     
