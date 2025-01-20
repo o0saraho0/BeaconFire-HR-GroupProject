@@ -95,7 +95,7 @@
           <strong>Phone: </strong>{{tenant.cell_phone || 'N/A'}}
         </p>
         <p mat-line>
-          <strong>Email: </strong>{{tenant.email || 'N/A'}}
+          <strong>Email: </strong>{{tenant.user_id?.email || 'N/A'}}
         </p>
         <p mat-line>
           <strong>Car: </strong>{{getCarInfo(tenant)}}
