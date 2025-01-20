@@ -79,39 +79,31 @@ export class HousingManagementComponent implements OnInit {
   private tenantDetailsMap = new Map<string, any>();
 
   getTenantDisplayName(tenant: Tenant | string): string {
-    if (typeof tenant === 'string') {
-      const tenantDetails = this.tenantDetailsMap.get(tenant);
-      if (!tenantDetails) {
-        return 'Loading...';
-      }
-      if (tenantDetails.preferred_name) {
-        return tenantDetails.preferred_name;
-      }
-      const middleName = tenantDetails.middle_name ? ` ${tenantDetails.middle_name} ` : ' ';
-      return `${tenantDetails.first_name}${middleName}${tenantDetails.last_name}`;
+    const tenantDetails = typeof tenant === 'string'
+      ? this.tenantDetailsMap.get(tenant)
+      : tenant;
+
+    if (!tenantDetails) {
+      return 'Loading...';
     }
 
-    if (tenant.preferred_name) {
-      return tenant.preferred_name;
+    if (tenantDetails.preferred_name) {
+      return tenantDetails.preferred_name;
     }
-    const middleName = tenant.middle_name ? ` ${tenant.middle_name} ` : ' ';
-    return `${tenant.first_name}${middleName}${tenant.last_name}`;
+
+    const middleName = tenantDetails.middle_name ? ` ${tenantDetails.middle_name} ` : ' ';
+    return `${tenantDetails.first_name}${middleName}${tenantDetails.last_name}`;
   }
 
   getTenantDetails(tenantId: string | Tenant): Tenant | null {
-    if (typeof tenantId !== 'string') {
-      return tenantId;
+    if (typeof tenantId === 'string') {
+      return this.tenantDetailsMap.get(tenantId) || null;
     }
+    return tenantId;
+  }
 
-    for (const house of this.houses) {
-      const tenant = house.tenants.find(t =>
-        typeof t !== 'string' && t.user_id === tenantId
-      );
-      if (tenant && typeof tenant !== 'string') {
-        return tenant;
-      }
-    }
-    return null;
+  isString(value: any): boolean {
+    return typeof value === 'string';
   }
   loadHouses() {
     this.http.get<House[]>('http://localhost:3000/api/houses').subscribe({
@@ -136,7 +128,6 @@ export class HousingManagementComponent implements OnInit {
   }
 
   loadTenantDetails(userId: string) {
-    console.log('Loading tenant details for userId:', userId);
     this.employeeService.getEmployeeById(userId).subscribe({
       next: (employee) => {
         this.tenantDetailsMap.set(userId, employee);

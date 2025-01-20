@@ -79,24 +79,29 @@
 
             <mat-tab label="Employee Information">
               <mat-list>
-                <!-- Show loading state while tenant details are being fetched -->
-                <mat-list-item *ngFor="let tenantId of house.tenants">
-                  <div *ngIf="typeof tenantId === 'string' && !getTenantDetails(tenantId)" class="loading-tenant">
+                <mat-list-item *ngFor="let tenantId of house.tenants" class="tenant-item">
+                  <div *ngIf="isString(tenantId) && !getTenantDetails(tenantId)" class="loading-tenant">
                     Loading tenant information...
                   </div>
                   
-                  <ng-container *ngIf="getTenantDetails(tenantId) as tenant">
-                    <div mat-line>
+                  <div class="tenant-details" *ngIf="getTenantDetails(tenantId) as tenant">
+                    <p mat-line>
+                      <strong>Name: </strong>
                       <a [routerLink]="['/employee-profiles', tenant.user_id]">
                         {{getTenantDisplayName(tenant)}}
                       </a>
-                    </div>
-                    <div mat-line>Phone: {{tenant.cell_phone || 'N/A'}}</div>
-                    <div mat-line>Email: {{tenant.email || 'N/A'}}</div>
-                    <div mat-line *ngIf="tenant.car_make || tenant.car_model || tenant.car_color">
-                      Car: {{getCarInfo(tenant)}}
-                    </div>
-                  </ng-container>
+                    </p>
+                    <p mat-line>
+                      <strong>Phone: </strong>{{tenant.cell_phone || 'N/A'}}
+                    </p>
+                    <p mat-line>
+                      <strong>Email: </strong>{{tenant.email || 'N/A'}}
+                    </p>
+                    <p mat-line>
+                      <strong>Car: </strong>{{getCarInfo(tenant)}}
+                    </p>
+                  </div>
+                  <mat-divider></mat-divider>
                 </mat-list-item>
               </mat-list>
             </mat-tab>

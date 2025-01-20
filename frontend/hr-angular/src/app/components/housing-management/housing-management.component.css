@@ -45,3 +45,20 @@ mat-toolbar {
 mat-expansion-panel {
   margin-bottom: 10px;
 }
+
+.tenant-item {
+  margin-bottom: 16px;
+  height: auto !important;
+}
+
+.tenant-details {
+  padding: 8px 0;
+}
+
+.tenant-details p {
+  margin: 8px 0;
+}
+
+mat-divider {
+  margin: 16px 0;
+}
