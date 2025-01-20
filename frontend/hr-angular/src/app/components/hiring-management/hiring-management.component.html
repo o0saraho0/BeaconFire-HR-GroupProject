@@ -1,7 +1,11 @@
 <mat-card class="registration-card">
-  <mat-card-title>Register</mat-card-title>
+  <mat-card-title><h2>Register</h2></mat-card-title>
   <mat-card-content>
-    <form [formGroup]="hiringForm" (ngSubmit)="onSubmit()">
+    <form
+      [formGroup]="hiringForm"
+      (ngSubmit)="onSubmit()"
+      class="registration-form"
+    >
       <mat-form-field appearance="fill" class="full-width">
         <mat-label>First Name</mat-label>
         <input
@@ -54,8 +58,8 @@
 </mat-card>
 
 <mat-card class="registration-list">
-  <mat-card-title>All Registrations</mat-card-title>
-  <table mat-table [dataSource]="registrations" class="mat-elevation-z8">
+  <mat-card-title><h2>All Registrations</h2></mat-card-title>
+  <table mat-table [dataSource]="registrations">
     <!-- Email Column -->
     <ng-container matColumnDef="email">
       <th mat-header-cell *matHeaderCellDef>Email</th>
@@ -83,9 +87,7 @@
     <!-- Registration Link Column -->
     <ng-container matColumnDef="registration_link">
       <th mat-header-cell *matHeaderCellDef>Registration Link</th>
-      <td mat-cell *matCellDef="let reg">
-        <a [href]="reg.registration_link" target="_blank">View</a>
-      </td>
+      <td mat-cell *matCellDef="let reg">{{ reg.registration_link }}</td>
     </ng-container>
 
     <tr
@@ -115,7 +117,7 @@
 </mat-card>
 
 <mat-card class="onboarding-review">
-  <mat-card-title>Onboarding Application Review</mat-card-title>
+  <mat-card-title><h2>Onboarding Application Review</h2></mat-card-title>
 
   <!-- Pending Applications -->
   <mat-expansion-panel>
@@ -123,11 +125,7 @@
       <mat-panel-title>Pending Applications</mat-panel-title>
     </mat-expansion-panel-header>
 
-    <table
-      mat-table
-      [dataSource]="pendingApplications"
-      class="mat-elevation-z8"
-    >
+    <table mat-table [dataSource]="pendingApplications">
       <ng-container matColumnDef="fullName">
         <th mat-header-cell *matHeaderCellDef>Full Name</th>
         <td mat-cell *matCellDef="let app">
@@ -171,11 +169,7 @@
       <mat-panel-title>Rejected Applications</mat-panel-title>
     </mat-expansion-panel-header>
 
-    <table
-      mat-table
-      [dataSource]="rejectedApplications"
-      class="mat-elevation-z8"
-    >
+    <table mat-table [dataSource]="rejectedApplications">
       <ng-container matColumnDef="fullName">
         <th mat-header-cell *matHeaderCellDef>Full Name</th>
         <td mat-cell *matCellDef="let app">
@@ -227,11 +221,7 @@
       <mat-panel-title>Approved Applications</mat-panel-title>
     </mat-expansion-panel-header>
 
-    <table
-      mat-table
-      [dataSource]="approvedApplications"
-      class="mat-elevation-z8"
-    >
+    <table mat-table [dataSource]="approvedApplications">
       <ng-container matColumnDef="fullName">
         <th mat-header-cell *matHeaderCellDef>Full Name</th>
         <td mat-cell *matCellDef="let app">

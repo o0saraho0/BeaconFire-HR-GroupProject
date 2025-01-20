@@ -1,229 +1,234 @@
 <div class="container mt-4" *ngIf="application">
-  <h2 class="mb-4">Onboarding Application Details</h2>
+  <h1 class="mb-4">Onboarding Application Details</h1>
 
   <!-- Personal Information -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Personal Information</h4>
+  <div class="two-column-grid">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Personal Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <p><strong>First Name:</strong> {{ application.first_name }}</p>
+          </div>
+          <div class="col-md-3">
+            <p><strong>Middle Name:</strong> {{ application.middle_name }}</p>
+          </div>
+          <div class="col-md-3">
+            <p><strong>Last Name:</strong> {{ application.last_name }}</p>
+          </div>
+          <div class="col-md-3">
+            <p>
+              <strong>Preferred Name:</strong> {{ application.preferred_name }}
+            </p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <p><strong>Cell Phone:</strong> {{ application.cell_phone }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Work Phone:</strong> {{ application.work_phone }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Gender:</strong> {{ application.gender }}</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>SSN:</strong> {{ application.ssn | date }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>Date of Birth:</strong> {{ application.dob | date }}</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-3">
-          <p><strong>First Name:</strong> {{ application.first_name }}</p>
-        </div>
-        <div class="col-md-3">
-          <p><strong>Middle Name:</strong> {{ application.middle_name }}</p>
-        </div>
-        <div class="col-md-3">
-          <p><strong>Last Name:</strong> {{ application.last_name }}</p>
-        </div>
-        <div class="col-md-3">
-          <p>
-            <strong>Preferred Name:</strong> {{ application.preferred_name }}
-          </p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-4">
-          <p><strong>Cell Phone:</strong> {{ application.cell_phone }}</p>
-        </div>
-        <div class="col-md-4">
-          <p><strong>Work Phone:</strong> {{ application.work_phone }}</p>
-        </div>
-        <div class="col-md-4">
-          <p><strong>Gender:</strong> {{ application.gender }}</p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <p><strong>SSN:</strong> {{ application.ssn | date }}</p>
-        </div>
-        <div class="col-md-6">
-          <p><strong>Date of Birth:</strong> {{ application.dob | date }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Address -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Current Address</h4>
-    </div>
-    <div class="card-body">
-      <p>
-        {{ application.current_address.building }}
-        {{ application.current_address.street }}
-      </p>
-      <p>
-        {{ application.current_address.city }},
-        {{ application.current_address.state }}
-        {{ application.current_address.zip }}
-      </p>
-    </div>
-  </div>
-
-  <!-- Vehicle Information -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Vehicle Information</h4>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4">
-          <p><strong>Make:</strong> {{ application.car_make }}</p>
-        </div>
-        <div class="col-md-4">
-          <p><strong>Model:</strong> {{ application.car_model }}</p>
-        </div>
-        <div class="col-md-4">
-          <p><strong>Color:</strong> {{ application.car_color }}</p>
+    <!-- Emergency Contacts -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Emergency Contacts</h2>
+      </div>
+      <div class="card-body">
+        <div
+          *ngFor="let contact of application.emergency_contacts"
+          class="mb-3"
+        >
+          <div class="row">
+            <div class="col-md-4">
+              <p>
+                <strong>Name:</strong> {{ contact.first_name }}
+                {{ contact.middle_name }} {{ contact.last_name }}
+              </p>
+            </div>
+            <div class="col-md-3">
+              <p><strong>Phone:</strong> {{ contact.phone }}</p>
+            </div>
+            <div class="col-md-3">
+              <p><strong>Email:</strong> {{ contact.email }}</p>
+            </div>
+            <div class="col-md-2">
+              <p><strong>Relationship:</strong> {{ contact.relationship }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Visa Information -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Visa Information</h4>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4">
-          <p><strong>Visa Type:</strong> {{ application.visa_type }}</p>
-        </div>
-        <div class="col-md-4">
-          <p>
-            <strong>Start Date:</strong>
-            {{ application.visa_start_date | date }}
-          </p>
-        </div>
-        <div class="col-md-4">
-          <p>
-            <strong>End Date:</strong> {{ application.visa_end_date | date }}
-          </p>
-        </div>
+    <!-- Address -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Current Address</h2>
+      </div>
+      <div class="card-body">
+        <p>
+          {{ application.current_address.building }}
+          {{ application.current_address.street }}
+        </p>
+        <p>
+          {{ application.current_address.city }},
+          {{ application.current_address.state }}
+          {{ application.current_address.zip }}
+        </p>
       </div>
     </div>
-  </div>
 
-  <!-- Driver's License -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Driver's License</h4>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <p>
-            <strong>License Number:</strong>
-            {{ application.driver_licence_number }}
-          </p>
-        </div>
-        <div class="col-md-6">
-          <p>
-            <strong>Expiration Date:</strong>
-            {{ application.driver_license_expire_date | date }}
-          </p>
-        </div>
+    <!-- Reference -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Reference</h2>
       </div>
-    </div>
-  </div>
-
-  <!-- Reference -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Reference</h4>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4">
-          <p>
-            <strong>Name:</strong> {{ application.reference.first_name }}
-            {{ application.reference.middle_name }}
-            {{ application.reference.last_name }}
-          </p>
-        </div>
-        <div class="col-md-3">
-          <p><strong>Phone:</strong> {{ application.reference.phone }}</p>
-        </div>
-        <div class="col-md-3">
-          <p><strong>Email:</strong> {{ application.reference.email }}</p>
-        </div>
-        <div class="col-md-2">
-          <p>
-            <strong>Relationship:</strong>
-            {{ application.reference.relationship }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Emergency Contacts -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Emergency Contacts</h4>
-    </div>
-    <div class="card-body">
-      <div *ngFor="let contact of application.emergency_contacts" class="mb-3">
+      <div class="card-body">
         <div class="row">
           <div class="col-md-4">
             <p>
-              <strong>Name:</strong> {{ contact.first_name }}
-              {{ contact.middle_name }} {{ contact.last_name }}
+              <strong>Name:</strong> {{ application.reference.first_name }}
+              {{ application.reference.middle_name }}
+              {{ application.reference.last_name }}
             </p>
           </div>
           <div class="col-md-3">
-            <p><strong>Phone:</strong> {{ contact.phone }}</p>
+            <p><strong>Phone:</strong> {{ application.reference.phone }}</p>
           </div>
           <div class="col-md-3">
-            <p><strong>Email:</strong> {{ contact.email }}</p>
+            <p><strong>Email:</strong> {{ application.reference.email }}</p>
           </div>
           <div class="col-md-2">
-            <p><strong>Relationship:</strong> {{ contact.relationship }}</p>
+            <p>
+              <strong>Relationship:</strong>
+              {{ application.reference.relationship }}
+            </p>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Documents -->
-  <div class="card mb-4">
-    <div class="card-header">
-      <h4>Documents</h4>
+    <!-- Vehicle Information -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Vehicle Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <p><strong>Make:</strong> {{ application.car_make }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Model:</strong> {{ application.car_model }}</p>
+          </div>
+          <div class="col-md-4">
+            <p><strong>Color:</strong> {{ application.car_color }}</p>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-4">
-          <p>
-            <strong>Profile Picture:</strong>
-            <a href="{{ application.profile_picture_url }}" target="_blank"
-              >View</a
-            >
-          </p>
+
+    <!-- Visa Information -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Visa Information</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <p><strong>Visa Type:</strong> {{ application.visa_type }}</p>
+          </div>
+          <div class="col-md-4">
+            <p>
+              <strong>Start Date:</strong>
+              {{ application.visa_start_date | date }}
+            </p>
+          </div>
+          <div class="col-md-4">
+            <p>
+              <strong>End Date:</strong> {{ application.visa_end_date | date }}
+            </p>
+          </div>
         </div>
-        <div class="col-md-4">
-          <p>
-            <strong>Driver's License:</strong>
-            <a href="{{ application.driver_licence_url }}" target="_blank"
-              >View</a
-            >
-          </p>
+      </div>
+    </div>
+
+    <!-- Driver's License -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Driver's License</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <p>
+              <strong>License Number:</strong>
+              {{ application.driver_licence_number }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <p>
+              <strong>Expiration Date:</strong>
+              {{ application.driver_license_expire_date | date }}
+            </p>
+          </div>
         </div>
-        <div class="col-md-4">
-          <p>
-            <strong>Work Authorization:</strong>
-            <a href="{{ application.work_auth_url }}" target="_blank">View</a>
-          </p>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2>Documents</h2>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <p>
+              <strong>Profile Picture: </strong>
+              <a href="{{ application.profile_picture_url }}" target="_blank"
+                >View</a
+              >
+            </p>
+          </div>
+          <div class="col-md-4">
+            <p>
+              <strong>Driver's License: </strong>
+              <a href="{{ application.driver_licence_url }}" target="_blank"
+                >View</a
+              >
+            </p>
+          </div>
+          <div class="col-md-4">
+            <p>
+              <strong>Work Authorization: </strong>
+              <a href="{{ application.work_auth_url }}" target="_blank">View</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
   <div class="card mb-4" *ngIf="application?.status === 'Pending'">
     <div class="card-header">
-      <h4>Actions</h4>
+      <h2>Actions</h2>
     </div>
     <div class="card-body">
       <div class="d-flex gap-3">
