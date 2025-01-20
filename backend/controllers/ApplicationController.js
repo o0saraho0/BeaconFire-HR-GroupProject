@@ -72,6 +72,11 @@ const postOnboarding = async (req, res) => {
     if (!firstName) missingFields.push('firstName');
     if (!lastName) missingFields.push('lastName');
     if (!currentAddress) missingFields.push('currentAddress');
+    if (!currentAddress?.building) missingFields.push('currentAddress.building');
+    if (!currentAddress?.street) missingFields.push('currentAddress.street');
+    if (!currentAddress?.city) missingFields.push('currentAddress.city');
+    if (!currentAddress?.state) missingFields.push('currentAddress.state');
+    if (!currentAddress?.zip) missingFields.push('currentAddress.zip');
     if (!cellPhone) missingFields.push('cellPhone');
     if (!ssn) missingFields.push('ssn');
     if (!dob) missingFields.push('dob');
