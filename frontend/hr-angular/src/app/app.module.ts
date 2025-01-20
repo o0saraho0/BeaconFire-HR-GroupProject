@@ -45,10 +45,14 @@ import {
   ApproveOnboardingComponent,
   RejectDialogComponent,
 } from './components/approve-onboarding/approve-onboarding.component';
+import { FacilityReportsComponent } from './components/facility-reports/facility-reports.component';
 
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
+import { facilityReportsReducer } from './store/facility-reports/facility-reports.reducer';
+import { FacilityReportsEffects } from './store/facility-reports/facility-reports.effects';
 import { AuthInterceptor } from './interceptors/auth.interceptors';
+
 
 @NgModule({
   declarations: [
@@ -63,14 +67,15 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     LoginComponent,
     EmployeeDetailComponent,
     ApproveOnboardingComponent,
+    FacilityReportsComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer }, {}),
-    EffectsModule.forRoot([EmployeesEffects, AuthEffects]),
+    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer, facilityReports: facilityReportsReducer }, {}),
+    EffectsModule.forRoot([EmployeesEffects, AuthEffects, FacilityReportsEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production,

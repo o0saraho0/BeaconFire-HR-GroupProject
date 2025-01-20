@@ -9,6 +9,7 @@ import { VisaStatusManagementComponent } from './components/visa-status-manageme
 import { HiringManagementComponent } from './components/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './components/housing-management/housing-management.component';
 import { ApproveOnboardingComponent } from './components/approve-onboarding/approve-onboarding.component';
+import { FacilityReportsComponent } from './components/facility-reports/facility-reports.component'; // Import the new component
 
 import { AuthGuard } from './guards/auth.guard';
 
@@ -46,6 +47,11 @@ const routes: Routes = [
     path: 'onboarding/application/:applicationId',
     component: ApproveOnboardingComponent,
     canActivate: [AuthGuard],
+  },
+  {
+    path: 'facility-reports', // Add the facility-reports route
+    component: FacilityReportsComponent,
+    canActivate: [AuthGuard], // Protect the route
   },
 ];
 
