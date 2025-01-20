@@ -1,0 +1,69 @@
+<h2 mat-dialog-title>Add New House</h2>
+<form [formGroup]="houseForm" (ngSubmit)="onSubmit()">
+  <div mat-dialog-content>
+    <h3>Address</h3>
+    <mat-form-field appearance="fill">
+      <mat-label>Building</mat-label>
+      <input matInput formControlName="building">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Street</mat-label>
+      <input matInput formControlName="street" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>City</mat-label>
+      <input matInput formControlName="city" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>State</mat-label>
+      <input matInput formControlName="state" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>ZIP</mat-label>
+      <input matInput formControlName="zip" required>
+    </mat-form-field>
+
+    <!-- Landlord Section -->
+    <h3>Landlord Information</h3>
+    <mat-form-field appearance="fill">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="landlordFirstName" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="landlordLastName" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Phone Number</mat-label>
+      <input matInput formControlName="landlordPhone" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="landlordEmail" required type="email">
+    </mat-form-field>
+
+    <!-- Facilities Section -->
+    <h3>Facilities</h3>
+    <mat-form-field appearance="fill">
+      <mat-label>Number of Beds</mat-label>
+      <input matInput type="number" formControlName="beds" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Number of Mattresses</mat-label>
+      <input matInput type="number" formControlName="mattresses" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Number of Tables</mat-label>
+      <input matInput type="number" formControlName="tables" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Number of Chairs</mat-label>
+      <input matInput type="number" formControlName="chairs" required>
+    </mat-form-field>
+  </div>
+  
+  <div mat-dialog-actions>
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-button color="primary" type="submit" [disabled]="!houseForm.valid">Add House</button>
+  </div>
+</form>

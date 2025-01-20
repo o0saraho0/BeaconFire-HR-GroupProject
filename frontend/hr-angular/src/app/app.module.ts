@@ -26,7 +26,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { CommonModule } from '@angular/common';
 
@@ -53,6 +56,7 @@ import { facilityReportsReducer } from './store/facility-reports/facility-report
 import { FacilityReportsEffects } from './store/facility-reports/facility-reports.effects';
 import { AuthInterceptor } from './interceptors/auth.interceptors';
 
+import { AddHouseDialogComponent } from './components/housing-management/add-house/add-house.component';
 
 @NgModule({
   declarations: [
@@ -67,7 +71,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     LoginComponent,
     EmployeeDetailComponent,
     ApproveOnboardingComponent,
-    FacilityReportsComponent
+    AddHouseDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -96,6 +100,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     MatDialogModule,
     CommonModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatListModule,
+    MatSnackBarModule,
   ],
   providers: [
     {
@@ -106,4 +113,4 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }
