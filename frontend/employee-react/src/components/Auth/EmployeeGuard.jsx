@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
-import axios from "../../interceptors/auth.interceptor.js"; // Import your Axios interceptor
-import { Container, Typography, Button, CircularProgress } from "@mui/material"; // Import Material-UI components
+import { useSelector } from "react-redux";
+import {
+  Container,
+  Typography,
+  Button,
+  CircularProgress,
+  Box,
+} from "@mui/material";
+import axios from "../../interceptors/auth.interceptor.js";
+import EmployeeNavbar from "../Navbar/EmployeeNavbar";
 
 const EmployeeGuard = () => {
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmployee, setIsEmployee] = useState(false);
   const [error, setError] = useState(null);
@@ -27,9 +36,20 @@ const EmployeeGuard = () => {
       }
     };
 
-    checkEmployeeRole();
-  }, []);
+    // Only check role if authenticated
+    if (isAuthenticated) {
+      checkEmployeeRole();
+    } else {
+      setIsLoading(false);
+    }
+  }, [isAuthenticated]);
 
+  // First check authentication
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  // Then handle loading state
   if (isLoading) {
     return (
       <Container
@@ -43,9 +63,10 @@ const EmployeeGuard = () => {
       >
         <CircularProgress />
       </Container>
-    ); // Center loading spinner
+    );
   }
 
+  // Handle error or non-employee access
   if (error || !isEmployee) {
     return (
       <Container
@@ -68,7 +89,15 @@ const EmployeeGuard = () => {
     );
   }
 
-  return <Outlet />;
+  // Render employee content with navbar
+  return (
+    <>
+      <EmployeeNavbar />
+      <Box sx={{ marginTop: "64px" }}>
+        <Outlet />
+      </Box>
+    </>
+  );
 };
 
 export default EmployeeGuard;
