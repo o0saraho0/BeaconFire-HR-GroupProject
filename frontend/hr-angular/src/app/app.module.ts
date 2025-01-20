@@ -72,6 +72,7 @@ import { AddHouseDialogComponent } from './components/housing-management/add-hou
     EmployeeDetailComponent,
     ApproveOnboardingComponent,
     AddHouseDialogComponent,
+    FacilityReportsComponent
   ],
   imports: [
     BrowserModule,

@@ -29,4 +29,21 @@ export class FacilityReportsEffects {
         )
         )
     );
+
+    addComment$ = createEffect(() =>
+        this.actions$.pipe(
+            ofType(FacilityReportsActions.addComment),
+            mergeMap((action) =>
+                this.facilityReportsService.addComment(action.reportId, action.comment).pipe(
+                    map((comment) =>
+                        FacilityReportsActions.addCommentSuccess({ reportId: action.reportId, comment })
+                    ),
+                    catchError((error) =>
+                        of(FacilityReportsActions.addCommentFailure({ error: error.message }))
+                    )
+                )
+            )
+        )
+    );
+    
 }

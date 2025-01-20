@@ -38,6 +38,19 @@
                 {{ comment.description || 'No description provided' }}
             </li>
         </ul>
+
+        <textarea
+            #commentInput
+            placeholder="Add a comment..."
+            rows="3"
+            style="width: 100%;"
+        ></textarea>
+        <button
+            (click)="onAddComment(selectedReport._id, commentInput.value); commentInput.value=''"
+        >
+            Submit Comment
+        </button>
+
         <button (click)="closeComments()">Close Comments</button>
     </div>
 </div>

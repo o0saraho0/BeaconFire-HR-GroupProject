@@ -26,7 +26,7 @@ export class FacilityReportsService {
   }
 
   // Add a comment to a specific report
-  addComment(reportId: string, commentData: any): Observable<any> {
+  addComment(reportId: string, commentData: { posted_by: string; description: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/${reportId}/comments`, commentData);
   }
 

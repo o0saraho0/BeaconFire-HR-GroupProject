@@ -43,7 +43,11 @@ export class FacilityReportsComponent implements OnInit {
 
     // Add a comment to a specific report
     onAddComment(reportId: string, commentText: string): void {
-        const commentData = { text: commentText, createdBy: 'HR User' }; // Example user data
+        if (!commentText.trim()) {
+            return; // Prevent empty comments
+        }
+        const commentData = { description: commentText, posted_by: 'hr' };
+        console.log('Dispatching addComment:', { reportId, commentData }); // Debug log
         this.store.dispatch(addComment({ reportId, comment: commentData }));
     }
 

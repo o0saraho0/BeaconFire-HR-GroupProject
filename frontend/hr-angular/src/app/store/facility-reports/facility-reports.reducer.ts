@@ -43,5 +43,17 @@ export const facilityReportsReducer = createReducer(
         ...state,
         error,
         loading: false,
+    })),
+    on(FacilityReportsActions.addCommentSuccess, (state, { reportId, comment }) => ({
+        ...state,
+        reports: state.reports.map((report) =>
+            report._id === reportId
+                ? { ...report, comments: [...report.comments, comment] }
+                : report
+        ),
+    })),
+    on(FacilityReportsActions.addCommentFailure, (state, { error }) => ({
+        ...state,
+        error,
     }))
 );

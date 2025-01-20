@@ -25,6 +25,17 @@ export const addComment = createAction(
     props<{ reportId: string; comment: any }>()
 );
 
+export const addCommentSuccess = createAction(
+    '[Facility Reports] Add Comment Success',
+    props<{ reportId: string; comment: any }>()
+);
+
+// Action dispatched when adding a comment fails
+export const addCommentFailure = createAction(
+    '[Facility Reports] Add Comment Failure',
+    props<{ error: string }>()
+);
+
 export const updateReportStatus = createAction(
     '[Facility Reports] Update Report Status',
     props<{ reportId: string; status: string }>()
