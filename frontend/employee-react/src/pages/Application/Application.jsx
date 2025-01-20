@@ -1298,7 +1298,10 @@ const Application = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => setPage(page + 1)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(page + 1);
+                  }}
                 >
                   Next
                 </Button>
