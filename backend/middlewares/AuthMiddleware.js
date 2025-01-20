@@ -94,6 +94,6 @@ export const authenticatedEmployee = async (req, res, next) => {
         req.body.employee_id = employee._id
         return next()
     }
-    return res.status(403).json({ message: "You are not a Employee" })
+    return res.status(403).json({ message: "You are not an Employee" })
 
 }
