@@ -284,7 +284,6 @@ const PersonalProfile = () => {
     if (formData.visa_start_date && formData.visa_end_date) {
       const visaStart = new Date(formData.visa_start_date);
       const visaEnd = new Date(formData.visa_end_date);
-
       if (visaStart >= visaEnd) {
         errors.visa_dates = "Visa start date must be before visa end date.";
       }
