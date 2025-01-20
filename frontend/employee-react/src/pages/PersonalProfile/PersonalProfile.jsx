@@ -20,7 +20,6 @@ import {
   Paper,
   Select,
   MenuItem,
-  Grid,
 } from "@mui/material";
 import "./PersonalProfile.css";
 
@@ -100,7 +99,7 @@ const PersonalProfile = () => {
     }
   }, [profile]);
 
-  console.log(profile);
+  // console.log(profile);
 
   if (status === "loading") return <p>Loading...</p>;
   if (status === "failed") return <p>Error: {error}</p>;
@@ -192,6 +191,32 @@ const PersonalProfile = () => {
     } catch (error) {
       console.error("Error uploading file:", error);
     }
+  };
+  const forceDownload = (link) => {
+    const url = link;
+    const fileName = link.split("/").pop() || "download";
+
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const anchor = document.createElement("a");
+        anchor.href = blobUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch((error) => {
+        console.error("File download failed:", error);
+      });
   };
 
   // const getPresignedUrl = async (fileName) => {
@@ -508,7 +533,8 @@ const PersonalProfile = () => {
                       {" | "}
                       <a
                         href={formData[name]}
-                        download={true}
+                        // download={true}
+                        onClick={() => forceDownload(formData[name])}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
