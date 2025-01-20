@@ -394,8 +394,8 @@ const Application = () => {
       let value = formData;
 
       value = value[field];
-      if (value === undefined || value === "") {
-        alert("Missing required field", field);
+      if (value === undefined || value === "" || value === false) {
+        alert(`Missing required field: ${field}`);
         return;
       }
     }
