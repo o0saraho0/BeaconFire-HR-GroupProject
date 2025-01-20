@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
+import { ActivatedRoute } from '@angular/router'; // Import ActivatedRoute
 import { Observable } from 'rxjs';
 import {
     fetchFacilityReports,
@@ -25,15 +26,19 @@ export class FacilityReportsComponent implements OnInit {
     error$: Observable<string | null>; // Observable for error messages
     selectedReport: any | null = null; // Holds the currently selected report for viewing comments
 
-    constructor(private store: Store) {
+    constructor(private store: Store, private activatedRoute: ActivatedRoute) { // Inject ActivatedRoute
         this.reports$ = this.store.select(selectAllFacilityReports);
         this.loading$ = this.store.select(selectFacilityReportsLoading);
         this.error$ = this.store.select(selectFacilityReportsError);
     }
 
     ngOnInit(): void {
-        const houseId = '678a8681f46e576b70d77c1b'; // Replace with the actual houseId from context
-        this.store.dispatch(fetchFacilityReports({ houseId }));
+        // Get houseId from route parameters and fetch facility reports
+        this.activatedRoute.params.subscribe((params) => {
+            const houseId = params['houseId']; // Retrieve houseId from the route
+            console.log('Fetching reports for houseId:', houseId); // Debug log
+            this.store.dispatch(fetchFacilityReports({ houseId }));
+        });
     }
 
     // Display comments for a selected report

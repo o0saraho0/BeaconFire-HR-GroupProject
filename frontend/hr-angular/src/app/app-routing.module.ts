@@ -48,8 +48,13 @@ const routes: Routes = [
     component: ApproveOnboardingComponent,
     canActivate: [AuthGuard],
   },
+  // {
+  //   path: 'facility-reports', // Add the facility-reports route
+  //   component: FacilityReportsComponent,
+  //   canActivate: [AuthGuard], // Protect the route
+  // },
   {
-    path: 'facility-reports', // Add the facility-reports route
+    path: 'facility-reports/:houseId', // Add the facility-reports route
     component: FacilityReportsComponent,
     canActivate: [AuthGuard], // Protect the route
   },
