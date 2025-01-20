@@ -26,7 +26,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { CommonModule } from '@angular/common';
 
@@ -91,6 +94,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     MatDialogModule,
     CommonModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatListModule,
+    MatSnackBarModule,
   ],
   providers: [
     {
@@ -101,4 +107,4 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

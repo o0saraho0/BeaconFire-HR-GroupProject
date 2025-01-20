@@ -1,1 +1,114 @@
-<p>housing-management works!</p>
+<div class="housing-container">
+  <mat-toolbar color="primary">
+    <span>Housing Management</span>
+    <span class="spacer"></span>
+    <button mat-raised-button color="accent" (click)="openAddHouseDialog()">
+      Add New House
+    </button>
+  </mat-toolbar>
+
+  <div class="houses-grid">
+    <mat-card *ngFor="let house of houses" class="house-card">
+      <mat-card-header>
+        <mat-card-title>
+          {{house.address.building}} {{house.address.street}}, 
+          {{house.address.city}}, {{house.address.state}} {{house.address.zip}}
+        </mat-card-title>
+        <mat-card-subtitle>
+          Residents: {{house.tenants.length}}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="landlord-info">
+          <h3>Landlord Information</h3>
+          <p>Name: {{house.landlord.first_name}} {{house.landlord.last_name}}</p>
+          <p>Phone: {{house.landlord.phone_number}}</p>
+          <p>Email: {{house.landlord.email}}</p>
+        </div>
+
+        <button mat-button color="primary" (click)="toggleHouseDetails(house._id)">
+          {{expandedHouseId === house._id ? 'Hide Details' : 'Show Details'}}
+        </button>
+
+        <div *ngIf="expandedHouseId === house._id" class="house-details">
+          <mat-tab-group>
+            <mat-tab label="Facility Information">
+              <div class="facility-info">
+                <h4>Inventory</h4>
+                <p>Beds: {{house.beds}}</p>
+                <p>Mattresses: {{house.mattresses}}</p>
+                <p>Tables: {{house.tables}}</p>
+                <p>Chairs: {{house.chairs}}</p>
+              </div>
+
+              <div class="reports-section">
+                <h4>Facility Reports</h4>
+                <mat-paginator [length]="house.reports?.length || 0"
+                             [pageSize]="5"
+                             [pageSizeOptions]="[3, 5]">
+                </mat-paginator>
+                
+                <mat-accordion>
+                  <mat-expansion-panel *ngFor="let report of house.reports">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        {{report.title}}
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        {{report.status}} - {{report.timestamp | date}}
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <p>{{report.description}}</p>
+                    <p>Created by: {{report.createdBy}}</p>
+
+                    <div class="comments-section">
+                      <h5>Comments</h5>
+                      <mat-list>
+                        <mat-list-item *ngFor="let comment of report.comments">
+                          <p>{{comment.description}}</p>
+                          <small>By {{comment.createdBy}} on {{comment.timestamp | date}}</small>
+                        </mat-list-item>
+                      </mat-list>
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </div>
+            </mat-tab>
+
+            <mat-tab label="Employee Information">
+              <mat-list>
+                <!-- Show loading state while tenant details are being fetched -->
+                <mat-list-item *ngFor="let tenantId of house.tenants">
+                  <div *ngIf="typeof tenantId === 'string' && !getTenantDetails(tenantId)" class="loading-tenant">
+                    Loading tenant information...
+                  </div>
+                  
+                  <ng-container *ngIf="getTenantDetails(tenantId) as tenant">
+                    <div mat-line>
+                      <a [routerLink]="['/employee-profiles', tenant.user_id]">
+                        {{getTenantDisplayName(tenant)}}
+                      </a>
+                    </div>
+                    <div mat-line>Phone: {{tenant.cell_phone || 'N/A'}}</div>
+                    <div mat-line>Email: {{tenant.email || 'N/A'}}</div>
+                    <div mat-line *ngIf="tenant.car_make || tenant.car_model || tenant.car_color">
+                      Car: {{getCarInfo(tenant)}}
+                    </div>
+                  </ng-container>
+                </mat-list-item>
+              </mat-list>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button color="warn" (click)="deleteHouse(house._id)">
+          Delete House
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
