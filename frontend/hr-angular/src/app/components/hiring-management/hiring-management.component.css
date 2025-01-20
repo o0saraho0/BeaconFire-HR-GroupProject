@@ -39,4 +39,6 @@ td {
 .onboarding-review {
   width: 90%;
   margin: 0px auto;
+  border: none !important;
+  box-shadow: none !important;
 }
