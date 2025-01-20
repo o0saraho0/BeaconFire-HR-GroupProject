@@ -99,7 +99,7 @@ const seed_database = async () => {
         car_model: "Corolla",
         car_color: "Blue",
         ssn: "123456789",
-        visa_type: "H1B Category",
+        visa_type: "H1B",
         visa_start_date: new Date("2025-01-01"),
         visa_end_date: new Date("2028-01-01"),
         reference: {
@@ -145,7 +145,7 @@ const seed_database = async () => {
         car_model: "Civic",
         car_color: "Red",
         ssn: "234567890",
-        visa_type: "F1 Category",
+        visa_type: "F1",
         reference: {
           first_name: "Bob",
           last_name: "Johnson",
@@ -253,7 +253,7 @@ const seed_database = async () => {
         car_model: "Altima",
         car_color: "Silver",
         ssn: "567890123",
-        visa_type: "F1 Category",
+        visa_type: "F1",
         reference: {
           first_name: "Emily",
           last_name: "White",
