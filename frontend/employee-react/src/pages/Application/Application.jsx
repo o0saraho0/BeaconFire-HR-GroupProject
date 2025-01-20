@@ -1002,6 +1002,24 @@ const Application = () => {
                 required
                 margin="normal"
               />
+              {formData.emergencyContacts.length > 1 && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => {
+                    const updatedContacts = formData.emergencyContacts.filter(
+                      (_, i) => i !== index
+                    );
+                    setFormData({
+                      ...formData,
+                      emergencyContacts: updatedContacts,
+                    });
+                  }}
+                  style={{ marginTop: "16px" }}
+                >
+                  Remove Above Emergency Contact
+                </Button>
+              )}
             </Grid>
           </Grid>
         ))}
