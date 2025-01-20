@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import axios from "./interceptors/auth.interceptor.js";
 
 import Guard from "./components/Auth/AuthGuard";
+import EmployeeGuard from "./components/Auth/EmployeeGuard";
 import Application from "./pages/Application/application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
 import LoginPage from "./pages/LoginPage/LoginPage.jsx";
@@ -27,6 +28,7 @@ function App() {
           window.location.href = "/logout";
         });
   }, []);
+
   return (
     <BrowserRouter>
       <Navbar />
@@ -34,13 +36,18 @@ function App() {
         {/* Protected Route */}
         <Route path="/" element={<Guard />}>
           <Route path="application" element={<Application />} />
-          <Route path="personalprofile" element={<PersonalProfile />} />
-          <Route path="housing" element={<HousesPage />} />
-          <Route path="/visa-status" element={<VisaManagement />} />
-          <Route
-            path="/facility-reports/:houseId"
-            element={<FacilityReportsPage />}
-          />
+          <Route path="personalprofile" element={<EmployeeGuard />}>
+            <Route path="" element={<PersonalProfile />} />
+          </Route>
+          <Route path="housing" element={<EmployeeGuard />}>
+            <Route path="" element={<HousesPage />} />
+          </Route>
+          <Route path="/visa-status" element={<EmployeeGuard />}>
+            <Route path="" element={<VisaManagement />} />
+          </Route>
+          <Route path="/facility-reports/:houseId" element={<EmployeeGuard />}>
+            <Route path="" element={<FacilityReportsPage />} />
+          </Route>
         </Route>
 
         {/* Public Routes */}
