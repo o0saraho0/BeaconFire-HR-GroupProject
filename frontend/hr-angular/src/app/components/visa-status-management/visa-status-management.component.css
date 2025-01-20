@@ -10,7 +10,6 @@
 
 .visa-management-container button {
   margin-right: 5px;
-  width: 140px;
 }
 
 .search-bar {
@@ -37,4 +36,8 @@
 table {
   width: 100%;
   padding: 10px 50px 50px;
+}
+
+p {
+  margin-left: 50px;
 }
