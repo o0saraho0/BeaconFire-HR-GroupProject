@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EmployeeService } from '../../services/employees.service';
+import { AddHouseDialogComponent } from './add-house/add-house.component';
 
 interface Tenant {
   id: string;
@@ -151,7 +152,24 @@ export class HousingManagementComponent implements OnInit {
   }
 
   openAddHouseDialog(): void {
-    // TODO: Implement dialog for adding new house
+    const dialogRef = this.dialog.open(AddHouseDialogComponent, {
+      width: '600px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.http.post<{ message: string, house: House }>('http://localhost:3000/api/houses', result).subscribe({
+          next: (response) => {
+            this.houses.push(response.house);
+            this.snackBar.open('House added successfully', 'Close', { duration: 3000 });
+          },
+          error: (error) => {
+            console.error('Error adding house:', error);
+            this.snackBar.open('Error adding house', 'Close', { duration: 3000 });
+          }
+        });
+      }
+    });
   }
 
   deleteHouse(houseId: string): void {

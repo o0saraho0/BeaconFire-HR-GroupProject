@@ -1,0 +1,19 @@
+mat-form-field {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+h3 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+mat-dialog-content {
+  max-height: 65vh;
+  padding: 0 24px;
+}
+
+mat-dialog-actions {
+  justify-content: flex-end;
+  padding: 16px 24px;
+}

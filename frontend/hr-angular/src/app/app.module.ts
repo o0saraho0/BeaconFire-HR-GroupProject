@@ -52,6 +52,7 @@ import {
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
 import { AuthInterceptor } from './interceptors/auth.interceptors';
+import { AddHouseDialogComponent } from './components/housing-management/add-house/add-house.component';
 
 @NgModule({
   declarations: [
@@ -66,6 +67,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     LoginComponent,
     EmployeeDetailComponent,
     ApproveOnboardingComponent,
+    AddHouseDialogComponent,
   ],
   imports: [
     BrowserModule,
