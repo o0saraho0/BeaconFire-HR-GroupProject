@@ -427,6 +427,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("firstName", formData.firstName)} // Validation props added
         />
         <TextField
           label="Last Name"
@@ -436,6 +437,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("lastName", formData.lastName)} // Validation props added
         />
         <TextField
           label="Middle Name"
@@ -444,6 +446,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
+          {...getValidationProps("middleName", formData.middleName)} // Validation props added
         />
         <TextField
           label="Preferred Name"
@@ -452,6 +455,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
+          {...getValidationProps("preferredName", formData.preferredName)} // Validation props added
         />
         <TextField
           label="Cell Phone"
@@ -462,6 +466,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("phone", formData.cellPhone)} // Validation props added
         />
         <TextField
           label="Work Phone"
@@ -471,6 +476,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
+          {...getValidationProps("phone", formData.workPhone)} // Validation props added
         />
         <Button
           variant="contained"
@@ -505,6 +511,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("building", formData.currentAddress.building)} // Validation props added
         />
         <TextField
           label="Street Name"
@@ -515,6 +522,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("street", formData.currentAddress.street)} // Validation props added
         />
         <TextField
           label="City"
@@ -525,6 +533,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("city", formData.currentAddress.city)} // Validation props added
         />
         <TextField
           label="State"
@@ -535,6 +544,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("state", formData.currentAddress.state)} // Validation props added
         />
         <TextField
           label="Zip"
@@ -545,6 +555,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("zip", formData.currentAddress.zip)} // Validation props added
         />
       </Grid>
     </Grid>
@@ -604,6 +615,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("ssn", formData.ssn)}
         />
         <TextField
           label="Date of Birth"
@@ -874,6 +886,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("reference.phone", formData.reference.phone)}
         />
         <TextField
           label="Email"
@@ -884,6 +897,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("reference.email", formData.reference.email)}
         />
         <TextField
           label="Relationship"
@@ -894,6 +908,10 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps(
+            "reference.relationship",
+            formData.reference.relationship
+          )}
         />
       </Grid>
       <Grid item xs={12}>
@@ -955,6 +973,10 @@ const Application = () => {
                 fullWidth
                 required
                 margin="normal"
+                {...getValidationProps(
+                  `emergencyContacts[${index}].phone`,
+                  contact.phone
+                )}
               />
               <TextField
                 label="Email"
@@ -965,6 +987,10 @@ const Application = () => {
                 fullWidth
                 required
                 margin="normal"
+                {...getValidationProps(
+                  `emergencyContacts[${index}].email`,
+                  contact.email
+                )}
               />
               <TextField
                 label="Relationship"

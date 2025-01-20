@@ -18,6 +18,7 @@ const getApplicationStatus = async (req, res) => {
   }
 }
 
+// here assume formData is all valid.
 const postOnboarding = async (req, res) => {
   try {
     const userId = req.body.user_id;
@@ -65,6 +66,12 @@ const postOnboarding = async (req, res) => {
       emergencyContacts,
       uploadedFiles
     });
+
+    // There exist a case where frontend passes the validation, but backend didn't. Then the application doc is created but with res == 400.
+    if (!firstName || !lastName || !currentAddress || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !driverLicense?.expireDate || !emergencyContacts) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
     const applicationData = {
       user_id: userId,
       first_name: firstName,
@@ -127,16 +134,11 @@ const postOnboarding = async (req, res) => {
     } else if (application.status === 'Rejected') {
       await Application.updateOne({ user_id: userId }, { ...applicationData, status: 'Pending' });
     } else {
-      await Application.updateOne({ user_id: userId }, applicationData);
+      return res.status(500).json({ message: "Logic shouldn't reach here." });
     }
 
     console.log('application created or updated', application);
 
-    if (!firstName || !lastName || !currentAddress || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !driverLicense?.expireDate || !emergencyContacts) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    console.log('application data', applicationData);
 
     res.status(201).json({ message: "Onboarding completed successfully", application });
   } catch (error) {
