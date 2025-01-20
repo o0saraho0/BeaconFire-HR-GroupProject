@@ -87,7 +87,9 @@
     <!-- Registration Link Column -->
     <ng-container matColumnDef="registration_link">
       <th mat-header-cell *matHeaderCellDef>Registration Link</th>
-      <td mat-cell *matCellDef="let reg">{{ reg.registration_link }}</td>
+      <td mat-cell *matCellDef="let reg">
+        <a [href]="reg.registration_link" target="_blank">View</a>
+      </td>
     </ng-container>
 
     <tr
