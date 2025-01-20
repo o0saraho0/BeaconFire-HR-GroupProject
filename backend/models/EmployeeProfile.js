@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const employee_profile_schema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "user",
+    ref: "User",
     required: true,
   },
   first_name: { type: String, required: true },
@@ -22,7 +22,7 @@ const employee_profile_schema = new mongoose.Schema({
   car_make: { type: String },
   car_model: { type: String },
   car_color: { type: String },
-  ssn: { type: Date, required: true },
+  ssn: { type: String, required: true },
   dob: { type: Date, required: true },
   gender: {
     type: String,
@@ -30,7 +30,7 @@ const employee_profile_schema = new mongoose.Schema({
   },
   visa_type: {
     type: String,
-    enum: ["Green Card", "Citizen", "H1B Category", "F1 Category", "Other"],
+    enum: ["Green Card", "Citizen", "H1B", "F1", "L2", "H4", "Other"],
     required: true,
   },
   visa_start_date: { type: Date },
@@ -55,7 +55,11 @@ const employee_profile_schema = new mongoose.Schema({
       relationship: { type: String, required: true },
     },
   ],
-  profile_picture_url: { type: String },
+  profile_picture_url: {
+    type: String,
+    default:
+      "https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/profile-pictures/1737178657102-default-user.png",
+  },
   driver_licence_url: { type: String },
   work_auth_url: { type: String },
   additional_url: { type: String },

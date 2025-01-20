@@ -1,0 +1,33 @@
+.title {
+  margin: 0px auto;
+}
+
+.home-container {
+  padding: 50px;
+  max-width: 1200px;
+  margin: 0px auto;
+}
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 50px;
+}
+
+mat-card {
+  background-color: whitesmoke;
+  color: #673ab7;
+  margin: 0px;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}

@@ -8,6 +8,7 @@ import HRProfile from "./models/HRProfile.js";
 import Registration from "./models/Registration.js";
 import User from "./models/User.js";
 import Visa from "./models/Visa.js";
+import * as argon2 from "argon2";
 
 dotenv.config();
 
@@ -37,63 +38,73 @@ const seed_database = async () => {
     await Application.deleteMany({});
     await Visa.deleteMany({});
     await User.deleteMany({});
-
+    const hashedPassword = await argon2.hash("password1");
     // Create Users
     const users = await User.insertMany([
       {
         username: "employee1",
         email: "employee1@example.com",
-        password: "password1",
+        password: hashedPassword,
       },
       {
         username: "employee2",
         email: "employee2@example.com",
-        password: "password2",
+        password: hashedPassword,
       },
       {
         username: "employee3",
         email: "employee3@example.com",
-        password: "password3",
+        password: hashedPassword,
       },
       {
         username: "employee4",
         email: "employee4@example.com",
-        password: "password4",
+        password: hashedPassword,
       },
       {
         username: "employee5",
         email: "employee5@example.com",
-        password: "password5",
+        password: hashedPassword,
       },
-      { username: "hr1", email: "hr1@example.com", password: "password6" },
-      { username: "hr2", email: "hr2@example.com", password: "password7" },
+      {
+        username: "employee0",
+        email: "employee0@example.com",
+        password: hashedPassword,
+      },
+      { username: "hr1", email: "hr1@example.com", password: hashedPassword },
+      { username: "hr2", email: "hr2@example.com", password: hashedPassword },
     ]);
+
     console.log("Users created:", users);
 
     // Create Employee Profiles
-    const employeeProfiles = await EmployeeProfile.insertMany([
+    const employee_profiles = await EmployeeProfile.insertMany([
       {
         user_id: users[0]._id,
         first_name: "John",
         last_name: "Doe",
-        address: {
+        middle_name: "J",
+        preferred_name: "JD",
+        current_address: {
           building: "101",
           street: "Main St",
           city: "San Francisco",
           state: "CA",
           zip: "94105",
         },
-        cell_phone: "123-456-7890",
+        cell_phone: "1234567890",
         dob: new Date("1990-01-01"),
         gender: "Male",
         car_make: "Toyota",
         car_model: "Corolla",
         car_color: "Blue",
         ssn: "123456789",
-        visa_type: "H1B Category",
+        visa_type: "H1B",
+        visa_start_date: new Date("2025-01-01"),
+        visa_end_date: new Date("2028-01-01"),
         reference: {
           first_name: "Alice",
-          last_name: "Smith",
+          last_name: "Reference",
           phone: "9876543210",
           email: "alice.smith@example.com",
           relationship: "Manager",
@@ -101,18 +112,26 @@ const seed_database = async () => {
         emergency_contacts: [
           {
             first_name: "Alice",
-            last_name: "Smith",
+            last_name: "Emergency",
             phone: "9876543210",
-            email: "alice.smith@example.com",
-            relationship: "Manager",
+            email: "alice.emergency@example.com",
+            relationship: "Mother",
+          },
+          {
+            first_name: "Bob",
+            last_name: "Emergency",
+            phone: "9876543210",
+            email: "bob.emergency@example.com",
+            relationship: "Spouse",
           },
         ],
+        profile_picture_url: "/images/default-user.png",
       },
       {
         user_id: users[1]._id,
         first_name: "Jane",
         last_name: "Smith",
-        address: {
+        current_address: {
           building: "202",
           street: "Market St",
           city: "San Francisco",
@@ -126,7 +145,7 @@ const seed_database = async () => {
         car_model: "Civic",
         car_color: "Red",
         ssn: "234567890",
-        visa_type: "F1 Category",
+        visa_type: "F1",
         reference: {
           first_name: "Bob",
           last_name: "Johnson",
@@ -148,7 +167,7 @@ const seed_database = async () => {
         user_id: users[2]._id,
         first_name: "Emily",
         last_name: "Clark",
-        address: {
+        current_address: {
           building: "303",
           street: "Broadway",
           city: "New York",
@@ -184,7 +203,7 @@ const seed_database = async () => {
         user_id: users[3]._id,
         first_name: "Michael",
         last_name: "Brown",
-        address: {
+        current_address: {
           building: "404",
           street: "Elm St",
           city: "Chicago",
@@ -220,7 +239,7 @@ const seed_database = async () => {
         user_id: users[4]._id,
         first_name: "Sarah",
         last_name: "Johnson",
-        address: {
+        current_address: {
           building: "505",
           street: "Oak St",
           city: "Seattle",
@@ -234,7 +253,7 @@ const seed_database = async () => {
         car_model: "Altima",
         car_color: "Silver",
         ssn: "567890123",
-        visa_type: "Other",
+        visa_type: "F1",
         reference: {
           first_name: "Emily",
           last_name: "White",
@@ -253,22 +272,41 @@ const seed_database = async () => {
         ],
       },
     ]);
-    console.log("Employee Profiles created:", employeeProfiles);
+    console.log("Employee Profiles created:", employee_profiles);
 
-    // Create HR Profiles (Link to next 2 users)
+    // Create HR Profiles
     const hr_profiles = await HRProfile.insertMany([
       {
-        user_id: users[5]._id,
+        user_id: users[6]._id,
         first_name: "Cate",
         last_name: "Zeng",
       },
       {
-        user_id: users[6]._id,
+        user_id: users[7]._id,
         first_name: "Josie",
         last_name: "Yan",
       },
     ]);
     console.log("HR Profiles created:", hr_profiles);
+
+    // Create Visa
+    const visas = await Visa.insertMany([
+      {
+        user_id: users[1]._id,
+        is_opt: true,
+        stage: "I983",
+        status: "Pending",
+        message: "Awaiting I983 form approval.",
+      },
+      {
+        user_id: users[4]._id,
+        is_opt: true,
+        stage: "EAD",
+        status: "Not Started",
+        message: "Copy of EAD is required.",
+      },
+    ]);
+    console.log("Visa data created:", visas);
 
     // Create Houses
     const houses = await House.insertMany([
@@ -313,7 +351,7 @@ const seed_database = async () => {
         chairs: 3,
       },
       {
-        tenants: [users[3]._id, users[4]._id],
+        tenants: [users[3]._id],
         address: {
           building: "345",
           street: "Elm St",
@@ -334,6 +372,133 @@ const seed_database = async () => {
       },
     ]);
     console.log("Houses created:", houses);
+
+    // Create Facility Reports
+    const facility_reports = await FacilityReport.insertMany([
+      {
+        house_id: houses[0]._id,
+        title: "Leaky Faucet in Kitchen",
+        description:
+          "The kitchen faucet is leaking and needs immediate repair.",
+        created_by: users[0]._id,
+        status: "Open",
+        comments: [
+          {
+            posted_by: "employee",
+            description: "Reported the issue to the landlord.",
+          },
+        ],
+      },
+      {
+        house_id: houses[2]._id,
+        title: "Broken Window in Living Room",
+        description:
+          "A window in the living room is broken and poses a security risk.",
+        created_by: users[3]._id,
+        status: "In Progress",
+        comments: [
+          {
+            posted_by: "hr",
+            description: "Contacted the repair service to fix the window.",
+          },
+        ],
+      },
+    ]);
+    console.log("Facility Reports created:", facility_reports);
+
+    //create onboarding applications
+    // Create Applications
+    const applications = await Application.insertMany([
+      {
+        user_id: users[0]._id,
+        status: "Approved",
+        first_name: "John",
+        last_name: "Doe",
+        middle_name: "J",
+        preferred_name: "JD",
+        current_address: {
+          building: "101",
+          street: "Main St",
+          city: "San Francisco",
+          state: "CA",
+          zip: "94105",
+        },
+        cell_phone: "1234567890",
+        work_phone: "1234567890",
+        car_make: "Toyota",
+        car_model: "Corolla",
+        car_color: "Blue",
+        ssn: "123-45-6789", // Changed from Date to String
+        dob: "1990-01-01", // Changed from Date to String
+        gender: "Male",
+        visa_type: "H1B",
+        visa_start_date: "2025-01-01", // Changed from Date to String
+        visa_end_date: "2028-01-01", // Changed from Date to String
+        driver_licence_number: "DL123456",
+        driver_license_expire_date: "2025-12-31", // Changed from Date to String
+        reference: {
+          first_name: "Alice",
+          last_name: "Reference",
+          middle_name: "M",
+          phone: "9876543210",
+          email: "alice.smith@example.com",
+          relationship: "Manager",
+        },
+        emergency_contacts: [
+          {
+            first_name: "Alice",
+            last_name: "Emergency",
+            middle_name: "M",
+            phone: "9876543210",
+            email: "alice.emergency@example.com",
+            relationship: "Mother",
+          }
+        ],
+        profile_picture_url: "profile1.jpg",
+        driver_licence_url: "license1.pdf",
+        work_auth_url: "workauth1.pdf"
+      },
+      {
+        user_id: users[1]._id,
+        status: "Approved",
+        first_name: "Jane",
+        last_name: "Smith",
+        current_address: {
+          building: "202",
+          street: "Market St",
+          city: "San Francisco",
+          state: "CA",
+          zip: "94107",
+        },
+        cell_phone: "9876543210",
+        ssn: "987-65-4321", // Changed from Date to String
+        dob: "1988-05-10", // Changed from Date to String
+        gender: "Female",
+        visa_type: "F1",
+        driver_licence_number: "DL789012",
+        driver_license_expire_date: "2024-06-30", // Changed from Date to String
+        reference: {
+          first_name: "Bob",
+          last_name: "Johnson",
+          phone: "1234567890",
+          email: "bob.johnson@example.com",
+          relationship: "Supervisor",
+        },
+        emergency_contacts: [
+          {
+            first_name: "Bob",
+            last_name: "Johnson",
+            phone: "1234567890",
+            email: "bob.johnson@example.com",
+            relationship: "Supervisor",
+          }
+        ],
+        profile_picture_url: "profile2.jpg",
+        driver_licence_url: "license2.pdf",
+        work_auth_url: "workauth2.pdf"
+      }
+    ]);
+    console.log("Applications created:", applications);
 
     console.log("Database seeded successfully!");
   } catch (error) {

@@ -1,0 +1,44 @@
+.tool-bar-title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+}
+
+table {
+  width: 100%;
+  padding: 10px 50px 50px;
+}
+
+th {
+  padding: 10px !important;
+  background-color: #f5f5f5;
+}
+
+td {
+  padding: 10px !important;
+  border: 1px solid #cccccc4f;
+}
+
+mat-form-field {
+  width: 100%;
+  text-align: center;
+}
+
+mat-label {
+  text-align: center;
+}
+
+mat-paginator {
+  padding-bottom: 55vh;
+}
+
+.summary {
+  text-align: end;
+  padding-right: 50px;
+  margin-bottom: 0px;
+}
+
+.not-found {
+  margin-left: 50px;
+}

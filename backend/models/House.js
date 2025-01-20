@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import EmployeeProfile from '../models/EmployeeProfile.js';
 
 const house_schema = new mongoose.Schema({
   tenants: [
