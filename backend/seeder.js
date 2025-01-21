@@ -126,7 +126,6 @@ const seed_database = async () => {
             relationship: "Spouse",
           },
         ],
-        profile_picture_url: "/images/default-user.png",
       },
       {
         user_id: users[1]._id,
@@ -276,18 +275,23 @@ const seed_database = async () => {
     console.log("Employee Profiles created:", employee_profiles);
 
     // Create Visa documents for each employee
-    const visas = await Visa.insertMany(employee_profiles.map(profile => ({
-      user_id: profile.user_id,
-      is_opt: profile.visa_type === "F1", // Set is_opt based on visa type
-      stage: profile.visa_type === "F1" ? "OPT Receipt" : "Complete", // Set stage based on visa type
-      status: "Pending",
-      status: 'Pending',
-      opt_receipt_url: profile.visa_type === "F1" ? "https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/opt-receipts/1737400614153-2.png" : null,
-      opt_ead_url: null,
-      i983_url: null,
-      i20_url: null,
-      message: null
-    })));
+    const visas = await Visa.insertMany(
+      employee_profiles.map((profile) => ({
+        user_id: profile.user_id,
+        is_opt: profile.visa_type === "F1", // Set is_opt based on visa type
+        stage: profile.visa_type === "F1" ? "OPT Receipt" : "Complete", // Set stage based on visa type
+        status: "Pending",
+        status: "Pending",
+        opt_receipt_url:
+          profile.visa_type === "F1"
+            ? "https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/opt-receipts/1737400614153-2.png"
+            : null,
+        opt_ead_url: null,
+        i983_url: null,
+        i20_url: null,
+        message: null,
+      }))
+    );
     console.log("Visa documents created:", visas);
 
     // Create HR Profiles
@@ -448,11 +452,11 @@ const seed_database = async () => {
             phone: "9876543210",
             email: "alice.emergency@example.com",
             relationship: "Mother",
-          }
+          },
         ],
         profile_picture_url: "profile1.jpg",
         driver_licence_url: "license1.pdf",
-        work_auth_url: "workauth1.pdf"
+        work_auth_url: "workauth1.pdf",
       },
       {
         user_id: users[1]._id,
@@ -487,12 +491,12 @@ const seed_database = async () => {
             phone: "1234567890",
             email: "bob.johnson@example.com",
             relationship: "Supervisor",
-          }
+          },
         ],
         profile_picture_url: "profile2.jpg",
         driver_licence_url: "license2.pdf",
-        work_auth_url: "workauth2.pdf"
-      }
+        work_auth_url: "workauth2.pdf",
+      },
     ]);
     console.log("Applications created:", applications);
 
