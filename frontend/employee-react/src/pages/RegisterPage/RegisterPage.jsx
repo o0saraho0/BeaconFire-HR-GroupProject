@@ -61,6 +61,7 @@ const Register = () => {
 
     try {
       const result = await dispatch(registerUser(formData)).unwrap();
+      alert("Register successful. You may login now.");
       navigate("/login"); // Redirect to login on success
     } catch (err) {
       setError(err || "Registration failed");

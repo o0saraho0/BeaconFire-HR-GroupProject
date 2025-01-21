@@ -40,9 +40,9 @@ const Application = () => {
   const [uploadedWorkAuth, setWorkAuth] = useState("");
   const [invalidFields, setInvalidFields] = useState([]);
   useEffect(() => {
-    console.log('Current invalid fields:', invalidFields.length);
-    console.log('Current invalid fields:', invalidFields);
-    console.log("uploaded driver license", uploadedDriverLicense)
+    console.log("Current invalid fields:", invalidFields.length);
+    console.log("Current invalid fields:", invalidFields);
+    console.log("uploaded driver license", uploadedDriverLicense);
   }, [invalidFields]);
   const [page, setPage] = useState(1);
   const totalPages = 3;
@@ -142,7 +142,7 @@ const Application = () => {
       gender: backendData.gender || "",
       citizenOrResident:
         backendData.visa_type === "Green Card" ||
-          backendData.visa_type === "Citizen"
+        backendData.visa_type === "Citizen"
           ? "Yes"
           : "No",
       visaType: backendData.visa_type || "",
@@ -311,17 +311,17 @@ const Application = () => {
   const handleInputValidation = (fieldName, value) => {
     const validationResult = getValidationProps(fieldName, value);
 
-    setInvalidFields(prev => {
+    setInvalidFields((prev) => {
       if (validationResult.error) {
         const newField = {
           field: fieldName,
-          error: validationResult.helperText
+          error: validationResult.helperText,
         };
-        return prev.some(f => f.field === fieldName)
-          ? prev.map(f => f.field === fieldName ? newField : f)
+        return prev.some((f) => f.field === fieldName)
+          ? prev.map((f) => (f.field === fieldName ? newField : f))
           : [...prev, newField];
       } else {
-        return prev.filter(f => f.field !== fieldName);
+        return prev.filter((f) => f.field !== fieldName);
       }
     });
   };
@@ -420,7 +420,7 @@ const Application = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (invalidFields.length > 0) {
-      alert(`Please fix the following fields:\n${invalidFields.join('\n')}`);
+      alert(`Please fix the following fields:\n${invalidFields.join("\n")}`);
       return;
     }
     //   // Check if all required fields are filled
@@ -445,7 +445,10 @@ const Application = () => {
     }
 
     if (formData.hasDriverLicense) {
-      if (!formData.driverLicense?.number || !formData.driverLicense?.expireDate) {
+      if (
+        !formData.driverLicense?.number ||
+        !formData.driverLicense?.expireDate
+      ) {
         missingFields.push("driver's license information");
       }
       if (!formData.uploadedFiles?.driverLicense) {
@@ -453,7 +456,10 @@ const Application = () => {
       }
     }
 
-    if (formData.visaType === "F1" && !formData.uploadedFiles?.workAuthorization) {
+    if (
+      formData.visaType === "F1" &&
+      !formData.uploadedFiles?.workAuthorization
+    ) {
       missingFields.push("work authorization document");
     }
 
@@ -476,7 +482,10 @@ const Application = () => {
         const missingFields = error.response.data.missingFields;
         alert(`Missing required fields: ${missingFields.join(", ")}`);
       } else if (error.response?.status === 500) {
-        alert(error.response.data.message || "An error occurred while submitting the application");
+        alert(
+          error.response.data.message ||
+            "An error occurred while submitting the application"
+        );
       } else {
         console.error("Error submitting application:", error);
         alert("An error occurred while submitting the application");
@@ -486,9 +495,9 @@ const Application = () => {
 
   const renderFormPage1 = () => {
     const handleInputValidation = (name, value) => {
-      setInvalidFields(prev => {
+      setInvalidFields((prev) => {
         // Remove existing validation for this field if present
-        const filtered = prev.filter(f => f.field !== name);
+        const filtered = prev.filter((f) => f.field !== name);
 
         const validateField = (errorMsg) => {
           if (errorMsg) {
@@ -498,30 +507,52 @@ const Application = () => {
         };
 
         switch (name) {
-          case 'firstName':
-          case 'lastName':
-          case 'middleName':
-          case 'preferredName':
-            return validateField(!/^[a-zA-Z\s]*$/.test(value) ? 'Only letters and spaces allowed' : null);
+          case "firstName":
+          case "lastName":
+          case "middleName":
+          case "preferredName":
+            return validateField(
+              !/^[a-zA-Z\s]*$/.test(value)
+                ? "Only letters and spaces allowed"
+                : null
+            );
 
-          case 'cellPhone':
-          case 'workPhone':
-            return validateField(!/^\d{10}$/.test(value) ? 'Phone number must be 10 digits' : null);
+          case "cellPhone":
+          case "workPhone":
+            return validateField(
+              !/^\d{10}$/.test(value) ? "Phone number must be 10 digits" : null
+            );
 
-          case 'currentAddress.building':
-            return validateField(!/^[a-zA-Z0-9\s-]*$/.test(value) ? 'Invalid building/apt format' : null);
+          case "currentAddress.building":
+            return validateField(
+              !/^[a-zA-Z0-9\s-]*$/.test(value)
+                ? "Invalid building/apt format"
+                : null
+            );
 
-          case 'currentAddress.street':
-            return validateField(!/^[a-zA-Z0-9\s-]*$/.test(value) ? 'Invalid street format' : null);
+          case "currentAddress.street":
+            return validateField(
+              !/^[a-zA-Z0-9\s-]*$/.test(value) ? "Invalid street format" : null
+            );
 
-          case 'currentAddress.city':
-            return validateField(!/^[a-zA-Z\s]*$/.test(value) ? 'City can only contain letters' : null);
+          case "currentAddress.city":
+            return validateField(
+              !/^[a-zA-Z\s]*$/.test(value)
+                ? "City can only contain letters"
+                : null
+            );
 
-          case 'currentAddress.state':
-            return validateField(!/^[A-Z]{2}$/.test(value.trim()) ? 'State must be 2 capital letters' : null);
+          case "currentAddress.state":
+            return validateField(
+              !/^[A-Z]{2}$/.test(value.trim())
+                ? "State must be 2 capital letters"
+                : null
+            );
 
-          case 'currentAddress.zip':
-            return validateField(!/^\d{5}$/.test(value) ? 'ZIP must be 5 digits' : null);
+          case "currentAddress.zip":
+            return validateField(
+              !/^\d{5}$/.test(value) ? "ZIP must be 5 digits" : null
+            );
 
           default:
             return prev;
@@ -541,13 +572,15 @@ const Application = () => {
             value={formData.firstName}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('firstName', e.target.value);
+              handleInputValidation("firstName", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'firstName')}
-            helperText={invalidFields.find(f => f.field === 'firstName')?.error}
+            error={!!invalidFields.find((f) => f.field === "firstName")}
+            helperText={
+              invalidFields.find((f) => f.field === "firstName")?.error
+            }
           />
           <TextField
             label="Last Name"
@@ -555,13 +588,15 @@ const Application = () => {
             value={formData.lastName}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('lastName', e.target.value);
+              handleInputValidation("lastName", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'lastName')}
-            helperText={invalidFields.find(f => f.field === 'lastName')?.error}
+            error={!!invalidFields.find((f) => f.field === "lastName")}
+            helperText={
+              invalidFields.find((f) => f.field === "lastName")?.error
+            }
           />
           <TextField
             label="Middle Name"
@@ -569,12 +604,14 @@ const Application = () => {
             value={formData.middleName}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('middleName', e.target.value);
+              handleInputValidation("middleName", e.target.value);
             }}
             fullWidth
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'middleName')}
-            helperText={invalidFields.find(f => f.field === 'middleName')?.error}
+            error={!!invalidFields.find((f) => f.field === "middleName")}
+            helperText={
+              invalidFields.find((f) => f.field === "middleName")?.error
+            }
           />
           <TextField
             label="Preferred Name"
@@ -582,12 +619,14 @@ const Application = () => {
             value={formData.preferredName}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('preferredName', e.target.value);
+              handleInputValidation("preferredName", e.target.value);
             }}
             fullWidth
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'preferredName')}
-            helperText={invalidFields.find(f => f.field === 'preferredName')?.error}
+            error={!!invalidFields.find((f) => f.field === "preferredName")}
+            helperText={
+              invalidFields.find((f) => f.field === "preferredName")?.error
+            }
           />
           <TextField
             label="Cell Phone"
@@ -596,13 +635,15 @@ const Application = () => {
             value={formData.cellPhone}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('cellPhone', e.target.value);
+              handleInputValidation("cellPhone", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'cellPhone')}
-            helperText={invalidFields.find(f => f.field === 'cellPhone')?.error}
+            error={!!invalidFields.find((f) => f.field === "cellPhone")}
+            helperText={
+              invalidFields.find((f) => f.field === "cellPhone")?.error
+            }
           />
           <TextField
             label="Work Phone"
@@ -611,12 +652,14 @@ const Application = () => {
             value={formData.workPhone}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('workPhone', e.target.value);
+              handleInputValidation("workPhone", e.target.value);
             }}
             fullWidth
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'workPhone')}
-            helperText={invalidFields.find(f => f.field === 'workPhone')?.error}
+            error={!!invalidFields.find((f) => f.field === "workPhone")}
+            helperText={
+              invalidFields.find((f) => f.field === "workPhone")?.error
+            }
           />
           <Button
             variant="contained"
@@ -649,13 +692,18 @@ const Application = () => {
             value={formData.currentAddress.building}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('currentAddress.building', e.target.value);
+              handleInputValidation("currentAddress.building", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'currentAddress.building')}
-            helperText={invalidFields.find(f => f.field === 'currentAddress.building')?.error}
+            error={
+              !!invalidFields.find((f) => f.field === "currentAddress.building")
+            }
+            helperText={
+              invalidFields.find((f) => f.field === "currentAddress.building")
+                ?.error
+            }
           />
           <TextField
             label="Street Name"
@@ -664,13 +712,18 @@ const Application = () => {
             value={formData.currentAddress.street}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('currentAddress.street', e.target.value);
+              handleInputValidation("currentAddress.street", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'currentAddress.street')}
-            helperText={invalidFields.find(f => f.field === 'currentAddress.street')?.error}
+            error={
+              !!invalidFields.find((f) => f.field === "currentAddress.street")
+            }
+            helperText={
+              invalidFields.find((f) => f.field === "currentAddress.street")
+                ?.error
+            }
           />
           <TextField
             label="City"
@@ -679,13 +732,18 @@ const Application = () => {
             value={formData.currentAddress.city}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('currentAddress.city', e.target.value);
+              handleInputValidation("currentAddress.city", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'currentAddress.city')}
-            helperText={invalidFields.find(f => f.field === 'currentAddress.city')?.error}
+            error={
+              !!invalidFields.find((f) => f.field === "currentAddress.city")
+            }
+            helperText={
+              invalidFields.find((f) => f.field === "currentAddress.city")
+                ?.error
+            }
           />
           <TextField
             label="State"
@@ -694,13 +752,18 @@ const Application = () => {
             value={formData.currentAddress.state}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('currentAddress.state', e.target.value);
+              handleInputValidation("currentAddress.state", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'currentAddress.state')}
-            helperText={invalidFields.find(f => f.field === 'currentAddress.state')?.error}
+            error={
+              !!invalidFields.find((f) => f.field === "currentAddress.state")
+            }
+            helperText={
+              invalidFields.find((f) => f.field === "currentAddress.state")
+                ?.error
+            }
           />
           <TextField
             label="Zip"
@@ -709,13 +772,17 @@ const Application = () => {
             value={formData.currentAddress.zip}
             onChange={(e) => {
               handleInputChange(e);
-              handleInputValidation('currentAddress.zip', e.target.value);
+              handleInputValidation("currentAddress.zip", e.target.value);
             }}
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'currentAddress.zip')}
-            helperText={invalidFields.find(f => f.field === 'currentAddress.zip')?.error}
+            error={
+              !!invalidFields.find((f) => f.field === "currentAddress.zip")
+            }
+            helperText={
+              invalidFields.find((f) => f.field === "currentAddress.zip")?.error
+            }
           />
         </Grid>
       </Grid>
@@ -774,13 +841,13 @@ const Application = () => {
           value={formData.ssn}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('ssn', e.target.value);
+            handleInputValidation("ssn", e.target.value);
           }}
           fullWidth
           required
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'ssn')}
-          helperText={invalidFields.find(f => f.field === 'ssn')?.error}
+          error={!!invalidFields.find((f) => f.field === "ssn")}
+          helperText={invalidFields.find((f) => f.field === "ssn")?.error}
         />
         <TextField
           label="Date of Birth"
@@ -918,9 +985,18 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
-              error={!!(formData.visaEndDate && formData.visaStartDate > formData.visaEndDate)}
-              helperText={formData.visaEndDate && formData.visaStartDate > formData.visaEndDate ?
-                "Start date must be before end date" : ""}
+              error={
+                !!(
+                  formData.visaEndDate &&
+                  formData.visaStartDate > formData.visaEndDate
+                )
+              }
+              helperText={
+                formData.visaEndDate &&
+                formData.visaStartDate > formData.visaEndDate
+                  ? "Start date must be before end date"
+                  : ""
+              }
               sx={{
                 "& .MuiInputLabel-root": {
                   transform: "translate(14px, -9px) scale(0.75)",
@@ -937,9 +1013,18 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
-              error={!!(formData.visaStartDate && formData.visaStartDate > formData.visaEndDate)}
-              helperText={formData.visaStartDate && formData.visaStartDate > formData.visaEndDate ?
-                "End date must be after start date" : ""}
+              error={
+                !!(
+                  formData.visaStartDate &&
+                  formData.visaStartDate > formData.visaEndDate
+                )
+              }
+              helperText={
+                formData.visaStartDate &&
+                formData.visaStartDate > formData.visaEndDate
+                  ? "End date must be after start date"
+                  : ""
+              }
               sx={{
                 "& .MuiInputLabel-root": {
                   transform: "translate(14px, -9px) scale(0.75)",
@@ -988,6 +1073,8 @@ const Application = () => {
 
                 if (selectedDate >= today) {
                   handleInputChange(e);
+                } else {
+                  alert("Your driver license expired!");
                 }
               }}
               fullWidth
@@ -998,9 +1085,16 @@ const Application = () => {
               }}
               required
               margin="normal"
-              error={formData.driverLicense.expireDate && new Date(formData.driverLicense.expireDate) < new Date()}
-              helperText={formData.driverLicense.expireDate && new Date(formData.driverLicense.expireDate) < new Date() ?
-                "Expiration date cannot be in the past" : ""}
+              error={
+                formData.driverLicense.expireDate &&
+                new Date(formData.driverLicense.expireDate) < new Date()
+              }
+              helperText={
+                formData.driverLicense.expireDate &&
+                new Date(formData.driverLicense.expireDate) < new Date()
+                  ? "Expiration date cannot be in the past"
+                  : ""
+              }
             />
             <Button
               variant="contained"
@@ -1016,9 +1110,7 @@ const Application = () => {
               />
             </Button>
             {uploadedDriverLicense && (
-              <Typography variant="body2">
-                {uploadedDriverLicense}
-              </Typography>
+              <Typography variant="body2">{uploadedDriverLicense}</Typography>
             )}
           </>
         )}
@@ -1039,13 +1131,15 @@ const Application = () => {
           value={formData.reference.firstName}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('reference.firstName', e.target.value);
+            handleInputValidation("reference.firstName", e.target.value);
           }}
           fullWidth
           required
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'reference.firstName')}
-          helperText={invalidFields.find(f => f.field === 'reference.firstName')?.error}
+          error={!!invalidFields.find((f) => f.field === "reference.firstName")}
+          helperText={
+            invalidFields.find((f) => f.field === "reference.firstName")?.error
+          }
         />
         <TextField
           label="Last Name"
@@ -1054,13 +1148,15 @@ const Application = () => {
           value={formData.reference.lastName}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('reference.lastName', e.target.value);
+            handleInputValidation("reference.lastName", e.target.value);
           }}
           fullWidth
           required
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'reference.lastName')}
-          helperText={invalidFields.find(f => f.field === 'reference.lastName')?.error}
+          error={!!invalidFields.find((f) => f.field === "reference.lastName")}
+          helperText={
+            invalidFields.find((f) => f.field === "reference.lastName")?.error
+          }
         />
         <TextField
           label="Middle Name"
@@ -1069,12 +1165,16 @@ const Application = () => {
           value={formData.reference.middleName}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('reference.middleName', e.target.value);
+            handleInputValidation("reference.middleName", e.target.value);
           }}
           fullWidth
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'reference.middleName')}
-          helperText={invalidFields.find(f => f.field === 'reference.middleName')?.error}
+          error={
+            !!invalidFields.find((f) => f.field === "reference.middleName")
+          }
+          helperText={
+            invalidFields.find((f) => f.field === "reference.middleName")?.error
+          }
         />
         <TextField
           label="Phone"
@@ -1083,13 +1183,15 @@ const Application = () => {
           value={formData.reference.phone}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('reference.phone', e.target.value);
+            handleInputValidation("reference.phone", e.target.value);
           }}
           fullWidth
           required
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'reference.phone')}
-          helperText={invalidFields.find(f => f.field === 'reference.phone')?.error}
+          error={!!invalidFields.find((f) => f.field === "reference.phone")}
+          helperText={
+            invalidFields.find((f) => f.field === "reference.phone")?.error
+          }
         />
         <TextField
           label="Email"
@@ -1098,13 +1200,15 @@ const Application = () => {
           value={formData.reference.email}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('reference.email', e.target.value);
+            handleInputValidation("reference.email", e.target.value);
           }}
           fullWidth
           required
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'reference.email')}
-          helperText={invalidFields.find(f => f.field === 'reference.email')?.error}
+          error={!!invalidFields.find((f) => f.field === "reference.email")}
+          helperText={
+            invalidFields.find((f) => f.field === "reference.email")?.error
+          }
         />
         <TextField
           label="Relationship"
@@ -1113,13 +1217,18 @@ const Application = () => {
           value={formData.reference.relationship}
           onChange={(e) => {
             handleInputChange(e);
-            handleInputValidation('reference.relationship', e.target.value);
+            handleInputValidation("reference.relationship", e.target.value);
           }}
           fullWidth
           required
           margin="normal"
-          error={!!invalidFields.find(f => f.field === 'reference.relationship')}
-          helperText={invalidFields.find(f => f.field === 'reference.relationship')?.error}
+          error={
+            !!invalidFields.find((f) => f.field === "reference.relationship")
+          }
+          helperText={
+            invalidFields.find((f) => f.field === "reference.relationship")
+              ?.error
+          }
         />
       </Grid>
       <Grid item xs={12}>
@@ -1179,13 +1288,24 @@ const Application = () => {
                 value={contact.phone}
                 onChange={(e) => {
                   handleInputChange(e);
-                  handleInputValidation(`emergencyContacts[${index}].phone`, e.target.value);
+                  handleInputValidation(
+                    `emergencyContacts[${index}].phone`,
+                    e.target.value
+                  );
                 }}
                 fullWidth
                 required
                 margin="normal"
-                error={!!invalidFields.find(f => f.field === `emergencyContacts[${index}].phone`)}
-                helperText={invalidFields.find(f => f.field === `emergencyContacts[${index}].phone`)?.error}
+                error={
+                  !!invalidFields.find(
+                    (f) => f.field === `emergencyContacts[${index}].phone`
+                  )
+                }
+                helperText={
+                  invalidFields.find(
+                    (f) => f.field === `emergencyContacts[${index}].phone`
+                  )?.error
+                }
               />
               <TextField
                 label="Email"
@@ -1194,13 +1314,24 @@ const Application = () => {
                 value={contact.email}
                 onChange={(e) => {
                   handleInputChange(e);
-                  handleInputValidation(`emergencyContacts[${index}].email`, e.target.value);
+                  handleInputValidation(
+                    `emergencyContacts[${index}].email`,
+                    e.target.value
+                  );
                 }}
                 fullWidth
                 required
                 margin="normal"
-                error={!!invalidFields.find(f => f.field === `emergencyContacts[${index}].email`)}
-                helperText={invalidFields.find(f => f.field === `emergencyContacts[${index}].email`)?.error}
+                error={
+                  !!invalidFields.find(
+                    (f) => f.field === `emergencyContacts[${index}].email`
+                  )
+                }
+                helperText={
+                  invalidFields.find(
+                    (f) => f.field === `emergencyContacts[${index}].email`
+                  )?.error
+                }
               />
               <TextField
                 label="Relationship"
@@ -1560,7 +1691,11 @@ const Application = () => {
                   Next
                 </Button>
               ) : (
-                <Button type="submit" variant="contained" color="primary" disabled={invalidFields.length > 0}
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  disabled={invalidFields.length > 0}
                 >
                   {status === "Rejected" ? "Resubmit" : "Submit"}
                 </Button>
