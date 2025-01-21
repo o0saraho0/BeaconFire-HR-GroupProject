@@ -165,7 +165,7 @@ const Application = () => {
           relationship: contact.relationship || "",
         })) || [],
       uploadedFiles: {
-        driverLicense: backendData.driver_license_url || "",
+        driverLicense: backendData.driver_licence_url || "",
         workAuthorization: backendData.work_auth_url || "",
       },
       hasDriverLicense: !!backendData.driver_licence_number || false,
@@ -387,7 +387,10 @@ const Application = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (invalidFields.length > 0) {
+      alert(`Please fix the following fields:\n${invalidFields.join('\n')}`);
+      return;
+    }
     //   // Check if all required fields are filled
     const requiredFields = [
       "firstName",
@@ -440,6 +443,8 @@ const Application = () => {
       if (error.response?.status === 400) {
         const missingFields = error.response.data.missingFields;
         alert(`Missing required fields: ${missingFields.join(", ")}`);
+      } else if (error.response?.status === 500) {
+        alert(error.response.data.message || "An error occurred while submitting the application");
       } else {
         console.error("Error submitting application:", error);
         alert("An error occurred while submitting the application");
@@ -447,153 +452,269 @@ const Application = () => {
     }
   };
 
-  const renderFormPage1 = () => (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Typography variant="h6" gutterBottom>
-          Personal Information
-        </Typography>
-        <TextField
-          label="First Name"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("firstName", formData.firstName)} // Validation props added
-        />
-        <TextField
-          label="Last Name"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("lastName", formData.lastName)} // Validation props added
-        />
-        <TextField
-          label="Middle Name"
-          name="middleName"
-          value={formData.middleName}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          {...getValidationProps("middleName", formData.middleName)} // Validation props added
-        />
-        <TextField
-          label="Preferred Name"
-          name="preferredName"
-          value={formData.preferredName}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          {...getValidationProps("preferredName", formData.preferredName)} // Validation props added
-        />
-        <TextField
-          label="Cell Phone"
-          name="cellPhone"
-          placeholder="Cell Phone"
-          value={formData.cellPhone}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("phone", formData.cellPhone)} // Validation props added
-        />
-        <TextField
-          label="Work Phone"
-          name="workPhone"
-          placeholder="Work Phone"
-          value={formData.workPhone}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-          {...getValidationProps("phone", formData.workPhone)} // Validation props added
-        />
-        <Button
-          variant="contained"
-          component="label"
-          style={{ marginTop: "16px", marginBottom: "16px" }}
-        >
-          Upload Profile Picture
-          <input
-            type="file"
-            name="profilePicture"
-            placeholder="Profile Picture"
-            onChange={handleFileUpload}
-            hidden
-          />
-        </Button>
-        {uploadedProfilePicture && (
-          <Typography variant="body2" style={{ marginTop: "8px" }}>
-            {uploadedProfilePicture}
+  const renderFormPage1 = () => {
+    const handleInputValidation = (name, value) => {
+      setInvalidFields(prev => {
+        const newInvalidFields = { ...prev };
+
+        switch (name) {
+          case 'firstName':
+          case 'lastName':
+          case 'middleName':
+          case 'preferredName':
+            if (!/^[a-zA-Z\s]*$/.test(value)) {
+              newInvalidFields[name] = 'Only letters and spaces allowed';
+            } else {
+              delete newInvalidFields[name];
+            }
+            break;
+
+          case 'cellPhone':
+          case 'workPhone':
+            if (!/^\d{10}$/.test(value)) {
+              newInvalidFields[name] = 'Phone number must be 10 digits';
+            } else {
+              delete newInvalidFields[name];
+            }
+            break;
+
+          case 'currentAddress.building':
+            if (!/^[a-zA-Z0-9\s-]*$/.test(value)) {
+              newInvalidFields['building'] = 'Invalid building/apt format';
+            } else {
+              delete newInvalidFields['building'];
+            }
+            break;
+
+          case 'currentAddress.street':
+            if (!/^[a-zA-Z0-9\s-]*$/.test(value)) {
+              newInvalidFields['street'] = 'Invalid street format';
+            } else {
+              delete newInvalidFields['street'];
+            }
+            break;
+
+          case 'currentAddress.city':
+            if (!/^[a-zA-Z\s]*$/.test(value)) {
+              newInvalidFields['city'] = 'City can only contain letters';
+            } else {
+              delete newInvalidFields['city'];
+            }
+            break;
+
+          case 'currentAddress.state':
+            if (!/^[A-Z]{2}$/.test(value)) {
+              newInvalidFields['state'] = 'State must be 2 capital letters';
+            } else {
+              delete newInvalidFields['state'];
+            }
+            break;
+
+          case 'currentAddress.zip':
+            if (!/^\d{5}$/.test(value)) {
+              newInvalidFields['zip'] = 'ZIP must be 5 digits';
+            } else {
+              delete newInvalidFields['zip'];
+            }
+            break;
+        }
+
+        return newInvalidFields;
+      });
+    };
+
+    return (
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Personal Information
           </Typography>
-        )}
+          <TextField
+            label="First Name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('firstName', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.firstName}
+            helperText={invalidFields.firstName}
+          />
+          <TextField
+            label="Last Name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('lastName', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.lastName}
+            helperText={invalidFields.lastName}
+          />
+          <TextField
+            label="Middle Name"
+            name="middleName"
+            value={formData.middleName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('middleName', e.target.value);
+            }}
+            fullWidth
+            margin="normal"
+            error={!!invalidFields.middleName}
+            helperText={invalidFields.middleName}
+          />
+          <TextField
+            label="Preferred Name"
+            name="preferredName"
+            value={formData.preferredName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('preferredName', e.target.value);
+            }}
+            fullWidth
+            margin="normal"
+            error={!!invalidFields.preferredName}
+            helperText={invalidFields.preferredName}
+          />
+          <TextField
+            label="Cell Phone"
+            name="cellPhone"
+            placeholder="Cell Phone"
+            value={formData.cellPhone}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('cellPhone', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.cellPhone}
+            helperText={invalidFields.cellPhone}
+          />
+          <TextField
+            label="Work Phone"
+            name="workPhone"
+            placeholder="Work Phone"
+            value={formData.workPhone}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('workPhone', e.target.value);
+            }}
+            fullWidth
+            margin="normal"
+            error={!!invalidFields.workPhone}
+            helperText={invalidFields.workPhone}
+          />
+          <Button
+            variant="contained"
+            component="label"
+            style={{ marginTop: "16px", marginBottom: "16px" }}
+          >
+            Upload Profile Picture
+            <input
+              type="file"
+              name="profilePicture"
+              placeholder="Profile Picture"
+              onChange={handleFileUpload}
+              hidden
+            />
+          </Button>
+          {uploadedProfilePicture && (
+            <Typography variant="body2" style={{ marginTop: "8px" }}>
+              {uploadedProfilePicture}
+            </Typography>
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Current Address
+          </Typography>
+          <TextField
+            label="Building/Apt #"
+            name="currentAddress.building"
+            placeholder="Building/Apt #"
+            value={formData.currentAddress.building}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.building', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.building}
+            helperText={invalidFields.building}
+          />
+          <TextField
+            label="Street Name"
+            name="currentAddress.street"
+            placeholder="Street Name"
+            value={formData.currentAddress.street}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.street', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.street}
+            helperText={invalidFields.street}
+          />
+          <TextField
+            label="City"
+            name="currentAddress.city"
+            placeholder="City"
+            value={formData.currentAddress.city}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.city', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.city}
+            helperText={invalidFields.city}
+          />
+          <TextField
+            label="State"
+            name="currentAddress.state"
+            placeholder="State"
+            value={formData.currentAddress.state}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.state', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.state}
+            helperText={invalidFields.state}
+          />
+          <TextField
+            label="Zip"
+            name="currentAddress.zip"
+            placeholder="Zip"
+            value={formData.currentAddress.zip}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.zip', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.zip}
+            helperText={invalidFields.zip}
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h6" gutterBottom>
-          Current Address
-        </Typography>
-        <TextField
-          label="Building/Apt #"
-          name="currentAddress.building"
-          placeholder="Building/Apt #"
-          value={formData.currentAddress.building}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("building", formData.currentAddress.building)} // Validation props added
-        />
-        <TextField
-          label="Street Name"
-          name="currentAddress.street"
-          placeholder="Street Name"
-          value={formData.currentAddress.street}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("street", formData.currentAddress.street)} // Validation props added
-        />
-        <TextField
-          label="City"
-          name="currentAddress.city"
-          placeholder="City"
-          value={formData.currentAddress.city}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("city", formData.currentAddress.city)} // Validation props added
-        />
-        <TextField
-          label="State"
-          name="currentAddress.state"
-          placeholder="State"
-          value={formData.currentAddress.state}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("state", formData.currentAddress.state)} // Validation props added
-        />
-        <TextField
-          label="Zip"
-          name="currentAddress.zip"
-          placeholder="Zip"
-          value={formData.currentAddress.zip}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-          {...getValidationProps("zip", formData.currentAddress.zip)} // Validation props added
-        />
-      </Grid>
-    </Grid>
-  );
+    );
+  };
 
   const renderFormPage2 = () => (
     <Grid container spacing={3}>

@@ -84,6 +84,7 @@ const postOnboarding = async (req, res) => {
     if (!driverLicense?.number) missingFields.push('driverLicense.number');
     if (!driverLicense?.expireDate) missingFields.push('driverLicense.expireDate');
     if (!emergencyContacts) missingFields.push('emergencyContacts');
+    if (visaType === 'F1' && !uploadedFiles?.workAuthorization) missingFields.push('workAuthorization');
 
     // Return missing fields in the response
     if (missingFields.length > 0) {
