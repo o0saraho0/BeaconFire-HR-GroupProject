@@ -15,9 +15,9 @@ const router = express.Router();
 // // Route to upload a document
 router.post("/upload", jwtValidation, authenticatedEmployee, singleUpload, uploadVisaDocument);
 router.post("/review", jwtValidation, reviewDocument);
-router.get("/in-progress",jwtValidation, getInProgressVisas);
-router.get("/search",jwtValidation, searchEmployees);
-router.post("/sendNotification",jwtValidation,sendNotification)
+router.get("/in-progress",jwtValidation, authenticatedHR,getInProgressVisas);
+router.get("/search",jwtValidation,authenticatedHR, searchEmployees);
+router.post("/sendNotification",jwtValidation,authenticatedHR,sendNotification)
 router.get("/:user_id", jwtValidation,authenticatedEmployee, getVisaDetails);
 
 export default router;

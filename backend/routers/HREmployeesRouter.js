@@ -1,5 +1,5 @@
 import express from "express";
-import { jwtValidation } from "../middlewares/AuthMiddleware.js";
+import { jwtValidation,authenticatedHR } from "../middlewares/AuthMiddleware.js";
 import {
   getAllEmployees,
   getEmployeeById,
@@ -8,7 +8,7 @@ import {
 const HREmployessRouter = express.Router();
 
 // link: /api/hr/employees
-HREmployessRouter.get("/:employeeId", jwtValidation, getEmployeeById);
-HREmployessRouter.get("/", jwtValidation, getAllEmployees);
+HREmployessRouter.get("/:employeeId", jwtValidation, authenticatedHR,getEmployeeById);
+HREmployessRouter.get("/", jwtValidation,authenticatedHR, getAllEmployees);
 
 export default HREmployessRouter;
