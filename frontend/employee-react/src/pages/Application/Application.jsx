@@ -240,6 +240,11 @@ const Application = () => {
           setStatus(response.data.application.status);
           setFeedback(response.data.application.feedback);
           setFormData(mappedData);
+
+          setProfilePicture(response.data.application.profile_picture_url || "");
+          setDriverLicense(response.data.application.driver_licence_url || "");
+          setWorkAuth(response.data.application.work_auth_url || "");
+
           console.log(
             "formdata after getting respone from onboarding",
             formData
@@ -357,7 +362,7 @@ const Application = () => {
           },
         }
       );
-      const fileUrl = response.data.fileUrl;
+      const fileUrl = response.data.key;
 
       switch (e.target.name) {
         case "profilePicture":
@@ -881,6 +886,11 @@ const Application = () => {
                 />
               </Button>
             )}
+            {uploadedWorkAuth && (
+              <Typography variant="body2" style={{ marginTop: "8px" }}>
+                {uploadedWorkAuth}
+              </Typography>
+            )}
 
             {formData.visaType === "Other" && (
               <TextField
@@ -932,11 +942,7 @@ const Application = () => {
             />
           </>
         )}
-        {uploadedWorkAuth && (
-          <Typography variant="body2" style={{ marginTop: "8px" }}>
-            {uploadedWorkAuth}
-          </Typography>
-        )}
+
         <FormControlLabel
           control={
             <Checkbox
