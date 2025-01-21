@@ -60,7 +60,7 @@ const seed_database = async () => {
     // Create Houses
     const houses = await House.insertMany([
       {
-        tenants: [users[0]._id],
+        tenants: [], // hr cannot be in a house
         address: {
           building: "123",
           street: "Main St",
