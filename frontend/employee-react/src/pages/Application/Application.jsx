@@ -368,18 +368,19 @@ const Application = () => {
           },
         }
       );
-      const fileUrl = response.data.key;
+      const fileUrl = response.data.fileUrl;
+      const fileName = response.data.key;
 
       switch (e.target.name) {
         case "profilePicture":
-          setProfilePicture(fileUrl);
+          setProfilePicture(fileName);
           setFormData((prevData) => ({
             ...prevData,
             profilePicture: fileUrl,
           }));
           break;
         case "driversLicenseFile":
-          setDriverLicense(fileUrl);
+          setDriverLicense(fileName);
           setFormData((prevData) => ({
             ...prevData,
             uploadedFiles: {
@@ -390,7 +391,7 @@ const Application = () => {
           console.log("driver license url", uploadedDriverLicense);
           break;
         case "workAuthorizationFile":
-          setWorkAuth(fileUrl);
+          setWorkAuth(fileName);
           setFormData((prevData) => ({
             ...prevData,
             uploadedFiles: {
