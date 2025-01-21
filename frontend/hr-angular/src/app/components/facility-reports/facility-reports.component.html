@@ -1,56 +1,101 @@
 <div class="facility-reports">
-    <h1>Facility Reports</h1>
+  <h1>Facility Reports</h1>
 
-    <!-- Loading and Error Messages -->
-    <div *ngIf="loading$ | async" class="loading">Loading...</div>
-    <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
+  <!-- Loading and Error Messages -->
+  <div *ngIf="loading$ | async" class="loading">Loading...</div>
+  <div *ngIf="error$ | async as error" class="error">{{ error }}</div>
 
-    <!-- Reports Table -->
-    <table *ngIf="reports$ | async as reports" class="reports-table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let report of reports">
-                <td>{{ report.title }}</td>
-                <td>{{ report.description }}</td>
-                <td>{{ report.status }}</td>
-                <td>{{ report.created_at | date: 'short' }}</td>
-                <td>
-                    <button (click)="onViewComments(report)">View Comments</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+  <!-- Reports Table -->
+  <table *ngIf="reports$ | async as reports" class="reports-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Status</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let report of reports">
+        <td>{{ report.title }}</td>
+        <td>{{ report.description }}</td>
+        <td>{{ report.status }}</td>
+        <td>{{ report.created_at | date : "short" }}</td>
+        <td>
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="onViewComments(report)"
+          >
+            View Comments
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-    <!-- Comments Section -->
-    <div *ngIf="selectedReport" class="comments-section">
-        <h2>Comments for: {{ selectedReport.title }}</h2>
+  <!-- Comments Section -->
+  <div *ngIf="selectedReport" class="comments-section">
+    <!-- <h2>Comments for: {{ selectedReport.title }}</h2> -->
+    <mat-card>
+      <mat-card-title>Comments for: {{ selectedReport.title }}</mat-card-title>
+      <mat-card-content>
         <ul>
-            <li *ngFor="let comment of selectedReport.comments">
-                <strong>{{ comment.updated_at | date: 'short' }}:</strong>
-                {{ comment.description || 'No description provided' }}
-            </li>
+          <li *ngFor="let comment of selectedReport.comments">
+            <strong>{{ comment.updated_at | date : "short" }}:</strong>
+            {{ comment.description || "No description provided" }}
+          </li>
         </ul>
 
-        <textarea
+        <!-- <textarea
+          #commentInput
+          placeholder="Add a comment..."
+          rows="3"
+          style="width: 100%"
+        ></textarea>
+
+        <button
+          mat-raised-button
+          color="primary"
+          style="margin-right: 16px"
+          (click)="
+            onAddComment(selectedReport._id, commentInput.value);
+            commentInput.value = ''
+          "
+        >
+          Submit Comment
+        </button>
+
+        <button (click)="closeComments()" mat-raised-button color="primary">
+          Close Comments
+        </button> -->
+
+        <mat-form-field appearance="outline" style="width: 100%">
+          <textarea
+            matInput
             #commentInput
             placeholder="Add a comment..."
             rows="3"
-            style="width: 100%;"
-        ></textarea>
-        <button
-            (click)="onAddComment(selectedReport._id, commentInput.value); commentInput.value=''"
-        >
+          ></textarea>
+        </mat-form-field>
+        <div class="comment-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            style="margin-right: 16px"
+            (click)="
+              onAddComment(selectedReport._id, commentInput.value);
+              commentInput.value = ''
+            "
+          >
             Submit Comment
-        </button>
-
-        <button (click)="closeComments()">Close Comments</button>
-    </div>
+          </button>
+          <button mat-raised-button color="warn" (click)="closeComments()">
+            Close Comments
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 </div>
