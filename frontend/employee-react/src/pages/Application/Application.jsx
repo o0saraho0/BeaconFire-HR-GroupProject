@@ -137,7 +137,7 @@ const Application = () => {
       gender: backendData.gender || "",
       citizenOrResident:
         backendData.visa_type === "Green Card" ||
-        backendData.visa_type === "Citizen"
+          backendData.visa_type === "Citizen"
           ? "Yes"
           : "No",
       visaType: backendData.visa_type || "",
@@ -274,7 +274,16 @@ const Application = () => {
         current[parseInt(finalKey, 10)] = value;
       } else {
         if (finalKey.includes("Date")) {
-          current[finalKey] = new Date(value).toISOString().split("T")[0];
+          if (value) {
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+              current[finalKey] = date.toISOString().split("T")[0];
+            } else {
+              current[finalKey] = value;
+            }
+          } else {
+            current[finalKey] = value;
+          }
         } else {
           current[finalKey] = value;
         }
@@ -383,6 +392,7 @@ const Application = () => {
       "firstName",
       "lastName",
       "cellPhone",
+      "currentAddress",
       "ssn",
       "dob",
       "visaType",
@@ -390,14 +400,30 @@ const Application = () => {
       "emergencyContacts",
     ];
 
+    const missingFields = [];
     for (const field of requiredFields) {
-      let value = formData;
-
-      value = value[field];
-      if (value === undefined || value === "" || value === false) {
-        alert(`Missing required field: ${field}`);
-        return;
+      let value = formData[field];
+      if (value === undefined || value === "") {
+        missingFields.push(field);
       }
+    }
+
+    if (formData.hasDriverLicense) {
+      if (!formData.driverLicense?.number || !formData.driverLicense?.expireDate) {
+        missingFields.push("driver's license information");
+      }
+      if (!formData.uploadedFiles?.driverLicense) {
+        missingFields.push("driver's license document");
+      }
+    }
+
+    if (formData.visaType === "F1" && !formData.uploadedFiles?.workAuthorization) {
+      missingFields.push("work authorization document");
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(", ")}`);
+      return;
     }
 
     try {
@@ -749,6 +775,9 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
+              error={formData.visaEndDate && formData.visaStartDate > formData.visaEndDate}
+              helperText={formData.visaEndDate && formData.visaStartDate > formData.visaEndDate ?
+                "Start date must be before end date" : ""}
               sx={{
                 "& .MuiInputLabel-root": {
                   transform: "translate(14px, -9px) scale(0.75)",
@@ -765,6 +794,9 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
+              error={formData.visaStartDate && formData.visaStartDate > formData.visaEndDate}
+              helperText={formData.visaStartDate && formData.visaStartDate > formData.visaEndDate ?
+                "End date must be after start date" : ""}
               sx={{
                 "& .MuiInputLabel-root": {
                   transform: "translate(14px, -9px) scale(0.75)",
@@ -810,7 +842,15 @@ const Application = () => {
               name="driverLicense.expireDate"
               type="date"
               value={formData.driverLicense.expireDate}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const selectedDate = new Date(e.target.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (selectedDate >= today) {
+                  handleInputChange(e);
+                }
+              }}
               fullWidth
               sx={{
                 "& .MuiInputLabel-root": {
@@ -819,6 +859,9 @@ const Application = () => {
               }}
               required
               margin="normal"
+              error={formData.driverLicense.expireDate && new Date(formData.driverLicense.expireDate) < new Date()}
+              helperText={formData.driverLicense.expireDate && new Date(formData.driverLicense.expireDate) < new Date() ?
+                "Expiration date cannot be in the past" : ""}
             />
             <Button
               variant="contained"
@@ -859,6 +902,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("firstName", formData.reference.firstName)}
         />
         <TextField
           label="Last Name"
@@ -869,6 +913,7 @@ const Application = () => {
           fullWidth
           required
           margin="normal"
+          {...getValidationProps("lastName", formData.reference.lastName)}
         />
         <TextField
           label="Middle Name"
@@ -878,6 +923,7 @@ const Application = () => {
           onChange={handleInputChange}
           fullWidth
           margin="normal"
+          {...getValidationProps("middleName", formData.reference.middleName)}
         />
         <TextField
           label="Phone"
