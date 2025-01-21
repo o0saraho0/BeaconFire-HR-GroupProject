@@ -10,7 +10,7 @@ import Guard from "./components/Auth/AuthGuard";
 import EmployeeGuard from "./components/Auth/EmployeeGuard";
 
 // Pages
-import Application from "./pages/Application/application.jsx";
+import Application from "./pages/Application/Application.jsx";
 import PersonalProfile from "./pages/PersonalProfile/PersonalProfile.jsx";
 import LoginPage from "./pages/LoginPage/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage/RegisterPage.jsx";
