@@ -66,7 +66,7 @@ export const validateRegisterToken = async (req, res) => {
         // Find the registration record in the database
         const registration = await Registration.findOne({ email, token });
 
-        if (!registration || registration.expires_at < Date.now()) {
+        if (!registration || registration.status === "Used" || registration.expires_at < Date.now()) {
             return res.status(400).json({ message: "Invalid or expired token" });
         }
 
