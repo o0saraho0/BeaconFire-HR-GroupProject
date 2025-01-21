@@ -36,9 +36,17 @@
             `http://${localHost}/api/visa/${userId}`
             );
             setVisaData(response.data.visa); // Set the fetched data
+            console.log(visaData)
+            if(!visaData){
+                throw new Error("You do not need to upload visa documents!");
+            }
             setLoading(false);
         } catch (err) {
-            setError("Failed to fetch visa data. Please try again.");
+            if(err.message=="You do not need to upload visa documents!"){
+                setError(err.message);
+            }else{
+                setError("Failed to fetch visa data. Please try again.");
+            }
             setLoading(false);
         }
     };
