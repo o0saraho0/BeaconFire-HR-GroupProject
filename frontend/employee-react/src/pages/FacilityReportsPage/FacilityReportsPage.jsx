@@ -20,10 +20,12 @@ import {
 import axios from "../../interceptors/auth.interceptor";
 
 const FacilityReportsPage = () => {
-    const { houseId } = useParams(); // Extract houseId from the route
+    const { houseId } = useParams();
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [addModalOpen, setAddModalOpen] = useState(false);
+    const [newReport, setNewReport] = useState({ title: "", description: "" });
     const [commentModalOpen, setCommentModalOpen] = useState(false);
     const [viewCommentsModalOpen, setViewCommentsModalOpen] = useState(false);
     const [selectedReport, setSelectedReport] = useState(null);
@@ -123,6 +125,15 @@ const FacilityReportsPage = () => {
                 Facility Reports
             </Typography>
 
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => setAddModalOpen(true)}
+                style={{ marginBottom: "20px" }}
+            >
+                Add New Report
+            </Button>
+
             {reports.length > 0 ? (
                 <TableContainer component={Paper}>
                     <Table>
@@ -174,6 +185,41 @@ const FacilityReportsPage = () => {
             ) : (
                 <Typography>No facility reports found for this house.</Typography>
             )}
+
+            {/* Add Report Modal */}
+            <Modal open={addModalOpen} onClose={() => setAddModalOpen(false)}>
+                <Paper style={{ margin: "20vh auto", padding: "20px", width: "400px" }}>
+                    <Typography variant="h6">Add New Report</Typography>
+                    <TextField
+                        label="Title"
+                        fullWidth
+                        value={newReport.title}
+                        onChange={(e) =>
+                            setNewReport((prev) => ({ ...prev, title: e.target.value }))
+                        }
+                        style={{ marginTop: "2vh" }}
+                    />
+                    <TextField
+                        label="Description"
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={newReport.description}
+                        onChange={(e) =>
+                            setNewReport((prev) => ({ ...prev, description: e.target.value }))
+                        }
+                        style={{ marginTop: "2vh" }}
+                    />
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={addReport}
+                        style={{ marginTop: "2vh" }}
+                    >
+                        Submit
+                    </Button>
+                </Paper>
+            </Modal>
 
             {/* Add Comment Modal */}
             <Modal open={commentModalOpen} onClose={() => setCommentModalOpen(false)}>

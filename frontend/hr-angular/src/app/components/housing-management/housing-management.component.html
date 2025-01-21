@@ -92,44 +92,34 @@
               </div>
             </mat-tab>
 
-            <mat-tab label="Employee Information">
-              <mat-list>
-                <mat-list-item
-                  *ngFor="let tenantId of house.tenants"
-                  class="tenant-item"
-                >
-                  <div
-                    *ngIf="isString(tenantId) && !getTenantDetails(tenantId)"
-                    class="loading-tenant"
-                  >
-                    Loading tenant information...
-                  </div>
-
-                  <div
-                    class="tenant-details"
-                    *ngIf="getTenantDetails(tenantId) as tenant"
-                  >
-                    <p mat-line>
-                      <strong>Name: </strong>
-                      <a [routerLink]="['/employee-profiles', tenantId]">
-                        {{ getTenantDisplayName(tenant) }}
-                      </a>
-                    </p>
-                    <p mat-line>
-                      <strong>Phone: </strong>{{ tenant.cell_phone || "N/A" }}
-                    </p>
-                    <p mat-line>
-                      <strong>Email: </strong
-                      >{{ tenant.user_id?.email || "N/A" }}
-                    </p>
-                    <p mat-line>
-                      <strong>Car: </strong>{{ getCarInfo(tenant) }}
-                    </p>
-                  </div>
-                  <mat-divider></mat-divider>
-                </mat-list-item>
-              </mat-list>
-            </mat-tab>
+          <mat-tab label="Employee Information">
+  <mat-list>
+    <mat-list-item *ngFor="let tenantId of house.tenants" class="tenant-item">
+      <div *ngIf="isString(tenantId) && !getTenantDetails(tenantId)" class="loading-tenant">
+        Loading tenant information...
+      </div>
+      
+      <div class="tenant-details" *ngIf="getTenantDetails(tenantId) as tenant">
+        <p mat-line>
+          <strong>Name: </strong>
+          <a [routerLink]="['/employee-profiles', tenantId]">
+            {{getTenantDisplayName(tenant)}}
+          </a>
+        </p>
+        <p mat-line>
+          <strong>Phone: </strong>{{tenant.cell_phone || 'N/A'}}
+        </p>
+        <p mat-line>
+          <strong>Email: </strong>{{tenant.user_id.email || 'N/A'}}
+        </p>
+        <p mat-line>
+          <strong>Car: </strong>{{getCarInfo(tenant)}}
+        </p>
+      </div>
+      <mat-divider></mat-divider>
+    </mat-list-item>
+  </mat-list>
+</mat-tab>
           </mat-tab-group>
         </div>
       </mat-card-content>

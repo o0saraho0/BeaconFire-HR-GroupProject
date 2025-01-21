@@ -25,11 +25,37 @@ const VisaManagement = () => {
   const localHost = "localhost:3000";
   const userId = useSelector((state) => state.auth.userId);
 
+<<<<<<< HEAD
   useEffect(() => {
     const fetchVisaData = async () => {
       try {
         if (!userId) {
           throw new Error("User is not authenticated");
+=======
+    useEffect(() => {
+        
+        const fetchVisaData = async () => {
+        try {
+            if (!userId) {
+                throw new Error("User is not authenticated");  
+            }
+            const response = await axios.get(
+            `http://${localHost}/api/visa/${userId}`
+            );
+            setVisaData(response.data.visa); // Set the fetched data
+            console.log(visaData)
+            if(!visaData){
+                throw new Error("You do not need to upload visa documents!");
+            }
+            setLoading(false);
+        } catch (err) {
+            if(err.message=="You do not need to upload visa documents!"){
+                setError(err.message);
+            }else{
+                setError("Failed to fetch visa data. Please try again.");
+            }
+            setLoading(false);
+>>>>>>> dev
         }
         const response = await axios.get(
           `http://${localHost}/api/visa/${userId}`
@@ -49,10 +75,86 @@ const VisaManagement = () => {
     setSelectedFile(event.target.files[0]);
   };
 
+<<<<<<< HEAD
   const handleFileUpload = async () => {
     if (!selectedFile) {
       setUploadMessage("Please select a file to upload.");
       return;
+=======
+    const handleFileUpload = async () => {
+        if (!selectedFile) {
+        setUploadMessage("Please select a file to upload.");
+        return;
+        }
+
+        setUploading(true);
+        setUploadMessage(null);
+
+        try {
+        const formData = new FormData();
+        formData.append("user_id", visaData.user_id._id);
+        formData.append(
+            "documentType",
+            visaData.stage.toLowerCase().replace(" ", "_")
+        );
+        formData.append("file", selectedFile);
+
+        const response = await axios.post(
+            `http://${localHost}/api/visa/upload`,
+            formData,
+            {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+            }
+        );
+
+        setUploadMessage(response.data.message);
+        setFrefresh((key)=>key+1)
+        } catch (err) {
+        setUploadMessage(
+            err.response?.data?.message || "An error occurred during upload."
+        );
+        } finally {
+        setUploading(false);
+        }
+    };
+
+    const getNextStepMessage = (status, stage, message) => {
+        if (status === "Reject") return message;
+        if (stage === "Complete") return "All documents have been approved.";
+        if (status === "Not Started"){
+            if(stage=="OPT Receipt"){
+                return "Please uploaded your OPT Receipt"
+            }else if(stage=="OPT EAD"){
+                return "Please upload a copy of your OPT EAD"
+            }else if(stage=="I983"){
+                return "Please download and fill out the I-983 form"
+            }else if(stage=="I20"){
+                return "Please send the I-983 along with all necessary documents to your school and upload the new I-20"
+            }
+        }
+        if (status === "Pending"){
+            if(stage=="OPT Receipt"){
+                return "Waiting for HR to approve your OPT Receipt"
+            }else if(stage=="OPT EAD"){
+                return "Waiting for HR to approve your OPT EAD"
+            }else if(stage=="I983"){
+                return "Waiting for HR to approve and sign your I-983"
+            }else if(stage=="I20"){
+                return "Waiting for HR to approve your I-20"
+            }
+        }
+        return "No further action required.";
+    };
+
+    if (loading) {
+        return (
+        <Container sx={{ textAlign: "center", mt: 4 }}>
+            <CircularProgress />
+        </Container>
+        );
+>>>>>>> dev
     }
 
     setUploading(true);
