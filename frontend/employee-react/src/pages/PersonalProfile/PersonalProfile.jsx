@@ -124,6 +124,11 @@ const PersonalProfile = () => {
       return;
     }
 
+    if (name === "visa_type" && value === "F1") {
+      alert("To update your visa yype to 'F1', please contact HR.");
+      return;
+    }
+
     if (name.includes(".")) {
       const keys = name.split(".");
       setFormData((prevState) => {
@@ -358,17 +363,28 @@ const PersonalProfile = () => {
       "Are you sure you want to discard all changes?"
     );
     if (confirmDiscard) {
-      setFormData(profile);
+      const resetFormData = {
+        ...profile,
+        email: profile.user_id?.email,
+      };
+      setFormData(resetFormData);
       setEditingSection(null);
     }
   };
 
   // Dropdown management
   const visaTypes = [
+    // "Green Card",
+    // "Citizen",
+    // "H1B Category",
+    // "F1 Category",
+    // "Other",
     "Green Card",
     "Citizen",
-    "H1B Category",
-    "F1 Category",
+    "H1B",
+    "F1",
+    "L2",
+    "H4",
     "Other",
   ];
   const genders = ["Male", "Female", "I do not wish to answer"];
