@@ -654,8 +654,8 @@ const Application = () => {
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'building')}
-            helperText={invalidFields.find(f => f.field === 'building')?.error}
+            error={!!invalidFields.find(f => f.field === 'currentAddress.building')}
+            helperText={invalidFields.find(f => f.field === 'currentAddress.building')?.error}
           />
           <TextField
             label="Street Name"
@@ -669,8 +669,8 @@ const Application = () => {
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'street')}
-            helperText={invalidFields.find(f => f.field === 'street')?.error}
+            error={!!invalidFields.find(f => f.field === 'currentAddress.street')}
+            helperText={invalidFields.find(f => f.field === 'currentAddress.street')?.error}
           />
           <TextField
             label="City"
@@ -684,8 +684,8 @@ const Application = () => {
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'city')}
-            helperText={invalidFields.find(f => f.field === 'city')?.error}
+            error={!!invalidFields.find(f => f.field === 'currentAddress.city')}
+            helperText={invalidFields.find(f => f.field === 'currentAddress.city')?.error}
           />
           <TextField
             label="State"
@@ -699,8 +699,8 @@ const Application = () => {
             fullWidth
             required
             margin="normal"
-            error={!!invalidFields.find(f => f.field === 'state')}
-            helperText={invalidFields.find(f => f.field === 'state')?.error}
+            error={!!invalidFields.find(f => f.field === 'currentAddress.state')}
+            helperText={invalidFields.find(f => f.field === 'currentAddress.state')?.error}
           />
           <TextField
             label="Zip"
