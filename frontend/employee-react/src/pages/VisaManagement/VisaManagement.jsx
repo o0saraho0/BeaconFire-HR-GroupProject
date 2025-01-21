@@ -36,9 +36,17 @@
             `http://${localHost}/api/visa/${userId}`
             );
             setVisaData(response.data.visa); // Set the fetched data
+            console.log(visaData)
+            if(!visaData){
+                throw new Error("You do not need to upload visa documents!");
+            }
             setLoading(false);
         } catch (err) {
-            setError("Failed to fetch visa data. Please try again.");
+            if(err.message=="You do not need to upload visa documents!"){
+                setError(err.message);
+            }else{
+                setError("Failed to fetch visa data. Please try again.");
+            }
             setLoading(false);
         }
     };
@@ -95,7 +103,7 @@
         if (status === "Not Started"){
             if(stage=="OPT Receipt"){
                 return "Please uploaded your OPT Receipt"
-            }else if(stage=="EAD"){
+            }else if(stage=="OPT EAD"){
                 return "Please upload a copy of your OPT EAD"
             }else if(stage=="I983"){
                 return "Please download and fill out the I-983 form"
@@ -106,7 +114,7 @@
         if (status === "Pending"){
             if(stage=="OPT Receipt"){
                 return "Waiting for HR to approve your OPT Receipt"
-            }else if(stage=="EAD"){
+            }else if(stage=="OPT EAD"){
                 return "Waiting for HR to approve your OPT EAD"
             }else if(stage=="I983"){
                 return "Waiting for HR to approve and sign your I-983"
@@ -195,7 +203,7 @@
                 </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                {visaData.stage=="I983"&&visaData.status=="Not Started"&& <Box display="flex" alignItems="center" gap={2}>
+                {visaData.stage=="I983"&&(visaData.status=="Not Started"||visaData.status=="Reject")&& <Box display="flex" alignItems="center" gap={2}>
                 <Button
                     variant="contained"
                     color="primary"

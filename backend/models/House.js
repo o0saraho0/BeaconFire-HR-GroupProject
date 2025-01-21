@@ -3,7 +3,7 @@ import EmployeeProfile from '../models/EmployeeProfile.js';
 
 const house_schema = new mongoose.Schema({
   tenants: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "user", required: true },
+    { type: mongoose.Schema.Types.ObjectId, ref: "user"},
   ],
   address: {
     building: { type: String, required: true },

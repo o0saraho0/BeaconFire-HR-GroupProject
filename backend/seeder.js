@@ -39,6 +39,7 @@ const seed_database = async () => {
     await Visa.deleteMany({});
     await User.deleteMany({});
     const hashedPassword = await argon2.hash("password1");
+
     // Create Users
     const users = await User.insertMany([
       {
@@ -99,7 +100,7 @@ const seed_database = async () => {
         car_model: "Corolla",
         car_color: "Blue",
         ssn: "123456789",
-        visa_type: "H1B Category",
+        visa_type: "H1B",
         visa_start_date: new Date("2025-01-01"),
         visa_end_date: new Date("2028-01-01"),
         reference: {
@@ -125,7 +126,6 @@ const seed_database = async () => {
             relationship: "Spouse",
           },
         ],
-        profile_picture_url: "/images/default-user.png",
       },
       {
         user_id: users[1]._id,
@@ -145,7 +145,7 @@ const seed_database = async () => {
         car_model: "Civic",
         car_color: "Red",
         ssn: "234567890",
-        visa_type: "F1 Category",
+        visa_type: "F1",
         reference: {
           first_name: "Bob",
           last_name: "Johnson",
@@ -253,7 +253,7 @@ const seed_database = async () => {
         car_model: "Altima",
         car_color: "Silver",
         ssn: "567890123",
-        visa_type: "F1 Category",
+        visa_type: "F1",
         reference: {
           first_name: "Emily",
           last_name: "White",
@@ -274,6 +274,26 @@ const seed_database = async () => {
     ]);
     console.log("Employee Profiles created:", employee_profiles);
 
+    // Create Visa documents for each employee
+    const visas = await Visa.insertMany(
+      employee_profiles.map((profile) => ({
+        user_id: profile.user_id,
+        is_opt: profile.visa_type === "F1", // Set is_opt based on visa type
+        stage: profile.visa_type === "F1" ? "OPT Receipt" : "Complete", // Set stage based on visa type
+        status: "Pending",
+        status: "Pending",
+        opt_receipt_url:
+          profile.visa_type === "F1"
+            ? "https://hr-management-bucket666.s3.us-east-1.amazonaws.com/visa-documents/opt-receipts/1737400614153-2.png"
+            : null,
+        opt_ead_url: null,
+        i983_url: null,
+        i20_url: null,
+        message: null,
+      }))
+    );
+    console.log("Visa documents created:", visas);
+
     // Create HR Profiles
     const hr_profiles = await HRProfile.insertMany([
       {
@@ -288,25 +308,6 @@ const seed_database = async () => {
       },
     ]);
     console.log("HR Profiles created:", hr_profiles);
-
-    // Create Visa
-    const visas = await Visa.insertMany([
-      {
-        user_id: users[1]._id,
-        is_opt: true,
-        stage: "I983",
-        status: "Pending",
-        message: "Awaiting I983 form approval.",
-      },
-      {
-        user_id: users[4]._id,
-        is_opt: true,
-        stage: "EAD",
-        status: "Not Started",
-        message: "Copy of EAD is required.",
-      },
-    ]);
-    console.log("Visa data created:", visas);
 
     // Create Houses
     const houses = await House.insertMany([
@@ -406,7 +407,6 @@ const seed_database = async () => {
     ]);
     console.log("Facility Reports created:", facility_reports);
 
-    //create onboarding applications
     // Create Applications
     const applications = await Application.insertMany([
       {
@@ -452,11 +452,11 @@ const seed_database = async () => {
             phone: "9876543210",
             email: "alice.emergency@example.com",
             relationship: "Mother",
-          }
+          },
         ],
         profile_picture_url: "profile1.jpg",
         driver_licence_url: "license1.pdf",
-        work_auth_url: "workauth1.pdf"
+        work_auth_url: "workauth1.pdf",
       },
       {
         user_id: users[1]._id,
@@ -491,12 +491,12 @@ const seed_database = async () => {
             phone: "1234567890",
             email: "bob.johnson@example.com",
             relationship: "Supervisor",
-          }
+          },
         ],
         profile_picture_url: "profile2.jpg",
         driver_licence_url: "license2.pdf",
-        work_auth_url: "workauth2.pdf"
-      }
+        work_auth_url: "workauth2.pdf",
+      },
     ]);
     console.log("Applications created:", applications);
 

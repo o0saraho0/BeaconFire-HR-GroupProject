@@ -1,0 +1,21 @@
+.container {
+  padding: 50px;
+}
+
+h1 {
+  text-align: center;
+}
+
+h2 {
+    margin-left: 30px;
+}
+
+p {
+  margin-left: 60px;
+}
+
+.two-column-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}

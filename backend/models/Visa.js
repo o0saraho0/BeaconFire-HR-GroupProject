@@ -9,7 +9,7 @@ const visa_schema = new mongoose.Schema({
   is_opt: { type: Boolean, required: true },
   stage: {
     type: String,
-    enum: ["OPT Receipt", "EAD", "I983", "I20", "Complete"],
+    enum: ["OPT Receipt", "OPT EAD", "I983", "I20", "Complete"],
     required: true,
   },
   status: {

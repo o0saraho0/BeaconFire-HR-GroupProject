@@ -18,6 +18,7 @@ const getApplicationStatus = async (req, res) => {
   }
 }
 
+// here assume formData is all valid.
 const postOnboarding = async (req, res) => {
   try {
     const userId = req.body.user_id;
@@ -43,6 +44,52 @@ const postOnboarding = async (req, res) => {
       emergencyContacts,
       uploadedFiles
     } = req.body;
+    console.log('req body', {
+      firstName,
+      lastName,
+      middleName,
+      preferredName,
+      profilePicture,
+      currentAddress,
+      cellPhone,
+      workPhone,
+      carInfo,
+      email, // cannot be edited
+      ssn,
+      dob,
+      gender,
+      visaType,
+      visaStartDate,
+      visaEndDate,
+      driverLicense,
+      reference,
+      emergencyContacts,
+      uploadedFiles
+    });
+
+    // There exist a case where frontend passes the validation, but backend didn't. Then the application doc is created but with res == 400.
+    const missingFields = [];
+    if (!firstName) missingFields.push('firstName');
+    if (!lastName) missingFields.push('lastName');
+    if (!currentAddress) missingFields.push('currentAddress');
+    if (!currentAddress?.building) missingFields.push('currentAddress.building');
+    if (!currentAddress?.street) missingFields.push('currentAddress.street');
+    if (!currentAddress?.city) missingFields.push('currentAddress.city');
+    if (!currentAddress?.state) missingFields.push('currentAddress.state');
+    if (!currentAddress?.zip) missingFields.push('currentAddress.zip');
+    if (!cellPhone) missingFields.push('cellPhone');
+    if (!ssn) missingFields.push('ssn');
+    if (!dob) missingFields.push('dob');
+    if (!visaType) missingFields.push('visaType');
+    if (!driverLicense?.number) missingFields.push('driverLicense.number');
+    if (!driverLicense?.expireDate) missingFields.push('driverLicense.expireDate');
+    if (!emergencyContacts) missingFields.push('emergencyContacts');
+    if (visaType === 'F1' && !uploadedFiles?.workAuthorization) missingFields.push('workAuthorization');
+
+    // Return missing fields in the response
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: "Missing required fields", missingFields });
+    }
 
     const applicationData = {
       user_id: userId,
@@ -95,9 +142,10 @@ const postOnboarding = async (req, res) => {
     };
 
     let application = await Application.findOne({ user_id: userId });
-    console.log('application not found', application);
+
 
     if (!application) {
+      console.log('application not found');
       application = await Application.create({
         ...applicationData,
         status: 'Pending',
@@ -105,16 +153,11 @@ const postOnboarding = async (req, res) => {
     } else if (application.status === 'Rejected') {
       await Application.updateOne({ user_id: userId }, { ...applicationData, status: 'Pending' });
     } else {
-      await Application.updateOne({ user_id: userId }, applicationData);
+      return res.status(500).json({ message: "Logic shouldn't reach here." });
     }
 
     console.log('application created or updated', application);
 
-    if (!firstName || !lastName || !currentAddress || !cellPhone || !ssn || !dob || !visaType || !driverLicense?.number || !driverLicense?.expireDate || !emergencyContacts) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
-    console.log('application data', applicationData);
 
     res.status(201).json({ message: "Onboarding completed successfully", application });
   } catch (error) {
@@ -254,7 +297,7 @@ export const approveApplicationUsingApplicationId = async (req, res) => {
     const visaData = {
       user_id: application.user_id,
       is_opt: application.visa_type === 'F1',
-      stage: 'OPT Receipt', // Initial stage for new visa documents
+      stage: application.visa_type === "F1" ? "OPT Receipt" : "Complete", // Initial stage for new visa documents
       status: 'Pending',
       opt_receipt_url: application.work_auth_url,
       opt_ead_url: null,

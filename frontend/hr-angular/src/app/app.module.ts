@@ -26,7 +26,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatGridListModule } from '@angular/material/grid-list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { CommonModule } from '@angular/common';
 
@@ -45,10 +48,15 @@ import {
   ApproveOnboardingComponent,
   RejectDialogComponent,
 } from './components/approve-onboarding/approve-onboarding.component';
+import { FacilityReportsComponent } from './components/facility-reports/facility-reports.component';
 
 import { employeesReducer } from './store/employees/employees.reducer';
 import { EmployeesEffects } from './store/employees/employees.effects';
+import { facilityReportsReducer } from './store/facility-reports/facility-reports.reducer';
+import { FacilityReportsEffects } from './store/facility-reports/facility-reports.effects';
 import { AuthInterceptor } from './interceptors/auth.interceptors';
+
+import { AddHouseDialogComponent } from './components/housing-management/add-house/add-house.component';
 
 @NgModule({
   declarations: [
@@ -63,14 +71,16 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     LoginComponent,
     EmployeeDetailComponent,
     ApproveOnboardingComponent,
+    AddHouseDialogComponent,
+    FacilityReportsComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer }, {}),
-    EffectsModule.forRoot([EmployeesEffects, AuthEffects]),
+    StoreModule.forRoot({ employees: employeesReducer, auth: authReducer, facilityReports: facilityReportsReducer }, {}),
+    EffectsModule.forRoot([EmployeesEffects, AuthEffects, FacilityReportsEffects]),
     StoreDevtoolsModule.instrument({
       maxAge: 25,
       logOnly: environment.production,
@@ -91,6 +101,9 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
     MatDialogModule,
     CommonModule,
     MatExpansionModule,
+    MatTabsModule,
+    MatListModule,
+    MatSnackBarModule,
   ],
   providers: [
     {
@@ -101,4 +114,4 @@ import { AuthInterceptor } from './interceptors/auth.interceptors';
   ],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

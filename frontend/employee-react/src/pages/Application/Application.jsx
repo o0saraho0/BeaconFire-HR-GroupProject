@@ -20,20 +20,32 @@ import {
   Pagination,
 } from "@mui/material";
 import { Grid2 as Grid } from "@mui/material";
+import { useNavigate } from "react-router";
+
+const localHost = "localhost:3000";
 
 const Application = () => {
-  const userId = localStorage.getItem("userId");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const userId = localStorage.getItem("userId");
+
   const [status, setStatus] = useState("Not Started");
   const userDocuments = useSelector((state) =>
     selectUserDocuments(state, userId)
   );
   const [feedback, setFeedback] = useState("");
-  const localHost = "localhost:3000";
   const [uploadedProfilePicture, setProfilePicture] = useState("");
   const [uploadedDriverLicense, setDriverLicense] = useState("");
   const [uploadedWorkAuth, setWorkAuth] = useState("");
-  const [profileUrl, setProfileUrl] = useState("");
+  const [invalidFields, setInvalidFields] = useState([]);
+  useEffect(() => {
+    console.log('Current invalid fields:', invalidFields.length);
+    console.log('Current invalid fields:', invalidFields);
+
+  }, [invalidFields]);
+  const [page, setPage] = useState(1);
+  const totalPages = 3;
 
   const validations = {
     name: {
@@ -130,7 +142,7 @@ const Application = () => {
       gender: backendData.gender || "",
       citizenOrResident:
         backendData.visa_type === "Green Card" ||
-        backendData.visa_type === "Citizen"
+          backendData.visa_type === "Citizen"
           ? "Yes"
           : "No",
       visaType: backendData.visa_type || "",
@@ -157,13 +169,14 @@ const Application = () => {
           relationship: contact.relationship || "",
         })) || [],
       uploadedFiles: {
-        driverLicense: backendData.driver_license_url || "",
+        driverLicense: backendData.driver_licence_url || "",
         workAuthorization: backendData.work_auth_url || "",
       },
       hasDriverLicense: !!backendData.driver_licence_number || false,
       visaTitle: backendData.visa_title || "",
     };
   };
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -213,9 +226,6 @@ const Application = () => {
     visaTitle: "",
   });
 
-  const [page, setPage] = useState(1);
-  const totalPages = 3;
-
   useEffect(() => {
     const fetchApplication = async () => {
       try {
@@ -230,6 +240,11 @@ const Application = () => {
           setStatus(response.data.application.status);
           setFeedback(response.data.application.feedback);
           setFormData(mappedData);
+
+          setProfilePicture(response.data.application.profile_picture_url || "");
+          setDriverLicense(response.data.application.driver_licence_url || "");
+          setWorkAuth(response.data.application.work_auth_url || "");
+
           console.log(
             "formdata after getting respone from onboarding",
             formData
@@ -269,7 +284,16 @@ const Application = () => {
         current[parseInt(finalKey, 10)] = value;
       } else {
         if (finalKey.includes("Date")) {
-          current[finalKey] = new Date(value).toISOString().split("T")[0];
+          if (value) {
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+              current[finalKey] = date.toISOString().split("T")[0];
+            } else {
+              current[finalKey] = value;
+            }
+          } else {
+            current[finalKey] = value;
+          }
         } else {
           current[finalKey] = value;
         }
@@ -278,24 +302,39 @@ const Application = () => {
       return newState;
     });
   };
-  console.log("has driver license", formData.hasDriverLicense);
-  console.log("ssn number", formData.ssn);
+  const handleInputValidation = (fieldName, value) => {
+    const validationResult = getValidationProps(fieldName, value);
+
+    setInvalidFields(prev => {
+      if (validationResult.error) {
+        const newField = {
+          field: fieldName,
+          error: validationResult.helperText
+        };
+        return prev.some(f => f.field === fieldName)
+          ? prev.map(f => f.field === fieldName ? newField : f)
+          : [...prev, newField];
+      } else {
+        return prev.filter(f => f.field !== fieldName);
+      }
+    });
+  };
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    const fileName = file.name;
-    switch (e.target.name) {
-      case "profilePicture":
-        setProfilePicture(fileName);
-        break;
-      case "driversLicenseFile":
-        setDriverLicense(fileName);
-        break;
-      case "workAuthorizationFile":
-        setWorkAuth(fileName);
-        break;
-      default:
-        return;
-    }
+    // const fileName = file.name;
+    // switch (e.target.name) {
+    //   case "profilePicture":
+    //     setProfilePicture(fileName);
+    //     break;
+    //   case "driversLicenseFile":
+    //     setDriverLicense(fileName);
+    //     break;
+    //   case "workAuthorizationFile":
+    //     setWorkAuth(fileName);
+    //     break;
+    //   default:
+    //     return;
+    // }
     const formData = new FormData();
     formData.append("file", e.target.files[0]);
     let endpoint = "";
@@ -323,6 +362,41 @@ const Application = () => {
           },
         }
       );
+      const fileUrl = response.data.key;
+
+      switch (e.target.name) {
+        case "profilePicture":
+          setProfilePicture(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            profilePicture: fileUrl,
+          }));
+          console.log("profile url", fileUrl);
+          break;
+        case "driversLicenseFile":
+          setDriverLicense(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            uploadedFiles: {
+              ...prevData.uploadedFiles,
+              driverLicense: fileUrl,
+            },
+          }));
+          break;
+        case "workAuthorizationFile":
+          setWorkAuth(fileUrl);
+          setFormData((prevData) => ({
+            ...prevData,
+            uploadedFiles: {
+              ...prevData.uploadedFiles,
+              workAuthorization: fileUrl,
+            },
+          }));
+          break;
+        default:
+          return;
+      }
+
       dispatch(
         setDocumentKey({
           userId,
@@ -338,12 +412,16 @@ const Application = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    if (invalidFields.length > 0) {
+      alert(`Please fix the following fields:\n${invalidFields.join('\n')}`);
+      return;
+    }
     //   // Check if all required fields are filled
     const requiredFields = [
       "firstName",
       "lastName",
       "cellPhone",
+      "currentAddress",
       "ssn",
       "dob",
       "visaType",
@@ -351,14 +429,30 @@ const Application = () => {
       "emergencyContacts",
     ];
 
+    const missingFields = [];
     for (const field of requiredFields) {
-      let value = formData;
-
-      value = value[field];
+      let value = formData[field];
       if (value === undefined || value === "") {
-        alert("Missing required field", field);
-        return;
+        missingFields.push(field);
       }
+    }
+
+    if (formData.hasDriverLicense) {
+      if (!formData.driverLicense?.number || !formData.driverLicense?.expireDate) {
+        missingFields.push("driver's license information");
+      }
+      if (!formData.uploadedFiles?.driverLicense) {
+        missingFields.push("driver's license document");
+      }
+    }
+
+    if (formData.visaType === "F1" && !formData.uploadedFiles?.workAuthorization) {
+      missingFields.push("work authorization document");
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(", ")}`);
+      return;
     }
 
     try {
@@ -369,147 +463,257 @@ const Application = () => {
       alert(
         "Application successfully submitted. Please wait for approval from HR."
       );
+      window.location.reload();
     } catch (error) {
-      console.error("Error submitting application:", error);
+      if (error.response?.status === 400) {
+        const missingFields = error.response.data.missingFields;
+        alert(`Missing required fields: ${missingFields.join(", ")}`);
+      } else if (error.response?.status === 500) {
+        alert(error.response.data.message || "An error occurred while submitting the application");
+      } else {
+        console.error("Error submitting application:", error);
+        alert("An error occurred while submitting the application");
+      }
     }
   };
 
-  const renderFormPage1 = () => (
-    <Grid container spacing={3}>
-      <Grid item xs={12}>
-        <Typography variant="h6" gutterBottom>
-          Personal Information
-        </Typography>
-        <TextField
-          label="First Name"
-          name="firstName"
-          value={formData.firstName}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="Last Name"
-          name="lastName"
-          value={formData.lastName}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="Middle Name"
-          name="middleName"
-          value={formData.middleName}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Preferred Name"
-          name="preferredName"
-          value={formData.preferredName}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <TextField
-          label="Cell Phone"
-          name="cellPhone"
-          placeholder="Cell Phone"
-          value={formData.cellPhone}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="Work Phone"
-          name="workPhone"
-          placeholder="Work Phone"
-          value={formData.workPhone}
-          onChange={handleInputChange}
-          fullWidth
-          margin="normal"
-        />
-        <Button
-          variant="contained"
-          component="label"
-          style={{ marginTop: "16px", marginBottom: "16px" }}
-        >
-          Upload Profile Picture
-          <input
-            type="file"
-            name="profilePicture"
-            placeholder="Profile Picture"
-            onChange={handleFileUpload}
-            hidden
-          />
-        </Button>
-        {uploadedProfilePicture && (
-          <Typography variant="body2" style={{ marginTop: "8px" }}>
-            {uploadedProfilePicture}
+  const renderFormPage1 = () => {
+    const handleInputValidation = (name, value) => {
+      setInvalidFields(prev => {
+        // Remove existing validation for this field if present
+        const filtered = prev.filter(f => f.field !== name);
+
+        const validateField = (errorMsg) => {
+          if (errorMsg) {
+            return [...filtered, { field: name, error: errorMsg }];
+          }
+          return filtered;
+        };
+
+        switch (name) {
+          case 'firstName':
+          case 'lastName':
+          case 'middleName':
+          case 'preferredName':
+            return validateField(!/^[a-zA-Z\s]*$/.test(value) ? 'Only letters and spaces allowed' : null);
+
+          case 'cellPhone':
+          case 'workPhone':
+            return validateField(!/^\d{10}$/.test(value) ? 'Phone number must be 10 digits' : null);
+
+          case 'currentAddress.building':
+            return validateField(!/^[a-zA-Z0-9\s-]*$/.test(value) ? 'Invalid building/apt format' : null);
+
+          case 'currentAddress.street':
+            return validateField(!/^[a-zA-Z0-9\s-]*$/.test(value) ? 'Invalid street format' : null);
+
+          case 'currentAddress.city':
+            return validateField(!/^[a-zA-Z\s]*$/.test(value) ? 'City can only contain letters' : null);
+
+          case 'currentAddress.state':
+            return validateField(!/^[A-Z]{2}$/.test(value.trim()) ? 'State must be 2 capital letters' : null);
+
+          case 'currentAddress.zip':
+            return validateField(!/^\d{5}$/.test(value) ? 'ZIP must be 5 digits' : null);
+
+          default:
+            return prev;
+        }
+      });
+    };
+
+    return (
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Personal Information
           </Typography>
-        )}
+          <TextField
+            label="First Name"
+            name="firstName"
+            value={formData.firstName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('firstName', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'firstName')}
+            helperText={invalidFields.find(f => f.field === 'firstName')?.error}
+          />
+          <TextField
+            label="Last Name"
+            name="lastName"
+            value={formData.lastName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('lastName', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'lastName')}
+            helperText={invalidFields.find(f => f.field === 'lastName')?.error}
+          />
+          <TextField
+            label="Middle Name"
+            name="middleName"
+            value={formData.middleName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('middleName', e.target.value);
+            }}
+            fullWidth
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'middleName')}
+            helperText={invalidFields.find(f => f.field === 'middleName')?.error}
+          />
+          <TextField
+            label="Preferred Name"
+            name="preferredName"
+            value={formData.preferredName}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('preferredName', e.target.value);
+            }}
+            fullWidth
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'preferredName')}
+            helperText={invalidFields.find(f => f.field === 'preferredName')?.error}
+          />
+          <TextField
+            label="Cell Phone"
+            name="cellPhone"
+            placeholder="Cell Phone"
+            value={formData.cellPhone}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('cellPhone', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'cellPhone')}
+            helperText={invalidFields.find(f => f.field === 'cellPhone')?.error}
+          />
+          <TextField
+            label="Work Phone"
+            name="workPhone"
+            placeholder="Work Phone"
+            value={formData.workPhone}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('workPhone', e.target.value);
+            }}
+            fullWidth
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'workPhone')}
+            helperText={invalidFields.find(f => f.field === 'workPhone')?.error}
+          />
+          <Button
+            variant="contained"
+            component="label"
+            style={{ marginTop: "16px", marginBottom: "16px" }}
+          >
+            Upload Profile Picture
+            <input
+              type="file"
+              name="profilePicture"
+              placeholder="Profile Picture"
+              onChange={handleFileUpload}
+              hidden
+            />
+          </Button>
+          {uploadedProfilePicture && (
+            <Typography variant="body2" style={{ marginTop: "8px" }}>
+              {uploadedProfilePicture}
+            </Typography>
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Current Address
+          </Typography>
+          <TextField
+            label="Building/Apt #"
+            name="currentAddress.building"
+            placeholder="Building/Apt #"
+            value={formData.currentAddress.building}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.building', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'building')}
+            helperText={invalidFields.find(f => f.field === 'building')?.error}
+          />
+          <TextField
+            label="Street Name"
+            name="currentAddress.street"
+            placeholder="Street Name"
+            value={formData.currentAddress.street}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.street', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'street')}
+            helperText={invalidFields.find(f => f.field === 'street')?.error}
+          />
+          <TextField
+            label="City"
+            name="currentAddress.city"
+            placeholder="City"
+            value={formData.currentAddress.city}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.city', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'city')}
+            helperText={invalidFields.find(f => f.field === 'city')?.error}
+          />
+          <TextField
+            label="State"
+            name="currentAddress.state"
+            placeholder="State"
+            value={formData.currentAddress.state}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.state', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'state')}
+            helperText={invalidFields.find(f => f.field === 'state')?.error}
+          />
+          <TextField
+            label="Zip"
+            name="currentAddress.zip"
+            placeholder="Zip"
+            value={formData.currentAddress.zip}
+            onChange={(e) => {
+              handleInputChange(e);
+              handleInputValidation('currentAddress.zip', e.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            error={!!invalidFields.find(f => f.field === 'currentAddress.zip')}
+            helperText={invalidFields.find(f => f.field === 'currentAddress.zip')?.error}
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h6" gutterBottom>
-          Current Address
-        </Typography>
-        <TextField
-          label="Building/Apt #"
-          name="currentAddress.building"
-          placeholder="Building/Apt #"
-          value={formData.currentAddress.building}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="Street Name"
-          name="currentAddress.street"
-          placeholder="Street Name"
-          value={formData.currentAddress.street}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="City"
-          name="currentAddress.city"
-          placeholder="City"
-          value={formData.currentAddress.city}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="State"
-          name="currentAddress.state"
-          placeholder="State"
-          value={formData.currentAddress.state}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-        <TextField
-          label="Zip"
-          name="currentAddress.zip"
-          placeholder="Zip"
-          value={formData.currentAddress.zip}
-          onChange={handleInputChange}
-          fullWidth
-          required
-          margin="normal"
-        />
-      </Grid>
-    </Grid>
-  );
+    );
+  };
 
   const renderFormPage2 = () => (
     <Grid container spacing={3}>
@@ -561,10 +765,15 @@ const Application = () => {
           label="SSN"
           name="ssn"
           value={formData.ssn}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('ssn', e.target.value);
+          }}
           fullWidth
           required
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'ssn')}
+          helperText={invalidFields.find(f => f.field === 'ssn')?.error}
         />
         <TextField
           label="Date of Birth"
@@ -617,7 +826,6 @@ const Application = () => {
               name="visaType"
               value={formData.visaType}
               onChange={(e) => {
-                // Clear any existing non-citizen visa values when switching to citizen status
                 setFormData((prev) => ({
                   ...prev,
                   visaType: e.target.value,
@@ -665,6 +873,7 @@ const Application = () => {
                 variant="contained"
                 component="label"
                 style={{ marginTop: "16px", marginBottom: "16px" }}
+                required
               >
                 Upload OPT Receipt
                 <input
@@ -672,8 +881,14 @@ const Application = () => {
                   name="workAuthorizationFile"
                   onChange={handleFileUpload}
                   hidden
+                  required
                 />
               </Button>
+            )}
+            {uploadedWorkAuth && (
+              <Typography variant="body2" style={{ marginTop: "8px" }}>
+                {uploadedWorkAuth}
+              </Typography>
             )}
 
             {formData.visaType === "Other" && (
@@ -696,6 +911,9 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
+              error={!!(formData.visaEndDate && formData.visaStartDate > formData.visaEndDate)}
+              helperText={formData.visaEndDate && formData.visaStartDate > formData.visaEndDate ?
+                "Start date must be before end date" : ""}
               sx={{
                 "& .MuiInputLabel-root": {
                   transform: "translate(14px, -9px) scale(0.75)",
@@ -712,6 +930,9 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
+              error={!!(formData.visaStartDate && formData.visaStartDate > formData.visaEndDate)}
+              helperText={formData.visaStartDate && formData.visaStartDate > formData.visaEndDate ?
+                "End date must be after start date" : ""}
               sx={{
                 "& .MuiInputLabel-root": {
                   transform: "translate(14px, -9px) scale(0.75)",
@@ -720,11 +941,7 @@ const Application = () => {
             />
           </>
         )}
-        {uploadedWorkAuth && (
-          <Typography variant="body2" style={{ marginTop: "8px" }}>
-            {uploadedWorkAuth}
-          </Typography>
-        )}
+
         <FormControlLabel
           control={
             <Checkbox
@@ -757,7 +974,15 @@ const Application = () => {
               name="driverLicense.expireDate"
               type="date"
               value={formData.driverLicense.expireDate}
-              onChange={handleInputChange}
+              onChange={(e) => {
+                const selectedDate = new Date(e.target.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (selectedDate >= today) {
+                  handleInputChange(e);
+                }
+              }}
               fullWidth
               sx={{
                 "& .MuiInputLabel-root": {
@@ -766,6 +991,9 @@ const Application = () => {
               }}
               required
               margin="normal"
+              error={formData.driverLicense.expireDate && new Date(formData.driverLicense.expireDate) < new Date()}
+              helperText={formData.driverLicense.expireDate && new Date(formData.driverLicense.expireDate) < new Date() ?
+                "Expiration date cannot be in the past" : ""}
             />
             <Button
               variant="contained"
@@ -802,59 +1030,89 @@ const Application = () => {
           name="reference.firstName"
           placeholder="First Name"
           value={formData.reference.firstName}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('reference.firstName', e.target.value);
+          }}
           fullWidth
           required
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'reference.firstName')}
+          helperText={invalidFields.find(f => f.field === 'reference.firstName')?.error}
         />
         <TextField
           label="Last Name"
           name="reference.lastName"
           placeholder="Last Name"
           value={formData.reference.lastName}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('reference.lastName', e.target.value);
+          }}
           fullWidth
           required
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'reference.lastName')}
+          helperText={invalidFields.find(f => f.field === 'reference.lastName')?.error}
         />
         <TextField
           label="Middle Name"
           name="reference.middleName"
           placeholder="Middle Name"
           value={formData.reference.middleName}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('reference.middleName', e.target.value);
+          }}
           fullWidth
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'reference.middleName')}
+          helperText={invalidFields.find(f => f.field === 'reference.middleName')?.error}
         />
         <TextField
           label="Phone"
           name="reference.phone"
           placeholder="Phone"
           value={formData.reference.phone}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('reference.phone', e.target.value);
+          }}
           fullWidth
           required
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'reference.phone')}
+          helperText={invalidFields.find(f => f.field === 'reference.phone')?.error}
         />
         <TextField
           label="Email"
           name="reference.email"
           placeholder="Email"
           value={formData.reference.email}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('reference.email', e.target.value);
+          }}
           fullWidth
           required
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'reference.email')}
+          helperText={invalidFields.find(f => f.field === 'reference.email')?.error}
         />
         <TextField
           label="Relationship"
           name="reference.relationship"
           placeholder="Relationship"
           value={formData.reference.relationship}
-          onChange={handleInputChange}
+          onChange={(e) => {
+            handleInputChange(e);
+            handleInputValidation('reference.relationship', e.target.value);
+          }}
           fullWidth
           required
           margin="normal"
+          error={!!invalidFields.find(f => f.field === 'reference.relationship')}
+          helperText={invalidFields.find(f => f.field === 'reference.relationship')?.error}
         />
       </Grid>
       <Grid item xs={12}>
@@ -912,20 +1170,30 @@ const Application = () => {
                 name={`emergencyContacts[${index}].phone`}
                 placeholder="Phone"
                 value={contact.phone}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  handleInputValidation(`emergencyContacts[${index}].phone`, e.target.value);
+                }}
                 fullWidth
                 required
                 margin="normal"
+                error={!!invalidFields.find(f => f.field === `emergencyContacts[${index}].phone`)}
+                helperText={invalidFields.find(f => f.field === `emergencyContacts[${index}].phone`)?.error}
               />
               <TextField
                 label="Email"
                 name={`emergencyContacts[${index}].email`}
                 placeholder="Email"
                 value={contact.email}
-                onChange={handleInputChange}
+                onChange={(e) => {
+                  handleInputChange(e);
+                  handleInputValidation(`emergencyContacts[${index}].email`, e.target.value);
+                }}
                 fullWidth
                 required
                 margin="normal"
+                error={!!invalidFields.find(f => f.field === `emergencyContacts[${index}].email`)}
+                helperText={invalidFields.find(f => f.field === `emergencyContacts[${index}].email`)?.error}
               />
               <TextField
                 label="Relationship"
@@ -937,6 +1205,24 @@ const Application = () => {
                 required
                 margin="normal"
               />
+              {formData.emergencyContacts.length > 1 && (
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => {
+                    const updatedContacts = formData.emergencyContacts.filter(
+                      (_, i) => i !== index
+                    );
+                    setFormData({
+                      ...formData,
+                      emergencyContacts: updatedContacts,
+                    });
+                  }}
+                  style={{ marginTop: "16px" }}
+                >
+                  Remove Above Emergency Contact
+                </Button>
+              )}
             </Grid>
           </Grid>
         ))}
@@ -1052,6 +1338,7 @@ const Application = () => {
         return null;
     }
   };
+
   const forceDownload = (link) => {
     const url = link;
     const fileName = link.split("/").pop() || "download";
@@ -1258,12 +1545,16 @@ const Application = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => setPage(page + 1)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setPage(page + 1);
+                  }}
                 >
                   Next
                 </Button>
               ) : (
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="contained" color="primary" disabled={invalidFields.length > 0}
+                >
                   {status === "Rejected" ? "Resubmit" : "Submit"}
                 </Button>
               )}
@@ -1273,7 +1564,7 @@ const Application = () => {
       case "Pending":
         return renderPendingMessage();
       case "Approved":
-        window.location.href = "/index.html";
+        navigate("/personalprofile");
         return null;
       default:
         return null;

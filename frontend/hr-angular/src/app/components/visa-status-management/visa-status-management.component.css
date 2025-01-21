@@ -1,41 +1,44 @@
-
-.visa-management-container th,
 .visa-management-container td {
-    text-align: center;
-    padding: 10px; /* Add padding inside cells */
-    margin: 5px; /* Add margin around cells */
-    border: 1px solid #cccccc4f; /* Add border for visibility */
+  padding: 10px;
+  border: 1px solid #cccccc4f;
 }
-    
+
 .visa-management-container th {
-    background-color: #f5f5f5; /* Light gray background for headers */
-    font-weight: bold;
+  background-color: #f5f5f5;
+  padding: 10px;
 }
-    
-.visa-management-container td {
-    background-color: #fff; /* White background for data cells */
-}
-    
+
 .visa-management-container button {
-     margin-right: 5px; /* Add spacing between buttons */
+  width: 100px;
+  margin: 3px;
 }
 
-.previewbuttons{
-    width: 20px;
-    text-align: center;
-    font-size: small;
-    padding: 0;
+.search-bar {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: start;
 }
 
-.custom-mat-field{
-    margin: 10px;
+.search-bar button {
+  margin-top: 10px;
 }
 
-.Title{
-    margin: 20px;
+.custom-mat-field {
+  margin-right: 16px;
 }
 
-table{
-    margin-left: 20px;
-    margin-bottom: 40px;
+.Title {
+  text-align: center;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  padding: 10px 50px 50px;
+}
+
+p {
+  margin-left: 50px;
 }
