@@ -38,6 +38,7 @@ const Application = () => {
   const [uploadedProfilePicture, setProfilePicture] = useState("");
   const [uploadedDriverLicense, setDriverLicense] = useState("");
   const [uploadedWorkAuth, setWorkAuth] = useState("");
+  const [invalidFields, setInvalidFields] = useState([]);
 
   const [page, setPage] = useState(1);
   const totalPages = 3;
@@ -434,8 +435,15 @@ const Application = () => {
       alert(
         "Application successfully submitted. Please wait for approval from HR."
       );
+      window.location.reload();
     } catch (error) {
-      console.error("Error submitting application:", error);
+      if (error.response?.status === 400) {
+        const missingFields = error.response.data.missingFields;
+        alert(`Missing required fields: ${missingFields.join(", ")}`);
+      } else {
+        console.error("Error submitting application:", error);
+        alert("An error occurred while submitting the application");
+      }
     }
   };
 
