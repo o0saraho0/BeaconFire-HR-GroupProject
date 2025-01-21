@@ -106,7 +106,7 @@
         if (status === "Pending"){
             if(stage=="OPT Receipt"){
                 return "Waiting for HR to approve your OPT Receipt"
-            }else if(stage=="EAD"){
+            }else if(stage=="OPT EAD"){
                 return "Waiting for HR to approve your OPT EAD"
             }else if(stage=="I983"){
                 return "Waiting for HR to approve and sign your I-983"

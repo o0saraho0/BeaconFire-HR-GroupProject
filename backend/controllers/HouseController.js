@@ -4,7 +4,9 @@ import EmployeeProfile from '../models/EmployeeProfile.js';
 export const createHouse = async (req, res) => {
     try {
         const house = new House(req.body);
+        console.log(req.body);
         const savedHouse = await house.save();
+        
         res.status(201).json({ message: 'House created successfully', house: savedHouse });
     } catch (error) {
         res.status(500).json({ error: error.message });
