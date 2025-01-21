@@ -136,7 +136,7 @@ const VisaManagement = () => {
     <Container sx={{ marginTop: 10 }}>
       <Card className="container" variant="outlined">
         <CardContent>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h4" gutterBottom>
             Visa Details
           </Typography>
 
