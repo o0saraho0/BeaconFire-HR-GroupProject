@@ -160,14 +160,17 @@ export class HousingManagementComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
+      console.log("Dialog result:", result);
       if (result) {
         this.http.post<{ message: string, house: House }>('http://localhost:3000/api/houses', result).subscribe({
           next: (response) => {
             this.houses.push(response.house);
+            this.loadHouses()
             this.snackBar.open('House added successfully', 'Close', { duration: 3000 });
           },
           error: (error) => {
             console.error('Error adding house:', error);
+            this.loadHouses()
             this.snackBar.open('Error adding house', 'Close', { duration: 3000 });
           }
         });

@@ -20,7 +20,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>ZIP</mat-label>
-      <input matInput formControlName="zip" required>
+      <input matInput formControlName="zip" required pattern="^[0-9]{5}$">
     </mat-form-field>
 
     <!-- Landlord Section -->
@@ -35,7 +35,7 @@
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Phone Number</mat-label>
-      <input matInput formControlName="landlordPhone" required>
+      <input matInput formControlName="landlordPhone" required pattern="^\d{10}$">
     </mat-form-field>
     <mat-form-field appearance="fill">
       <mat-label>Email</mat-label>
