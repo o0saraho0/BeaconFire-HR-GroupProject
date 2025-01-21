@@ -826,7 +826,6 @@ const Application = () => {
               name="visaType"
               value={formData.visaType}
               onChange={(e) => {
-                // Clear any existing non-citizen visa values when switching to citizen status
                 setFormData((prev) => ({
                   ...prev,
                   visaType: e.target.value,
@@ -912,7 +911,7 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
-              error={formData.visaEndDate && formData.visaStartDate > formData.visaEndDate}
+              error={!!(formData.visaEndDate && formData.visaStartDate > formData.visaEndDate)}
               helperText={formData.visaEndDate && formData.visaStartDate > formData.visaEndDate ?
                 "Start date must be before end date" : ""}
               sx={{
@@ -931,7 +930,7 @@ const Application = () => {
               fullWidth
               required
               margin="normal"
-              error={formData.visaStartDate && formData.visaStartDate > formData.visaEndDate}
+              error={!!(formData.visaStartDate && formData.visaStartDate > formData.visaEndDate)}
               helperText={formData.visaStartDate && formData.visaStartDate > formData.visaEndDate ?
                 "End date must be after start date" : ""}
               sx={{
