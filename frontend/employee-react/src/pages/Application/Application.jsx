@@ -42,7 +42,7 @@ const Application = () => {
   useEffect(() => {
     console.log('Current invalid fields:', invalidFields.length);
     console.log('Current invalid fields:', invalidFields);
-
+    console.log("uploaded driver license", uploadedDriverLicense)
   }, [invalidFields]);
   const [page, setPage] = useState(1);
   const totalPages = 3;
@@ -241,9 +241,15 @@ const Application = () => {
           setFeedback(response.data.application.feedback);
           setFormData(mappedData);
 
-          setProfilePicture(response.data.application.profile_picture_url || "");
-          setDriverLicense(response.data.application.driver_licence_url || "");
-          setWorkAuth(response.data.application.work_auth_url || "");
+          if (response.data.application.profile_picture_url) {
+            setProfilePicture("Profile picture uploaded");
+          }
+          if (response.data.application.driver_licence_url) {
+            setDriverLicense("Driver license uploaded");
+          }
+          if (response.data.application.work_auth_url) {
+            setWorkAuth("Work authorization uploaded");
+          }
 
           console.log(
             "formdata after getting respone from onboarding",
@@ -371,7 +377,6 @@ const Application = () => {
             ...prevData,
             profilePicture: fileUrl,
           }));
-          console.log("profile url", fileUrl);
           break;
         case "driversLicenseFile":
           setDriverLicense(fileUrl);
@@ -382,6 +387,7 @@ const Application = () => {
               driverLicense: fileUrl,
             },
           }));
+          console.log("driver license url", uploadedDriverLicense);
           break;
         case "workAuthorizationFile":
           setWorkAuth(fileUrl);
@@ -1009,7 +1015,7 @@ const Application = () => {
               />
             </Button>
             {uploadedDriverLicense && (
-              <Typography variant="body2" style={{ marginTop: "8px" }}>
+              <Typography variant="body2">
                 {uploadedDriverLicense}
               </Typography>
             )}
