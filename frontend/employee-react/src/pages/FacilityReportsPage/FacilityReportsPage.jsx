@@ -125,8 +125,8 @@ const FacilityReportsPage = () => {
   }
 
   return (
-    <Container style={{ marginTop: "10vh" }}>
-      <Typography variant="h4" gutterBottom>
+    <Container style={{ marginTop: "5vh" }} className="facility-containter">
+      <Typography variant="h4" gutterBottom align="center">
         Facility Reports
       </Typography>
 
@@ -140,7 +140,7 @@ const FacilityReportsPage = () => {
       </Button>
 
       {reports.length > 0 ? (
-        <TableContainer component={Paper}>
+        <TableContainer component={Paper} className="facility-report-table">
           <Table>
             <TableHead>
               <TableRow>
