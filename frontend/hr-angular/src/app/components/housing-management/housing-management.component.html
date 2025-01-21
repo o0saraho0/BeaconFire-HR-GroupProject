@@ -11,24 +11,31 @@
     <mat-card *ngFor="let house of houses" class="house-card">
       <mat-card-header>
         <mat-card-title>
-          {{house.address.building}} {{house.address.street}}, 
-          {{house.address.city}}, {{house.address.state}} {{house.address.zip}}
+          {{ house.address.building }} {{ house.address.street }},
+          {{ house.address.city }}, {{ house.address.state }}
+          {{ house.address.zip }}
         </mat-card-title>
         <mat-card-subtitle>
-          Residents: {{house.tenants.length}}
+          Residents: {{ house.tenants.length }}
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
         <div class="landlord-info">
           <h3>Landlord Information</h3>
-          <p>Name: {{house.landlord.first_name}} {{house.landlord.last_name}}</p>
-          <p>Phone: {{house.landlord.phone_number}}</p>
-          <p>Email: {{house.landlord.email}}</p>
+          <p>
+            Name: {{ house.landlord.first_name }} {{ house.landlord.last_name }}
+          </p>
+          <p>Phone: {{ house.landlord.phone_number }}</p>
+          <p>Email: {{ house.landlord.email }}</p>
         </div>
 
-        <button mat-button color="primary" (click)="toggleHouseDetails(house._id)">
-          {{expandedHouseId === house._id ? 'Hide Details' : 'Show Details'}}
+        <button
+          mat-button
+          color="primary"
+          (click)="toggleHouseDetails(house._id)"
+        >
+          {{ expandedHouseId === house._id ? "Hide Details" : "Show Details" }}
         </button>
 
         <div *ngIf="expandedHouseId === house._id" class="house-details">
@@ -36,14 +43,13 @@
             <mat-tab label="Facility Information">
               <div class="facility-info">
                 <h4>Inventory</h4>
-                <p>Beds: {{house.beds}}</p>
-                <p>Mattresses: {{house.mattresses}}</p>
-                <p>Tables: {{house.tables}}</p>
-                <p>Chairs: {{house.chairs}}</p>
+                <p>Beds: {{ house.beds }}</p>
+                <p>Mattresses: {{ house.mattresses }}</p>
+                <p>Tables: {{ house.tables }}</p>
+                <p>Chairs: {{ house.chairs }}</p>
               </div>
 
               <div class="reports-section">
-                <h4>Facility Reports</h4>
                 <!-- <mat-paginator [length]="house.reports?.length || 0"
                              [pageSize]="5"
                              [pageSizeOptions]="[3, 5]">
@@ -76,40 +82,54 @@
                     </div>
                   </mat-expansion-panel>
                 </mat-accordion> -->
-                <button mat-raised-button color="primary" [routerLink]="['/facility-reports', house._id]">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  [routerLink]="['/facility-reports', house._id]"
+                >
                   View All Facility Reports
                 </button>
               </div>
             </mat-tab>
 
-          <mat-tab label="Employee Information">
-  <mat-list>
-    <mat-list-item *ngFor="let tenantId of house.tenants" class="tenant-item">
-      <div *ngIf="isString(tenantId) && !getTenantDetails(tenantId)" class="loading-tenant">
-        Loading tenant information...
-      </div>
-      
-      <div class="tenant-details" *ngIf="getTenantDetails(tenantId) as tenant">
-        <p mat-line>
-          <strong>Name: </strong>
-          <a [routerLink]="['/employee-profiles', tenantId]">
-            {{getTenantDisplayName(tenant)}}
-          </a>
-        </p>
-        <p mat-line>
-          <strong>Phone: </strong>{{tenant.cell_phone || 'N/A'}}
-        </p>
-        <p mat-line>
-          <strong>Email: </strong>{{tenant.user_id?.email || 'N/A'}}
-        </p>
-        <p mat-line>
-          <strong>Car: </strong>{{getCarInfo(tenant)}}
-        </p>
-      </div>
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </mat-list>
-</mat-tab>
+            <mat-tab label="Employee Information">
+              <mat-list>
+                <mat-list-item
+                  *ngFor="let tenantId of house.tenants"
+                  class="tenant-item"
+                >
+                  <div
+                    *ngIf="isString(tenantId) && !getTenantDetails(tenantId)"
+                    class="loading-tenant"
+                  >
+                    Loading tenant information...
+                  </div>
+
+                  <div
+                    class="tenant-details"
+                    *ngIf="getTenantDetails(tenantId) as tenant"
+                  >
+                    <p mat-line>
+                      <strong>Name: </strong>
+                      <a [routerLink]="['/employee-profiles', tenantId]">
+                        {{ getTenantDisplayName(tenant) }}
+                      </a>
+                    </p>
+                    <p mat-line>
+                      <strong>Phone: </strong>{{ tenant.cell_phone || "N/A" }}
+                    </p>
+                    <p mat-line>
+                      <strong>Email: </strong
+                      >{{ tenant.user_id?.email || "N/A" }}
+                    </p>
+                    <p mat-line>
+                      <strong>Car: </strong>{{ getCarInfo(tenant) }}
+                    </p>
+                  </div>
+                  <mat-divider></mat-divider>
+                </mat-list-item>
+              </mat-list>
+            </mat-tab>
           </mat-tab-group>
         </div>
       </mat-card-content>

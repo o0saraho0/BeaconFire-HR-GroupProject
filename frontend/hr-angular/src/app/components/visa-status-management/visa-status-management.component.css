@@ -41,3 +41,8 @@ table {
 p {
   margin-left: 50px;
 }
+
+button {
+  margin: 2px;
+  width: 100px;
+}
